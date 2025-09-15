@@ -1,0 +1,105 @@
+/*
+ * LYT Forms
+ */
+@use "../partials/variables" as vars;
+
+$lyt-input-validation-height: 35px;
+
+/*
+ * Form
+ */
+.lyt-c-form__body {
+    margin-top: vars.$lyt-gutter;
+}
+
+// Form input
+
+.lyt-c-form-input-group {
+    position: relative;
+    
+    // Modern Ionic form inputs are wrapped in ion-item
+    ion-item {
+        --background: transparent;
+        --border-color: vars.$lyt-color-white; // Use CSS variable for the border
+        --border-width: 0 0 1px 0; // Set bottom border only
+        --padding-start: 0;
+        --inner-padding-end: 0;
+
+        // Old ion-label stacked is now a slot on ion-item
+        ion-label[position="stacked"] {
+            // This is the new way to style stacked labels.
+            // You may need to adjust the styles to match your design.
+            transform: translateY(-50%);
+        }
+
+        // To style the input's placeholder
+        ion-input {
+            &::part(native) {
+                font-weight: 300;
+            }
+            &::part(placeholder) {
+                color: vars.$color-webkit-text-fill;
+            }
+        }
+    }
+}
+
+// Form validation
+
+.lyt-c-form-input-validation {
+    position: absolute;
+    bottom: 0; // Change to bottom: 0 to position it below the input
+    left: 0;
+    z-index: 1;
+    font-size: vars.$font-size-xs;
+    display: flex;
+    align-items: center;
+    height: $lyt-input-validation-height;
+    width: 100%;
+    color: vars.$color-warning;
+
+    .lyt-c-form-input-validation__icon {
+        margin-right: vars.$lyt-gutter-025;
+    }
+
+    .lyt-c-form-input-validation__content {
+        margin: 0;
+    }
+}
+
+// Form footer
+
+.lyt-c-form-footer {
+    display: flex;
+    align-items: center;
+    margin-top: vars.$lyt-gutter-15;
+}
+
+.lyt-c-form-footer__content {
+    margin-right: vars.$lyt-gutter-05;
+    font-size: vars.$font-size-sm;
+}
+
+.lyt-c-form-footer__action {
+    flex-grow: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
+// Form preview component
+
+.lyt-c-form-preview__group {
+    margin-top: vars.$lyt-gutter-15;
+}
+
+.lyt-c-form-preview__label {
+    text-transform: uppercase;
+    font-size: vars.$font-size-sm;
+    font-weight: 400;
+}
+
+.lyt-c-form-preview__content {
+    font-size: vars.$font-size-xl;
+    font-weight: 400;
+    line-height: 1.6;
+}

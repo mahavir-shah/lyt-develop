@@ -1,0 +1,36 @@
+<navbar [title]="'bluetooth.title' | translate | uppercase"
+        [hideBackButton]="true"
+        [showLogo]="true">
+</navbar>
+
+<ion-content>
+    <div class="lyt-c-page-wrapper lyt-c-page-wrapper--has-navbar">
+        <div class="lyt-l-cross-app">
+            <div class="lyt-l-cross-app__heading">
+                <h2 class="lyt-c-heading lyt-c-heading--no-transform">{{ 'bluetooth.connection_failed.title' | translate }}</h2>
+                <p class="lyt-c-heading-description">
+                    {{ 'bluetooth.connection_failed.info' | translate }}
+                </p>
+            </div>
+            <div class="lyt-l-cross-app__body">
+                <div class="lyt-c-center-element">
+                    <div class="lyt-c-icon--circled lyt-c-icon--lg lyt-c-bluetooth-failed">
+                        <svg class="lyt-c-icon lyt-c-icon--bluetooth" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 14.82 30"><title>bluetooth</title><path id="icons8-bluetooth" d="M14.84,1V13.85L9.48,8.48l-.89.88,6.25,6.26v.76L8.59,22.64l.89.88,5.36-5.37V31l1.07-1L23,22.88l.42-.45L23,22l-6-6,6-6,.42-.44L23,9.12,15.91,2Zm1.25,3,5.57,5.57-5.55,5.55,0,0Zm0,12.88,5.55,5.55L16.09,28V16.9Z" transform="translate(-8.59 -1)"/></svg>
+                        <svg class="lyt-c-icon lyt-c-icon--minus-circle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30"><title>minus-circle</title><path d="M16,1A15,15,0,1,0,31,16,15,15,0,0,0,16,1Zm7.87,15.79a.74.74,0,0,1-.79.78H8.92a.74.74,0,0,1-.79-.78V15.21a.74.74,0,0,1,.79-.78H23.08a.74.74,0,0,1,.79.78Z" transform="translate(-1 -1)"/></svg>
+                    </div>
+                </div>
+                <div class="lyt-c-turn-on-bluetooth">
+                    <div class="lyt-c-action-buttons" *ngIf="platform.is('android')">
+                        <button class="lyt-btn lyt-btn--primary"
+                                (click)="showBluetoothSettings()">
+                            {{ 'bluetooth.turn_on.android' | translate | uppercase }}
+                        </button>
+                    </div>
+                    <div class="lyt-c-info" *ngIf="platform.is('ios')">
+                        {{ 'bluetooth.turn_on.ios' | translate }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ion-content>

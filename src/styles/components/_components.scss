@@ -1,0 +1,295 @@
+/*
+ * LYT Components
+ */
+@use "../partials/variables" as vars;
+@use '../partials/mixins' as *;
+
+.lyt-c-logo {
+    // This class is likely for an SVG. fill: currentColor is still valid.
+    color: var(--lyt-color-white, #fff);
+    height: 30px;
+    fill: currentColor;
+}
+
+.lyt-c-logo-center {
+    display: flex;
+    justify-content: center;
+
+    // Use a custom class or component for the logo icon
+    .lyt-c-icon-logo {
+        height: 90px;
+    }
+}
+
+.lyt-c-page-wrapper {
+    // Ion-content handles padding now, this class might be redundant
+    height: 100%;
+    // Padding should use CSS variables
+    padding: var(--lyt-gutter-15);
+
+    // This class is now typically applied to ion-content or a wrapper inside it.
+    // The padding calculation needs to be updated with CSS variables.
+    &.lyt-c-page-wrapper--has-navbar {
+        padding-top: calc(var(--lyt-gutter-15) + var(--lyt-toolbar-height, 70px));
+    }
+
+    &.lyt-c-page-wrapper--padding-stack {
+        padding-top: calc(var(--lyt-gutter, 20px) + var(--lyt-toolbar-height, 70px));
+        padding-left: var(--lyt-gutter, 20px);
+        padding-right: var(--lyt-gutter, 20px);
+        padding-bottom: var(--lyt-gutter, 20px);
+    }
+}
+
+.lyt-c-icon {
+    // This is for a general SVG icon, not an ion-icon
+    display: inline-flex;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    fill: var(--lyt-color-text);
+}
+
+// For ion-icon, use the size attribute or style the component directly.
+// The font-size property is now handled by the size attribute.
+.lyt-c-icon-sm {
+    font-size: 20px;
+}
+
+.lyt-c-icon-lg {
+    font-size: 36px;
+}
+
+// ion-item and ion-label no longer have a :visited state that can be targeted easily.
+// This is for custom <a> tags or router links.
+.lyt-c-link-clear {
+    color: var(--lyt-color-text);
+    text-decoration: none;
+}
+
+.lyt-c-link {
+    color: var(--lyt-color-secondary);
+    text-decoration: none;
+}
+
+.lyt-c-edit-account-form {
+    // This looks like it's compensating for a component's default margin.
+    // It's a valid approach but consider if a different layout structure would be cleaner.
+    margin-top: calc(-1 * var(--lyt-gutter, 20px));
+}
+
+.lyt-c-heading {
+    margin-top: var(--lyt-gutter-15, 30px);
+    font-size: var(--lyt-font-size-xl, 20px);
+    text-transform: uppercase;
+
+    &.lyt-c-heading--no-transform {
+        text-transform: none;
+    }
+
+    .lyt-l-cross-app &,
+    .lyt-c-action-screen & {
+        text-align: center;
+        font-weight: 400;
+    }
+}
+
+.lyt-c-heading-description {
+    color: var(--lyt-color-white, #fff);
+    line-height: 1.7;
+    margin: 0 0 var(--lyt-gutter-05, 10px);
+    font-weight: 100;
+
+    .lyt-l-cross-app &,
+    .lyt-c-action-screen & {
+        text-align: center;
+        color: var(--lyt-color-gray, #8c8c8c);
+        font-weight: 400;
+    }
+}
+
+.lyt-c-center-element {
+    // @include flex-center; is a mixin that is still valid.
+    min-height: 200px;
+    font-size: var(--lyt-font-size-stack, 14px);
+
+    &.lyt-c-center-element--align-start {
+        align-items: flex-start;
+    }
+}
+
+.lyt-c-list {
+    // This class likely styles an ion-list or a custom list.
+    flex-basis: 100%;
+    margin-top: var(--lyt-gutter, 20px);
+}
+
+.lyt-c-action-screen__icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.lyt-c-action-screen__action-buttons {
+    margin-top: var(--lyt-gutter-2, 40px);
+}
+
+.lyt-c-action-buttons {
+    display: flex;
+    justify-content: center;
+
+    // Use CSS variables on ion-button to control its size and spacing.
+    ion-button {
+        --max-width: 75vw;
+        --flex-basis: 50%;
+        flex-grow: 1;
+
+        @media (orientation: landscape) {
+            --max-width: 300px;
+        }
+    }
+    
+    // For spacing between buttons, use `ion-buttons` with slots
+    // or a more modern gap property.
+}
+
+.lyt-c-turn-on-bluetooth {
+    margin-top: var(--lyt-gutter-15, 30px);
+}
+
+.lyt-c-info {
+    text-align: center;
+    color: var(--lyt-color-gray, #8c8c8c);
+    font-weight: 400;
+}
+
+.lyt-c-light-detector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.lyt-c-light-detector__title {
+    font-weight: 400;
+    font-size: var(--lyt-font-size-sm, 12px);
+}
+
+.lyt-c-light-detector__timeout {
+    font-weight: 400;
+    font-size: 40px;
+    color: var(--lyt-color-secondary, #8ec140);
+    margin: var(--lyt-gutter-05, 10px) 0 var(--lyt-gutter, 20px);
+}
+
+.lyt-c-device-connected-action {
+    @include flex-center;
+    width: 100%;
+    align-self: stretch;
+    position: relative;
+}
+
+// Rgb component
+
+.lyt-c-rgb,
+.lyt-c-rgb__color {
+    display: flex;
+    align-items: center;
+}
+
+.lyt-c-rgb {
+    min-width: 135px;
+    justify-content: flex-end;
+}
+
+.lyt-c-rgb__color {
+    margin-right: var(--lyt-gutter-025, 5px);
+}
+
+.lyt-c-rgb__value {
+    color: var(--lyt-color-gray, #8c8c8c);
+    font-weight: 100;
+}
+
+.lyt-c-icon--circled {
+    position: relative;
+    border: 2px solid var(--lyt-color-white, #fff);
+    border-radius: 50%;
+}
+
+// You can use a single class and modify with a size attribute
+// or use CSS variables on the component itself.
+.lyt-c-icon--sm {
+    width: 16px;
+    height: 16px;
+}
+
+.lyt-c-icon--md {
+    width: 50px;
+    height: 50px;
+}
+
+.lyt-c-icon--lg {
+    width: 130px;
+    height: 130px;
+}
+
+.lyt-c-icon--logo {
+    width: 85px;
+    height: 85px;
+}
+
+.lyt-c-bluetooth-failed {
+    position: relative;
+    display: block;
+
+    .lyt-c-icon--bluetooth {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 60px;
+        height: 60px;
+    }
+
+    .lyt-c-icon--minus-circle {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        color: var(--color-warning);
+        background-color: var(--lyt-color-white, #fff);
+        border-radius: 50%;
+        border: 2px solid var(--lyt-color-white, #fff);
+    }
+}
+
+.lyt-u-text--default {
+    color: var(--lyt-color-gray, #8c8c8c);
+}
+
+.lyt-u-text--green {
+    color: var(--lyt-color-secondary, #8ec140);
+}
+
+.lyt-u-text--danger {
+    color: var(--color-warning);
+}
+
+.lyt-c-preset-color {
+    display: inline-flex;
+    width: 22px;
+    height: 22px;
+    border-radius: var(--lyt-radius-round, 50%);
+    margin-right: var(--lyt-gutter-05, 10px);
+}
+
+.lyt-c-preset-cancel {
+    padding-bottom: var(--lyt-gutter-075, 15px);
+
+    .lyt-c-heading {
+        font-weight: normal;
+        text-align: center;
+        text-transform: none;
+        padding: var(--lyt-gutter-05, 10px) 0;
+        margin: var(--lyt-gutter-05, 10px) 0;
+    }
+}

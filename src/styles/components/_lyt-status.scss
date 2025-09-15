@@ -1,0 +1,28 @@
+/*
+ * LYT Status
+ */
+@use "../partials/variables" as vars; 
+
+.lyt-c-status {
+    display: flex;
+    align-items: center;
+}
+
+.lyt-c-status__icon {
+    display: flex;
+    margin-right: vars.$lyt-gutter-025;
+}
+
+.lyt-c-status__content {
+    line-height: 1;
+    font-size: vars.$font-size-sm;
+    font-weight: 400;
+}
+
+.lyt-c-status--avaliable {
+    color: vars.$lyt-color-secondary;
+}
+
+.lyt-c-status--unavaliable {
+    color: vars.$color-warning;
+}

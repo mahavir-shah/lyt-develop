@@ -1,0 +1,226 @@
+<navbar [title]="'color_picker.title' | translate | uppercase" [hideBackButton]="true" [showLogo]="true">
+</navbar>
+
+<ion-content>
+    <div class="lyt-c-page-wrapper lyt-c-page-wrapper--has-navbar lyt-c-page-wrapper--padding-stack">
+        <div class="lyt-l-main lyt-l-main--middle-grow">
+            <div class="lyt-l-main__top">
+                <div class="lyt-c-device-info">
+                    <div class="lyt-c-device-info__left">
+                        <div class="lyt-c-device-info__name">
+                            {{ connectedDevice.name }}
+                        </div>
+                        <div class="lyt-c-device-info__status">
+                            <!--Switch classes between .lyt-c-status--avaliable or .lyt-c-status--unavaliable depending on status-->
+                            <div class="lyt-c-status lyt-c-status--avaliable">
+                                <div class="lyt-c-status__icon">
+                                    <!--this icon also depends on status-->
+                                    <ion-icon class="lyt-c-icon-sm" name="checkmark-circle-outline"></ion-icon>
+                                    <!--<ion-icon class="lyt-c-icon-sm" name="ios-close-circle-outline"></ion-icon>-->
+                                </div>
+                                <div class="lyt-c-status__content">
+                                    {{ 'color_picker.available' | translate }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lyt-c-device-info__right">
+                        <div class="lyt-c-device-info__action">
+                            <button class="lyt-btn-quiet lyt-btn-quiet--primary lyt-btn-quiet--sm lyt-btn-quiet--font-regular"
+                                (click)="disconnect()">
+                                {{ 'color_picker.disconnect' | translate }}
+                            </button>
+                        </div>
+                        <div class="lyt-c-device-info__action">
+                            <button class="lyt-btn-quiet lyt-btn-quiet--primary lyt-btn-quiet--sm lyt-btn-quiet--font-regular"
+                                (click)="goToDebugPage()">
+                                Debug
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="lyt-l-main__middle">
+                <div class="lyt-c-color-picker-wrapper">
+                    <div class="lyt-c-color-picker">
+                        <div class="lyt-c-color-picker-brightness" style="width: calc(229px + 24%);">
+                            <!-- This should dynamically change value -->
+                            <div>
+                                <span class="lyt-c-color-picker__icon-wrapper">
+                                    <span class="lyt-c-color-picker__icon">
+                                        <ion-icon name="sunny"></ion-icon>
+                                    </span>
+                                </span>
+                            </div>
+                            <div id="left-slider-dot-10">
+                                <span></span>
+                            </div>
+                            <div id="left-slider-dot-9">
+                                <span></span>
+                            </div>
+                            <div id="left-slider-dot-8">
+                                <span></span>
+                            </div>
+                            <div id="left-slider-dot-7">
+                                <span></span>
+                            </div>
+                            <div id="left-slider-dot-6">
+                                <span></span>
+                            </div>
+                            <div id="left-slider-dot-5">
+                                <span></span>
+                            </div>
+                            <div id="left-slider-dot-4">
+                                <span></span>
+                            </div>
+                            <div id="left-slider-dot-3">
+                                <span></span>
+                            </div>
+                            <div id="left-slider-dot-2">
+                                <span></span>
+                            </div>
+                            <div id="left-slider-dot-1">
+                                <span></span>
+                            </div>
+                        </div>
+
+                        <div class="lyt-c-color-picker-contrast" style="width: calc(229px + 24%);">
+                            <!-- This should dynamically change value -->
+                            <div>
+                                <span class="lyt-c-color-picker__icon-wrapper">
+                                    <span class="lyt-c-color-picker__icon">
+                                        <svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                                            xmlns:xlink="http://www.w3.org/1999/xlink">
+                                            <!-- Generator: Sketch 52.1 (67048) - http://www.bohemiancoding.com/sketch -->
+                                            <title>saturation-icon</title>
+                                            <desc>Created with Sketch.</desc>
+                                            <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                                <g id="saturation-icon" fill="#FFFFFF">
+                                                    <path d="M12.0005004,3.37368256 C13.2577196,4.79845893 17.3925979,9.81220157 17.9136466,14.5178552 C16.5180576,15.5426565 15.3429954,15.8237201 14.3722449,15.7004845 C12.3021032,15.4377981 11.5994442,13.4844059 9.53686959,13.2379347 C8.34775425,13.0952409 7.18674529,13.5838592 6.10681236,14.3816475 C6.69055989,9.72031538 10.7573343,4.78548676 12.0005004,3.37368256 M19.2867967,14.5977186 C18.7480443,8.36114811 12.6376373,1.87452379 12.3784906,1.60173776 L12,1.20506142 L11.6215094,1.60173776 C11.3623627,1.87566039 5.24740931,8.36683115 4.71433995,14.5897623 C4.6802417,14.8727778 4.65864614,15.1603397 4.65864614,15.4535847 C4.65864614,19.502184 7.95140077,22.7949386 12,22.7949386 C16.0485992,22.7949386 19.3413539,19.502184 19.3413539,15.4535847 C19.3413539,15.1637496 19.3197583,14.8784609 19.2867967,14.5977186"
+                                                        id="Fill-1"></path>
+                                                </g>
+                                            </g>
+                                        </svg>
+                                    </span>
+                                </span>
+                            </div>
+                            <div id="right-slider-dot-10">
+                                <span></span>
+                            </div>
+                            <div id="right-slider-dot-9">
+                                <span></span>
+                            </div>
+                            <div id="right-slider-dot-8">
+                                <span></span>
+                            </div>
+                            <div id="right-slider-dot-7">
+                                <span></span>
+                            </div>
+                            <div id="right-slider-dot-6">
+                                <span></span>
+                            </div>
+                            <div id="right-slider-dot-5">
+                                <span></span>
+                            </div>
+                            <div id="right-slider-dot-4">
+                                <span></span>
+                            </div>
+                            <div id="right-slider-dot-3">
+                                <span></span>
+                            </div>
+                            <div id="right-slider-dot-2">
+                                <span></span>
+                            </div>
+                            <div id="right-slider-dot-1">
+                                <span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <color-wheel class="lyt-c-canvas" (didRelease)="changeDeviceColor()" (colorDidChange)="setColor($event)"
+                        (leftSliderDidChange)="setBrightnessLevel($event)" (rightSliderDidChange)="setSaturationLevel($event)">
+                    </color-wheel>
+
+                    <div class="lyt-u-absolute-center">
+                        <div class="lyt-c-circle-btn lyt-c-circle-btn--sm">
+                            <div class="lyt-c-circle lyt-c-circle--size-sm lyt-c-circle--rings-3 lyt-animate-circle-rings-3">
+                                <div class="lyt-c-circle__outside-03"></div>
+                                <div class="lyt-c-circle__outside-02"></div>
+                                <div class="lyt-c-circle__outside-01"></div>
+                                <div class="lyt-c-circle__main">
+                                    <button type="button" class="lyt-btn-circle-md" (click)="flash()">
+                                        {{ 'device_connected.flash.title' | translate | uppercase }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="lyt-l-main__bottom">
+                <div *ngIf="!preset" class="lyt-c-selected-color lyt-u-padding-v--05">
+                    <div class="lyt-c-selected-color__rgb">
+                        <div class="lyt-c-rgb">
+                            <div class="lyt-c-rgb__color">
+                                <span class="lyt-c-rgb__letter">R</span>
+                                <span class="lyt-c-rgb__value">{{ adjustedColor.r }}</span>
+                            </div>
+                            <div class="lyt-c-rgb__color">
+                                <span class="lyt-c-rgb__letter">G</span>
+                                <span class="lyt-c-rgb__value">{{ adjustedColor.g }}</span>
+                            </div>
+                            <div class="lyt-c-rgb__color">
+                                <span class="lyt-c-rgb__letter">B</span>
+                                <span class="lyt-c-rgb__value">{{ adjustedColor.b }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div *ngIf="preset" class="lyt-c-preset-cancel">
+                    <h2 class="lyt-c-heading">Preset Activated</h2>
+                    <div class="lyt-c-action-buttons">
+                        <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg" (click)="deactivatePreset()">
+                            {{ 'common.cancel' | translate }}
+                        </button>
+                    </div>
+                </div>
+                <div *ngIf="!preset" class="lyt-c-view-presets" (click)="goToPresetsPage()">
+                    <div class="lyt-c-view-presets__icon-left">
+                        <svg class="lyt-c-icon" width="26px" height="26px" viewBox="0 0 26 26" version="1.1" xmlns="http://www.w3.org/2000/svg"
+                            xmlns:xlink="http://www.w3.org/1999/xlink">
+                            <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                <g id="iPhone-7-Copy-23" transform="translate(-31.000000, -611.000000)" fill-rule="nonzero"
+                                    fill="#8EC140">
+                                    <g id="Group-4" transform="translate(31.000000, 611.000000)">
+                                        <g id="icons8-vertical_settings_mixer">
+                                            <path d="M3.33831522,0.00255050503 C3.31402839,0.00696180738 3.28974213,0.013577914 3.26766304,0.0201945852 C3.00492513,0.0797434971 2.81946317,0.315733211 2.82608696,0.584805152 L2.82608696,4.53707912 L1.69565217,4.53707912 C0.766134652,4.53707912 0,5.30239124 0,6.23091082 L0,7.36013195 C0,8.28865153 0.766134652,9.05396365 1.69565217,9.05396365 L5.08695652,9.05396365 C6.01647404,9.05396365 6.7826087,8.28865153 6.7826087,7.36013195 L6.7826087,6.23091082 C6.7826087,5.30239124 6.01647404,4.53707912 5.08695652,4.53707912 L3.95652174,4.53707912 L3.95652174,0.584805152 C3.96314552,0.421597692 3.89690883,0.265006339 3.7798913,0.154730556 C3.66066604,0.0422499678 3.49949035,-0.0128882063 3.33831522,0.00255050503 Z M12.9470109,0.00255050503 C12.922724,0.00696180738 12.8984378,0.013577914 12.8763587,0.0201945852 C12.6136208,0.0797434971 12.4281588,0.315733211 12.4347826,0.584805152 L12.4347826,16.393901 L11.3043478,16.393901 C10.3748303,16.393901 9.60869565,17.1592131 9.60869565,18.0877327 L9.60869565,19.2169538 C9.60869565,20.1454734 10.3748303,20.9107855 11.3043478,20.9107855 L14.6956522,20.9107855 C15.6251697,20.9107855 16.3913043,20.1454734 16.3913043,19.2169538 L16.3913043,18.0877327 C16.3913043,17.1592131 15.6251697,16.393901 14.6956522,16.393901 L13.5652174,16.393901 L13.5652174,0.584805152 C13.5718412,0.421597692 13.5056045,0.265006339 13.388587,0.154730556 C13.2693617,0.0422499678 13.108186,-0.0128882063 12.9470109,0.00255050503 Z M22.5557065,0.00255050503 C22.5314197,0.00696180738 22.5071334,0.013577914 22.4850543,0.0201945852 C22.2223164,0.0797434971 22.0368545,0.315733211 22.0434783,0.584805152 L22.0434783,6.23091082 L20.9130435,6.23091082 C19.983526,6.23091082 19.2173913,6.99622294 19.2173913,7.92474252 L19.2173913,9.05396365 C19.2173913,9.98248323 19.983526,10.7477953 20.9130435,10.7477953 L24.3043478,10.7477953 C25.2338653,10.7477953 26,9.98248323 26,9.05396365 L26,7.92474252 C26,6.99622294 25.2338653,6.23091082 24.3043478,6.23091082 L23.173913,6.23091082 L23.173913,0.584805152 C23.1805368,0.421597692 23.1143001,0.265006339 22.9972826,0.154730556 C22.8780573,0.0422499678 22.7168817,-0.0128882063 22.5557065,0.00255050503 Z M1.69565217,5.66630025 L5.08695652,5.66630025 C5.40709904,5.66630025 5.65217391,5.911112 5.65217391,6.23091082 L5.65217391,7.36013195 C5.65217391,7.67993076 5.40709904,7.92474252 5.08695652,7.92474252 L1.69565217,7.92474252 C1.37550965,7.92474252 1.13043478,7.67993076 1.13043478,7.36013195 L1.13043478,6.23091082 C1.13043478,5.911112 1.37550965,5.66630025 1.69565217,5.66630025 Z M20.9130435,7.36013195 L24.3043478,7.36013195 C24.6244903,7.36013195 24.8695652,7.6049437 24.8695652,7.92474252 L24.8695652,9.05396365 C24.8695652,9.37376246 24.6244903,9.61857422 24.3043478,9.61857422 L20.9130435,9.61857422 C20.592901,9.61857422 20.3478261,9.37376246 20.3478261,9.05396365 L20.3478261,7.92474252 C20.3478261,7.6049437 20.592901,7.36013195 20.9130435,7.36013195 Z M2.82608696,9.61857422 L2.82608696,13.4649837 C2.82167148,13.5002719 2.82167148,13.53556 2.82608696,13.5708482 L2.82608696,25.4276701 C2.82387922,25.630577 2.92985748,25.8202511 3.10648791,25.9239097 C3.28311835,26.0253634 3.49949035,26.0253634 3.67612078,25.9239097 C3.85275122,25.8202511 3.95872948,25.630577 3.95652174,25.4276701 L3.95652174,13.5708482 C3.96093778,13.53556 3.96093778,13.5002719 3.95652174,13.4649837 L3.95652174,9.61857422 L2.82608696,9.61857422 Z M22.0434783,11.3124059 L22.0434783,15.1588154 C22.0390628,15.1941036 22.0390628,15.2293917 22.0434783,15.2646799 L22.0434783,25.4276701 C22.0412705,25.630577 22.1472488,25.8202511 22.3238792,25.9239097 C22.5005097,26.0253634 22.7168817,26.0253634 22.8935121,25.9239097 C23.0701425,25.8202511 23.1761208,25.630577 23.173913,25.4276701 L23.173913,15.2646799 C23.1783291,15.2293917 23.1783291,15.1941036 23.173913,15.1588154 L23.173913,11.3124059 L22.0434783,11.3124059 Z M11.3043478,17.5231221 L14.6956522,17.5231221 C15.0157947,17.5231221 15.2608696,17.7679339 15.2608696,18.0877327 L15.2608696,19.2169538 C15.2608696,19.5367527 15.0157947,19.7815644 14.6956522,19.7815644 L11.3043478,19.7815644 C10.9842053,19.7815644 10.7391304,19.5367527 10.7391304,19.2169538 L10.7391304,18.0877327 C10.7391304,17.7679339 10.9842053,17.5231221 11.3043478,17.5231221 Z M12.4347826,21.4753961 L12.4347826,22.4987528 C12.4303671,22.5340409 12.4303671,22.5693291 12.4347826,22.6046172 L12.4347826,25.4276701 C12.4325749,25.630577 12.5385531,25.8202511 12.7151836,25.9239097 C12.891814,26.0253634 13.108186,26.0253634 13.2848164,25.9239097 C13.4614469,25.8202511 13.5674251,25.630577 13.5652174,25.4276701 L13.5652174,22.6046172 C13.5696334,22.5693291 13.5696334,22.5340409 13.5652174,22.4987528 L13.5652174,21.4753961 L12.4347826,21.4753961 Z"
+                                                id="Shape"></path>
+                                        </g>
+                                    </g>
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+                    <div class="lyt-c-view-presets__text">
+                        {{ 'color_picker.view_presets' | translate }}
+                    </div>
+                    <div class="lyt-c-view-presets__icon-right">
+                        <svg class="lyt-c-icon lyt-c-icon--sm" width="12px" height="14px" viewBox="0 0 12 14" version="1.1"
+                            xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                            <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                <g id="iPhone-7-Copy-23" transform="translate(-321.000000, -618.000000)" fill-rule="nonzero"
+                                    fill="#8EC140">
+                                    <g id="Group-4" transform="translate(31.000000, 611.000000)">
+                                        <g id="icons8-play" transform="translate(290.000000, 7.000000)">
+                                            <polygon id="Shape" points="0 0 0 14 12 7"></polygon>
+                                        </g>
+                                    </g>
+                                </g>
+                            </g>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ion-content>

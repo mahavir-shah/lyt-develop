@@ -1,0 +1,83 @@
+/*
+ * LYT Variables
+ */
+
+
+/* Fonts */
+
+$font-size-xxl:     24px;
+$font-size-xl:      20px;
+$font-size-lg:      16px;
+$font-size-stack:   14px;
+$font-size-sm:      12px;
+$font-size-xs:      10px;
+
+
+
+/* Colors */
+
+$lyt-color-text:             #ffffff;
+$lyt-color-background:       #1d212a;
+
+
+$lyt-color-primary:          #ee384e;
+$lyt-color-primary-01:       #bc3343;
+$lyt-color-primary-02:       #812a38;
+$lyt-color-primary-03:       #632834;
+$lyt-color-primary-04:       #36222c;
+
+$lyt-color-secondary:        #8ec140;
+
+
+$lyt-color-white:            #ffffff;
+$lyt-color-gray:             #8c8c8c;
+$lyt-color-black:            #000000;
+
+$lyt-color-gray-dark:       #484848;
+/* Colors */
+
+$lyt-color-rings-bg-3-0:     $lyt-color-primary;
+$lyt-color-rings-bg-3-1:     #852a3b;
+$lyt-color-rings-bg-3-2:     #3e242f;
+
+/* Radius */
+
+$lyt-radius-xs:     3px;
+$lyt-radius-sm:     5px;
+$lyt-radius:       15px;
+$lyt-radius-lg:    20px;
+$lyt-radius-round:  50%;
+
+
+/* Spacings */
+
+$lyt-gutter:                  20px;
+$lyt-gutter-025:   $lyt-gutter*.25;
+$lyt-gutter-05:     $lyt-gutter*.5;
+$lyt-gutter-075:   $lyt-gutter*.75;
+$lyt-gutter-15:    $lyt-gutter*1.5;
+$lyt-gutter-2:       $lyt-gutter*2;
+$lyt-gutter-3:       $lyt-gutter*3;
+
+
+/* Navbar */
+
+$lyt-toolbar-height:           70px;
+$lyt-toolbar-background-color: transparent;
+
+
+/* Lyt circle */
+
+$lyt-circle-size-xs:                    42px; // submit button on login page
+$lyt-circle-size-sm:                    70px; // color picker center
+$lyt-circle-size-md:                   110px; // scan button
+$lyt-circle-size-lg:                    67vw; // background
+
+$lyt-circle-increment-coefficient:       0.5;
+$lyt-circle-increment-coefficient-sm:   0.33;
+
+$lyt-c-main-button-bazier:              .23,.32,.08,.18;
+
+
+$color-webkit-text-fill:     $lyt-color-white;
+$color-warning:              #ee384e;

@@ -1,0 +1,40 @@
+<navbar [title]="'presets.title' | translate | uppercase"
+        [hideBackButton]="false"
+        [hideSettingsButton]="true">
+</navbar>
+
+<ion-content>
+    <div class="lyt-c-page-wrapper lyt-c-page-wrapper--padding-stack lyt-c-page-wrapper--has-navbar">
+        <div class="lyt-l-cross-app lyt-l-cross-app--no-min-heading">
+            <div class="lyt-l-cross-app__heading">
+                <h2 class="lyt-c-heading lyt-c-heading--no-transform">{{ 'presets.choose_preset' | translate }}</h2>
+            </div>
+            <div class="lyt-l-cross-app__body">
+                <div class="lyt-c-center-element lyt-c-center-element--align-start">
+                    <div class="lyt-c-list">
+                        <ul class="lyt-c-item-list">
+                            <li *ngFor="let preset of presetService.presets">
+                                <!-- to be extracted to css -->
+                                <div class="lyt-c-item-title">
+                                    <div class="lyt-c-preset-color-wrapper">
+                                        <div class="lyt-c-preset-color"
+                                             *ngFor="let color of preset.colors"
+                                             [ngStyle]="{'background-color': color.getHexCode()}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="lyt-c-actions">
+                                    <button type="button"
+                                            class="lyt-btn lyt-btn--success"
+                                            (click)="activatePreset(preset)">
+                                        {{ 'common.start' | translate }}
+                                    </button>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ion-content>

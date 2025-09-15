@@ -1,0 +1,171 @@
+{
+  "common": {
+    "email": "Email",
+    "name": "Name",
+    "last_name": "Last Name",
+    "password": "Password",
+    "old_password": "Old password",
+    "new_password": "New password",
+    "confirm_password": "Re-type new password",
+    "cancel": "Cancel",
+    "start": "Start",
+    "confirm": "Confirm",
+    "submit": "Submit",
+    "edit": "Edit",
+    "done": "Done",
+    "ok": "OK",
+    "please_wait": "Please wait"
+  },
+  "log_in": {
+    "title": "Log In",
+    "invalid_credentials": "Your username or password is invalid",
+    "dont_have_an_account": "Don't have an account?"
+  },
+  "sign_up": {
+    "title": "Sign Up",
+    "first_name": "Name",
+    "last_name": "Last Name",
+    "already_have_an_account": "Already have an account?"
+  },
+  "forgot_password": {
+    "title": "Forgot password?",
+    "message": "Enter the address you used to sign up, and we will send you an Email containing instructions to reset your password.",
+    "alert": {
+      "fail": {
+        "title": "Failed to send email",
+        "message": "This email doesn't exist."
+      }
+    }
+  },
+  "reset_password": {
+    "title": "Reset password",
+    "alert": {
+      "success": {
+        "title": "Sucessfully updated password",
+        "message": "You've successfully updated your password."
+      },
+      "fail": {
+        "title": "Failed to update password",
+        "message": "This reset password link has expired. Please request a new one."
+      }
+    }
+  },
+  "confirmation_sent": {
+    "title": "Confirmation sent",
+    "message": "We have sent you password reset instructions to your email.",
+    "back_to_login": "Back to login"
+  },
+  "search_devices": {
+    "title": "Search For Your Device",
+    "scan": "Scan"
+  },
+  "light_director": {
+    "title": "Lyt Color Picker",
+    "timeout": "Timeout",
+    "disconnect": "Disconnect",
+    "unavailable": "Unavailable",
+    "info": "All LYT devices are currently under festival control."
+  },
+  "search": {
+    "in_progress": {
+      "title": "Searching LYTs",
+      "info": "Searching for available LYTs"
+    },
+    "success": {
+      "title": "List of LYT Devices",
+      "lyts_found_info": "LYT devices found",
+      "strongest_signal_info": "First device has the strongest signal"
+    },
+    "fail": {
+      "title": "List of LYT Devices",
+      "sorry": "Sorry...",
+      "info": "No LYT devices were detected, please try scanning again."
+    }
+  },
+  "connection_in_progress": {
+    "title": "Connecting to LYT",
+    "please_wait_info": "Trying to connect to your device.",
+    "connecting_info": "Connecting"
+  },
+  "color_picker": {
+    "title": "Lyt Color Picker",
+    "available": "Available",
+    "disconnect": "Disconnect",
+    "hex": "Hex",
+    "preset_activated": "Preset activated",
+    "view_presets": "View presets"
+  },
+  "presets": {
+    "title": "Presets",
+    "choose_preset": "Please choose a preset"
+  },
+  "account_settings": {
+    "title": "Account Settings",
+    "logout": "Logout",
+    "alert": {
+      "success": {
+        "title": "Sucessfully updated account",
+        "message": "You've successfully updated your account."
+      },
+      "fail": {
+        "title": "Failed to update account",
+        "message": "Something went wrong. Please try again."
+      }
+    }
+  },
+  "change_password": {
+    "title": "Change Password",
+    "alert": {
+      "success": {
+        "title": "Sucessfully changed password",
+        "message": "You've successfully changed your password."
+      },
+      "fail": {
+        "title": "Failed to change password",
+        "message": "Something went wrong. Please try again."
+      }
+    }
+  },
+  "device_connected": {
+    "title": "Check Connection",
+    "message": "Connected to LYT device",
+    "flash": {
+      "title": "Flash",
+      "info": "Use the flash feature to confirm you are connected to the right LYT device."
+    }
+  },
+  "bluetooth": {
+    "title": "Bluetooth",
+    "connection_failed": {
+      "title": "Bluetooth connection failed",
+      "info": "To run this application bluetooth must be turned on."
+    },
+    "turn_on": {
+      "android": "Turn On Bluetooth",
+      "ios": "Please enable Bluetooth from your settings."
+    }
+  },
+  "location_services_disabled": {
+    "title": "Location Services",
+    "enable": "Enable location services",
+    "info": "To run this application location services must be enabled."
+  },
+  "connection_failed": {
+    "title": "Check Connection",
+    "info": {
+      "title": "Connection Failed",
+      "message": " We were not able to connect to selected device. Please try again."
+    },
+    "action": {
+      "view_list": "View List",
+      "try_again": "Try Again"
+    }
+  },
+  "delete_account": {
+    "title": "Delete Account",
+    "alert": {
+      "title": "Delete LYT Account?",
+      "message": "Deleting your LYT account will prevent you from accessing your LYT device."
+    }
+  }
+}

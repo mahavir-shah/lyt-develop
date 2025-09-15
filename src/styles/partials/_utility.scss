@@ -1,0 +1,39 @@
+/*
+ * LYT Utility classes
+ */
+
+@use "./variables" as vars; 
+.lyt-u-padding-15 {
+    padding: vars.$lyt-gutter-15;
+}
+
+.lyt-u-padding-v {
+    padding: vars.$lyt-gutter 0;
+}
+
+.lyt-u-padding-v-15 {
+    padding: vars.$lyt-gutter-15 0;
+}
+
+.lyt-u-padding-v--05 {
+    padding: vars.$lyt-gutter-05 0;
+}
+
+.lyt-u-font-stack {
+    font-size: vars.$font-size-stack;
+}
+
+.lyt-u-font-sm {
+    font-size: vars.$font-size-sm;
+}
+
+.lyt-u-text--center {
+    text-align: center;
+}
+
+.lyt-u-absolute-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}

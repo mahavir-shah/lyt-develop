@@ -1,0 +1,211 @@
+// Ionic Variables and Theming. For more info, please see:
+// http://ionicframework.com/docs/v2/theming/
+
+// If you're importing other Ionic styles, they should look like this:
+// Try these paths first:
+@import '@ionic/angular/css/core.css';
+@import '@ionic/angular/css/normalize.css';
+@import '@ionic/angular/css/structure.css';
+@import '@ionic/angular/css/typography.css';
+@import '@ionic/angular/css/display.css';
+
+// For variables, try:
+@import 'variables.css';
+
+// Font path is used to include ionicons,
+// roboto, and noto sans fonts
+
+$font-path: "../assets/fonts";
+
+
+// The app direction is used to include
+// rtl styles in your app. For more info, please see:
+// http://ionicframework.com/docs/theming/rtl-support/
+$app-direction: ltr;
+
+
+:root {
+  --font-size-xxl:     24px;
+  --font-size-xl:      20px;
+  --font-size-lg:      16px;
+  --font-size-stack:   14px;
+  --font-size-sm:      12px;
+  --font-size-xs:      10px;
+
+  /* Colors */
+  --lyt-color-text:             #ffffff;
+  --lyt-color-background:       #1d212a;
+
+  /* Override CSS variables */
+  --ion-color-secondary: #32db64;
+  --ion-color-danger: #f53d3d;
+  --ion-color-light: #f4f4f4;
+  --ion-color-dark: #222;
+  --ion-background-color: #1d212a;
+
+  --ion-color-primary: #ee384e;
+  --ion-color-primary-rgb: 238, 56, 78; /* Converted from #ee384e */
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #d13145;
+  --ion-color-primary-tint: #ef4c60;
+
+    
+  --color-white:            #ffffff;
+  --color-gray:             #8c8c8c;
+  --color-black:            #000000;
+
+  --color-gray-dark:       #484848;
+  /* Colors */
+
+  --color-rings-bg-3-0:     --color-primary;
+  --color-rings-bg-3-1:     #852a3b;
+  --color-rings-bg-3-2:     #3e242f;
+
+  /* Radius */
+
+  --radius-xs:     3px;
+  --radius-sm:     5px;
+  --radius:       15px;
+  --radius-lg:    20px;
+  --radius-round:  50%;
+
+
+  /* Spacings */
+
+  --gutter:                  20px;
+  --gutter-025:   --gutter*.25;
+  --gutter-05:     --gutter*.5;
+  --gutter-075:   --gutter*.75;
+  --gutter-15:    --gutter*1.5;
+  --gutter-2:       --gutter*2;
+  --gutter-3:       --gutter*3;
+
+  --lyt-gutter:       20px;
+  --lyt-gutter-025:   --lyt-gutter*.25;
+  --lyt-gutter-05:    --lyt-gutter*.5;
+  --lyt-gutter-075:   --lyt-gutter*.75;
+  --lyt-gutter-15:    --lyt-gutter*1.5;
+  --lyt-gutter-2:     --lyt-gutter*2;
+  --lyt-gutter-3:     --lyt-gutter*3;
+
+  /* Navbar */
+
+  --toolbar-height:           70px;
+  --toolbar-background-color: transparent;
+
+  /* Lyt circle */
+
+  --circle-size-xs:                    42px; // submit button on login page
+  --circle-size-sm:                    70px; // color picker center
+  --circle-size-md:                   110px; // scan button
+  --circle-size-lg:                    67vw; // background
+
+  --circle-increment-coefficient:       0.5;
+  --circle-increment-coefficient-sm:   0.33;
+
+  --c-main-button-bazier:              .23,.32,.08,.18;
+}
+
+
+// Shared Variables
+// --------------------------------------------------
+// To customize the look and feel of this app, you can override
+// the Sass variables found in Ionic's source scss files.
+// To view all the possible Ionic variables, see:
+// http://ionicframework.com/docs/v2/theming/overriding-ionic-variables/
+
+
+
+
+// Named Color Variables
+// --------------------------------------------------
+// Named colors makes it easy to reuse colors on various components.
+// It's highly recommended to change the default colors
+// to match your app's branding. Ionic uses a Sass map of
+// colors so you can add, rename and remove colors as needed.
+// The "primary" color is the only required color in the map.
+
+$colors: (
+  primary:    #488aff,
+  secondary:  #32db64,
+  danger:     #f53d3d,
+  light:      #f4f4f4,
+  dark:       #222
+);
+
+
+// App iOS Variables
+// --------------------------------------------------
+// iOS only Sass variables can go here
+
+
+
+
+// App Material Design Variables
+// --------------------------------------------------
+// Material Design only Sass variables can go here
+
+
+
+
+// App Windows Variables
+// --------------------------------------------------
+// Windows only Sass variables can go here
+
+
+
+
+// App Theme
+// --------------------------------------------------
+// Ionic apps can have different themes applied, which can
+// then be future customized. This import comes last
+// so that the above variables are used and Ionic's
+// default are overridden.
+
+
+
+// Ionicons
+// --------------------------------------------------
+// The premium icon font for Ionic. For more info, please see:
+// http://ionicframework.com/docs/v2/ionicons/
+
+
+
+// Fonts
+// --------------------------------------------------
+
+/*
+@use "roboto";
+@use "noto-sans";
+*/
+@font-face {
+  font-family: 'Montserrat';
+  src: url('../assets/fonts/Montserrat-Light.woff') format('woff');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('../assets/fonts/Montserrat-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('../assets/fonts/Montserrat-Bold.woff') format('woff');
+  font-weight: bold;
+  font-style: normal;
+}
+
+ion-app.md {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: bold;
+}
+
+$font-family-base: "Montserrat";
+$font-family-ios-base: $font-family-base;
+$font-family-md-base: $font-family-base;
+$font-family-wp-base: $font-family-base;

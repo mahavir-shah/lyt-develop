@@ -1,0 +1,27 @@
+<navbar [title]="'search.in_progress.title' | translate | uppercase"
+        [hideBackButton]="true"
+        [showLogo]="true">
+</navbar>
+
+<ion-content>
+    <div class="lyt-c-page-wrapper lyt-c-page-wrapper--has-navbar">
+        <div class="lyt-l-cross-app">
+            <div class="lyt-l-cross-app__heading">
+                <h2 class="lyt-c-heading lyt-c-heading--no-transform">{{ 'search.in_progress.info' | translate }}</h2>
+                <p class="lyt-c-heading-description">
+                    {{ 'common.please_wait' | translate }}
+                </p>
+            </div>
+            <div class="lyt-l-cross-app__body">
+                <div class="lyt-c-center-element">
+                    <div class="lyt-c-avaliable-lyts">
+                        <div class="lyt-c-avaliable-lyts__number">
+                            {{ devicesService.devices.length }}
+                        </div>
+                        <div class="lyt-c-avaliable-lyts__dot"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ion-content>

@@ -1,0 +1,44 @@
+<navbar [title]="'DEBUG'"
+        [hideBackButton]="false"
+        [hideSettingsButton]="true">
+</navbar>
+
+<ion-content>
+    <div class="lyt-c-page-wrapper lyt-c-page-wrapper--padding-stack lyt-c-page-wrapper--has-navbar">
+        <form [formGroup]="debugForm" class="lyt-c-form">
+            <div class="lyt-c-form__body">
+                <div class="lyt-c-form-input-group">
+                    <ion-item class="lyt-c-form-input">
+                        <ion-label stacked>Characteristic UUID</ion-label>
+                        <ion-input formControlName="characteristicUUID"
+                                   type="text"
+                                   placeholder="Characteristic UUID"
+                                   (keyup)="updateField('characteristicUUID')">
+                        </ion-input>
+                    </ion-item>
+                    <ion-item class="lyt-c-form-input">
+                        <ion-label stacked>Characteristic Value</ion-label>
+                        <ion-input formControlName="characteristicValue"
+                                   type="text"
+                                   placeholder="Characteristic Value"
+                                   (keyup)="updateField('characteristicValue')">
+                        </ion-input>
+                    </ion-item>
+                </div>
+                <div class="lyt-l-top-content-bottom-footer__bottom">
+                    <button type="button"
+                            (click)="readCharacteristic()"
+                            class="lyt-btn-quiet lyt-btn-quiet--uppercase">
+                        READ
+                    </button>
+                    <ion-label></ion-label>
+                    <button type="button"
+                            (click)="writeCharacteristic()"
+                            class="lyt-btn-quiet lyt-btn-quiet--uppercase">
+                        WRITE
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</ion-content>

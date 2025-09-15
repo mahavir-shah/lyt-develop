@@ -1,0 +1,79 @@
+/*
+ * LYT Toolbar
+ */
+@use "../partials/variables" as vars;
+@use '../partials/mixins' as *;
+
+.lyt-c-toolbar {
+    --background: #1d212a;
+    --color: #ffffff;
+    --min-height: 56px;
+    --border-color: transparent; // If you don't want a border
+ 
+    // Styling the ion-back-button
+    ion-back-button {
+        --color: var(--ion-color-white, #fff);
+        
+        // This targets the inner icon and text of the back button
+        // Note: these are CSS Shadow Parts and may need ::part()
+        &::part(native) {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            
+            // This is for the back button's icon
+            ion-icon {
+                font-size: 24px;
+                // You can add more specific styles for the icon here
+            }
+
+            // This is for the back button's text
+            .button-native {
+                padding-left: 0;
+            }
+        }
+    }
+
+    .lyt-btn-quiet {
+        // You'll need to update this to target the ion-button component
+        // Use CSS variables for a cleaner approach
+        --padding-start: #{vars.$lyt-gutter-075};
+        --padding-end: #{vars.$lyt-gutter-075};
+        --padding-top: #{vars.$lyt-gutter-075};
+        --padding-bottom: #{vars.$lyt-gutter-075};
+    }
+
+    // New way to style elements inside the toolbar
+    // You now use <ion-buttons> and named slots
+    ion-buttons[slot="start"] {
+        flex: 0 0 20%;
+        // You may need to adjust this to match your old flex-basis logic
+    }
+
+    ion-buttons[slot="end"] {
+        flex: 0 0 20%;
+        // You may need to adjust this to match your old flex-basis logic
+    }
+    
+    // Use .toolbar-title::part(title) to style the title
+    // This is the correct way to target the title's inner element
+    ion-title {
+        &::part(title) {
+            @include text-ellipsis;
+            flex-grow: 1;
+        }
+    }
+
+    // You no longer need to style the container directly, as Ionic handles it.
+    // However, if you have custom HTML inside, you might use these:
+    ion-toolbar::part(container) {
+        display: flex;
+        align-items: center;
+    }
+    
+    // Old class for backgrounds should be handled with the CSS variable
+    // This rule is a bit redundant now, as the --background var does the job
+    &.lyt-c-toolbar--bg-black {
+        --background: vars.$lyt-color-background;
+    }
+}

@@ -1,0 +1,155 @@
+/*
+ * LYT Color picker
+ */
+@use "../partials/variables" as vars; 
+@use '../partials/mixins' as *;
+
+
+$lyt-cp-inner-size: 4px;
+$lyt-cp-rotate-angle: 9.5deg;
+
+.lyt-c-color-picker-wrapper {
+    @include flex-center;
+    flex-grow: 1;
+    position: relative;
+}
+
+.lyt-c-selected-color {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    font-size: vars.$font-size-lg;
+}
+
+.lyt-c-color-picker-contrast,
+.lyt-c-color-picker-brightness {
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+
+    div {
+        display: block;
+        background: red;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 50%;
+        transform-origin: 0 50%;
+        transform: translateY(-50%) rotate(0deg);
+
+        > span {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: $lyt-cp-inner-size;
+            height: $lyt-cp-inner-size;
+            border-radius: 50%;
+            background: vars.$lyt-color-gray;
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translate(calc(50% - 1px), -50%);
+
+            &.lyt-c-color-picker__icon-wrapper {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+
+                .lyt-c-color-picker__icon {
+                    @include flex-center;
+                    flex-shrink: 0;
+                    width: 20px;
+                    height: 20px;
+                    border-radius: vars.$lyt-radius-round;
+                    background-color: vars.$lyt-color-background;
+                }
+            }
+        }
+
+        &.active {
+            > span {
+                background-color: vars.$lyt-color-primary;
+                box-shadow: 0 0 0 5px #5b2733;
+            }
+        }
+
+        &.active ~ div {
+            > span {
+                background-color: vars.$lyt-color-primary;
+            }
+        }
+
+        &:nth-child(1) {
+            transform: translateY(-50%) rotate(calc(#{$lyt-cp-rotate-angle} * -5 * 1.06));
+            color: vars.$lyt-color-white;
+            font-size: 18px;
+
+            .lyt-c-color-picker__icon-wrapper {
+                transform: translate(calc(50% - 1px), -50%) rotateZ(calc(#{$lyt-cp-rotate-angle} * 5 * 1.06)) rotateY(180deg);
+            }
+        }
+        &:nth-child(2) {
+            transform: translateY(-50%) rotate(calc(#{$lyt-cp-rotate-angle} * -4));
+        }
+        &:nth-child(3) {
+            transform: translateY(-50%) rotate(calc(#{$lyt-cp-rotate-angle} * -3));
+        }
+        &:nth-child(4) {
+            transform: translateY(-50%) rotate(calc(#{$lyt-cp-rotate-angle} * -2));
+        }
+        &:nth-child(5) {
+            transform: translateY(-50%) rotate(calc(#{$lyt-cp-rotate-angle} * -1));
+        }
+        &:nth-child(6) {
+            transform: translateY(-50%) rotate(0deg);
+        }
+        &:nth-child(7) {
+            transform: translateY(-50%) rotate(calc(#{$lyt-cp-rotate-angle} * 1));
+        }
+        &:nth-child(8) {
+            transform: translateY(-50%) rotate(calc(#{$lyt-cp-rotate-angle} * 2));
+        }
+        &:nth-child(9) {
+            transform: translateY(-50%) rotate(calc(#{$lyt-cp-rotate-angle} * 3));
+        }
+        &:nth-child(10) {
+            transform: translateY(-50%) rotate(calc(#{$lyt-cp-rotate-angle} * 4));
+        }
+        &:nth-child(11) {
+            transform: translateY(-50%) rotate(calc(#{$lyt-cp-rotate-angle} * 5));
+        }
+    }
+}
+
+.lyt-c-color-picker-brightness {
+    transform: translate(-50%, -50%) rotateY(180deg)
+}
+
+.lyt-c-canvas {
+    position: relative;
+}
+
+.lyt-c-color-wheel-point {
+    @include flex-center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    -webkit-transform: translate3d(0, 0, 0);
+}
+
+.lyt-c-color-wheel-point__item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-shrink: 0;
+    width: 35px;
+    height: 35px;
+    border-radius: 18px;
+    border: 5px solid #333333;
+    transform: translate(-50%, -50%);
+}

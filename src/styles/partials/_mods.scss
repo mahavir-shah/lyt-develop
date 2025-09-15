@@ -1,0 +1,46 @@
+/*
+ * LYT Css overrides
+ */
+
+@use "./variables" as vars; 
+.toolbar-background-md {
+    background-color: vars.$lyt-color-background;
+}
+
+.toolbar-title-md {
+    color: vars.$lyt-color-white;
+    text-align: center;
+    font-size: vars.$font-size-sm;
+    font-weight: bold;
+}
+
+.toolbar-md {
+    min-height: vars.$lyt-toolbar-height;
+}
+
+.header-md {
+    &:after {
+        background-image: none;
+    }
+}
+
+.content-md,
+.item-md {
+    color: vars.$lyt-color-text;
+}
+
+.content-md {
+    background-color: vars.$lyt-color-background;
+}
+
+.item-md {
+    background-color: transparent;
+}
+
+.item-md {
+    padding-left: 0;
+}
+
+button {                            // Temporary here, just for development. Remove when cover all buttons with css
+    color: vars.$lyt-color-secondary;
+}

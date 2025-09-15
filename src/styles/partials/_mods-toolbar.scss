@@ -1,0 +1,7 @@
+/*
+ * LYT Ionic main toolbar mods
+ */
+@use "./variables" as vars; 
+.toolbar-background-md {
+    background: vars.$lyt-toolbar-background-color;
+}

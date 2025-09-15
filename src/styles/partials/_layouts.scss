@@ -1,0 +1,111 @@
+/*
+ * LYT Layouts
+ */
+
+
+/*
+ * Main layout (Login, sign up)
+ *
+ * Modifiers:
+ * 1. middle-grow - useful when want to middle container fill area between top and bottom
+ *    containers, won't be centered positioned (example - sing up page)
+ * 2. only-middle - useful when you have content on the middle of the screen (example - forgot password)
+ * 3. has-no-bottom - use to top and middle elements stay where they are, without this modifier middle element would
+ *    be placed at the bottom (example - reset password)
+ */
+@use "./variables" as vars; 
+
+.lyt-l-main {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 100%;
+
+    &.lyt-l-main--middle-grow {
+        .lyt-l-main__middle {
+            flex-grow: 1;
+        }
+    }
+
+    &.lyt-l-main--only-middle {
+        justify-content: center;
+    }
+
+    &.lyt-l-main--has-no-bottom {
+        &:after {
+            content: "";
+            padding: vars.$lyt-gutter;
+        }
+    }
+}
+
+.lyt-l-main__top {
+    flex-shrink: 0;
+}
+
+.lyt-l-main__middle {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 0;
+    min-height: 80vw;
+}
+
+.lyt-l-main__bottom {
+    @extend .lyt-l-main__top;
+}
+
+/*
+ * top-content-bottom-footer
+ *
+ * Modifiers:
+ * 1. middle-grow - useful when want to middle container fill area between top and bottom
+ *    containers, won't be centered positioned (example - sing up page)
+ */
+
+.lyt-l-top-content-bottom-footer,
+.lyt-l-top-content-bottom-footer__top,
+.lyt-l-top-content-bottom-footer__bottom {
+    display: flex;
+}
+
+.lyt-l-top-content-bottom-footer {
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 100%;
+}
+
+.lyt-l-top-content-bottom-footer__top {
+    flex-direction: column;
+    flex-grow: 1;
+    flex-shrink: 0;
+}
+
+.lyt-l-top-content-bottom-footer__bottom {
+    flex-grow: 0;
+    flex-shrink: 0;
+    margin-top: vars.$lyt-gutter;
+}
+
+/*
+ * cross-app
+
+ modifiers:
+ 1. no-min-heading - sets min-height of .lyt-l-cross-app__heading to 0 (example light-detector page)
+ */
+
+.lyt-l-cross-app {
+    &.lyt-l-cross-app--no-min-heading {
+        .lyt-l-cross-app__heading {
+            min-height: 0;
+        }
+    }
+}
+
+.lyt-l-cross-app__heading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 120px;
+    margin-bottom: 20px;
+}

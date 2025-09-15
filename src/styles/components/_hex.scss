@@ -1,0 +1,31 @@
+/*
+ * LYT Hex
+ */
+@use "../partials/variables" as vars; 
+
+
+.lyt-c-hex {
+    display: flex;
+    align-items: center;
+}
+
+.lyt-c-hex__circle {
+    width: 23px;
+    height: 23px;
+    border-radius: 50%;
+    background: yellow;
+    box-shadow: inset 0 0 0 3px vars.$lyt-color-background;
+    border: 1px solid rgba(0, 0, 0, 0);
+    margin-right: vars.$lyt-gutter-05;
+}
+
+.lyt-c-hex__text {
+    margin-right: vars.$lyt-gutter-05;
+}
+
+.lyt-c-hex__code {
+    color: vars.$lyt-color-gray;
+    font-size: vars.$font-size-sm;
+    font-weight: 400;
+    min-width: 55px;
+}

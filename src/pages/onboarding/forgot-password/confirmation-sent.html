@@ -1,0 +1,21 @@
+<ion-content>
+    <div class="lyt-c-page-wrapper">
+        <div class="lyt-c-circle-bg lyt-c-circle-bg--top-left">
+            <div class="lyt-c-circle lyt-c-circle--size-lg lyt-c-circle--bg">
+                <div class="lyt-c-circle__outside-03"></div>
+                <div class="lyt-c-circle__outside-02"></div>
+                <div class="lyt-c-circle__outside-01"></div>
+                <div class="lyt-c-circle__main"></div>
+            </div>
+        </div>
+        <div class="lyt-l-main lyt-l-main--only-middle">
+            <div class="lyt-l-main__middle">
+                <h2 class="lyt-c-heading">{{ 'confirmation_sent.title' | translate | uppercase }}</h2>
+                <p class="lyt-c-heading-description">{{ 'confirmation_sent.message' | translate }}</p>
+                <a (click)="goToLoginPage()" class="lyt-c-link lyt-u-padding-v-15 lyt-u-font-sm">
+                    {{ 'confirmation_sent.back_to_login' | translate }}
+                </a>
+            </div>
+        </div>
+    </div>
+</ion-content>

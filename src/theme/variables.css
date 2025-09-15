@@ -1,0 +1,10 @@
+/**
+ * Ionic Dark Theme
+ * -----------------------------------------------------
+ * For more info, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
+/* @use "@ionic/angular/css/palettes/dark.always.css"; */
+/* @use "@ionic/angular/css/palettes/dark.class.css"; */
+@use "@ionic/angular/css/palettes/dark.system.css";

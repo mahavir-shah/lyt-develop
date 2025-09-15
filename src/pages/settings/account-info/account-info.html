@@ -1,0 +1,64 @@
+<form [formGroup]="accountForm" class="lyt-c-form" *ngIf="!readonly">
+    <div class="lyt-c-form__body">
+        <div class="lyt-c-form-input-group">
+            <ion-item class="lyt-c-form-input">
+                <ion-label stacked>{{ 'common.name' | translate | uppercase }}</ion-label>
+                <ion-input formControlName="first_name"
+                           type="text"
+                           placeholder="{{ 'common.name' | translate | uppercase }}"
+                           (keyup)="update(accountForm, 'first_name')"
+                           [class.invalid]="validationService.isInvalid(accountForm, 'first_name', true)">
+                </ion-input>
+            </ion-item>
+            <div class="lyt-c-form-input-validation"
+                 *ngIf="validationService.isInvalid(accountForm, 'first_name', true) || validationErrors.first_name">
+                <div class="lyt-c-form-input-validation__icon">
+                    <ion-icon class="lyt-c-icon-sm" name="ios-information-circle-outline"></ion-icon>
+                </div>
+                <div class="lyt-c-form-input-validation__content" *ngIf="validationErrors.first_name">
+                    {{ validationErrors.first_name }}
+                </div>
+            </div>
+        </div>
+        <div class="lyt-c-form-input-group">
+            <ion-item class="lyt-c-form-input">
+                <ion-label stacked>{{ 'common.last_name' | translate | uppercase }}</ion-label>
+                <ion-input formControlName="last_name"
+                           type="text"
+                           placeholder="{{ 'common.last_name' | translate | uppercase }}"
+                           (keyup)="update(accountForm, 'last_name')"
+                           [class.invalid]="validationService.isInvalid(accountForm, 'last_name', true)">
+                </ion-input>
+            </ion-item>
+            <div class="lyt-c-form-input-validation"
+                 *ngIf="validationService.isInvalid(accountForm, 'last_name', true) || validationErrors.last_name">
+                <div class="lyt-c-form-input-validation__icon">
+                    <ion-icon class="lyt-c-icon-sm" name="ios-information-circle-outline"></ion-icon>
+                </div>
+                <div class="lyt-c-form-input-validation__content" *ngIf="validationErrors.last_name">
+                    {{ validationErrors.last_name }}
+                </div>
+            </div>
+        </div>
+        <div class="lyt-c-form-input-group">
+            <ion-item class="lyt-c-form-input">
+                <ion-label stacked>{{ 'common.email' | translate | uppercase }}</ion-label>
+                <ion-input formControlName="email"
+                           type="email"
+                           placeholder="{{ 'common.email' | translate | uppercase }}"
+                           (keyup)="update(accountForm, 'email')"
+                           [class.invalid]="validationService.isInvalid(accountForm, 'email', true)">
+                </ion-input>
+            </ion-item>
+            <div class="lyt-c-form-input-validation"
+                 *ngIf="validationService.isInvalid(accountForm, 'email', true) || validationErrors.email">
+                <div class="lyt-c-form-input-validation__icon">
+                    <ion-icon class="lyt-c-icon-sm" name="ios-information-circle-outline"></ion-icon>
+                </div>
+                <div class="lyt-c-form-input-validation__content" *ngIf="validationErrors.email">
+                    {{ validationErrors.email }}
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

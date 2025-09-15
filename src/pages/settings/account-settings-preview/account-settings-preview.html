@@ -1,0 +1,74 @@
+<navbar [title]="'account_settings.title' | translate | uppercase"
+        [hideBackButton]="false"
+        [hideSettingsButton]="true"
+        [showCustomButton]="true"
+        [customButtonTitle]="'common.edit' | translate"
+        (onCustomButtonClick)="goToAccountSettingsEditPage()">
+</navbar>
+
+<ion-content>
+    <div class="lyt-c-page-wrapper lyt-c-page-wrapper--has-navbar">
+        <div class="lyt-c-circle-bg lyt-c-circle-bg--top-left">
+            <div class="lyt-c-circle lyt-c-circle--size-lg lyt-c-circle--bg">
+                <div class="lyt-c-circle__outside-03"></div>
+                <div class="lyt-c-circle__outside-02"></div>
+                <div class="lyt-c-circle__outside-01"></div>
+                <div class="lyt-c-circle__main"></div>
+            </div>
+        </div>
+
+        <div class="lyt-l-top-content-bottom-footer">
+            <div class="lyt-l-top-content-bottom-footer__top">
+                <div class="lyt-c-edit-account-form">
+                    <div class="lyt-c-form-preview">
+                        <div class="lyt-c-form-preview__group">
+                            <div class="lyt-c-form-preview__label">
+                                {{ 'common.name' | translate }}
+                            </div>
+                            <div class="lyt-c-form-preview__content">
+                                {{ authService.user.first_name }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lyt-c-form-preview">
+                        <div class="lyt-c-form-preview__group">
+                            <div class="lyt-c-form-preview__label">
+                                {{ 'common.last_name' | translate }}
+                            </div>
+                            <div class="lyt-c-form-preview__content">
+                                {{ authService.user.last_name }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lyt-c-form-preview">
+                        <div class="lyt-c-form-preview__group">
+                            <div class="lyt-c-form-preview__label">
+                                {{ 'common.email' | translate }}
+                            </div>
+                            <div class="lyt-c-form-preview__content">
+                                {{ authService.user.email }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lyt-c-form-preview">
+                        <div class="lyt-c-form-preview__group">
+                            <div class="lyt-c-form-preview__label">
+                                {{ 'common.password' | translate }}
+                            </div>
+                            <div class="lyt-c-form-preview__content">
+                                ********
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="lyt-l-top-content-bottom-footer__bottom">
+                <button type="button"
+                        (click)="logout()"
+                        class="lyt-btn-quiet lyt-btn-quiet--uppercase">
+                    {{ 'account_settings.logout' | translate | uppercase }}
+                </button>
+            </div>
+        </div>
+    </div>
+</ion-content>

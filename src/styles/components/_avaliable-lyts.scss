@@ -1,0 +1,44 @@
+/*
+ * LYT Available lyts
+ */
+
+/*
+ * LYT Available lyts
+ */
+@use 'sass:math';
+@use "../partials/variables" as vars; 
+@use '../partials/mixins' as *;
+
+
+$lyt-available-lyt-size: 130px;
+$lyt-available-lyt-dot-size: 18px;
+$lyt-available-lyt-size-half: math.div($lyt-available-lyt-size, 2);
+$lyt-available-lyt-dot-size-half: math.div($lyt-available-lyt-dot-size, 2);
+
+.lyt-c-avaliable-lyts {
+    @include flex-center;
+    position: relative;
+    width: $lyt-available-lyt-size;
+    height: $lyt-available-lyt-size;
+    border: 2px solid vars.$lyt-color-primary;
+    border-radius: vars.$lyt-radius-round;
+}
+
+.lyt-c-avaliable-lyts__number {
+    font-size: 70px;
+    font-weight: 400;
+    color: vars.$lyt-color-primary;
+}
+
+.lyt-c-avaliable-lyts__dot {
+    position: absolute;
+    top: calc(50% - (#{$lyt-available-lyt-dot-size-half}));
+    right: -($lyt-available-lyt-dot-size-half);
+    width: $lyt-available-lyt-dot-size;
+    height: $lyt-available-lyt-dot-size;
+    background: vars.$lyt-color-primary;
+    border-radius: vars.$lyt-radius-round;
+    transform: rotateZ(0deg);
+    transform-origin: -($lyt-available-lyt-size-half - $lyt-available-lyt-dot-size-half - 1.5px) 50%;
+    animation: rotate 1.5s infinite linear;
+}

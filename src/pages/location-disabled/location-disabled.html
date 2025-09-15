@@ -1,0 +1,41 @@
+<navbar [title]="'location_services_disabled.title' | translate | uppercase"
+        [hideBackButton]="true"
+        [showLogo]="true">
+</navbar>
+
+<ion-content>
+    <div class="lyt-c-page-wrapper lyt-c-page-wrapper--has-navbar">
+        <div class="lyt-l-cross-app">
+            <div class="lyt-l-cross-app__heading">
+                <h2 class="lyt-c-heading lyt-c-heading--no-transform">{{ 'location_services_disabled.enable' | translate }}</h2>
+                <p class="lyt-c-heading-description">
+                    {{ 'location_services_disabled.info' | translate }}
+                </p>
+            </div>
+            <div class="lyt-l-cross-app__body">
+                <div class="lyt-c-center-element">
+                    <div class="lyt-c-icon--circled lyt-c-icon--lg lyt-c-bluetooth-failed">
+                        <svg class="lyt-c-icon lyt-c-icon--bluetooth" width="51px" height="50px" viewBox="0 0 51 50" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                            <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                                <g id="BluetoothTurn-Copy" transform="translate(-162.000000, -308.000000)" fill-rule="nonzero" fill="#FFFFFF">
+                                    <g id="icons8-north_direction" transform="translate(162.000000, 308.000000)">
+                                        <path d="M26,0 L18,18 L26,13.84375 L34,18 L26,0 Z M20.53125,3.6875 C20.476563,3.695313 20.425781,3.703125 20.375,3.71875 C11.253906,6.121094 4.5,14.246094 4.0625,24 L2,24 C1.96875,24 1.9375,24 1.90625,24 C1.355469,24.027344 0.9257812,24.496094 0.953125,25.046875 C0.9804687,25.597656 1.449219,26.027344 2,26 L4.03125,26 C4.542969,37.339844 13.660156,46.457031 25,46.96875 L25,49 C24.996094,49.359375 25.183594,49.695313 25.496094,49.878906 C25.808594,50.058594 26.191406,50.058594 26.503906,49.878906 C26.816406,49.695313 27.003906,49.359375 27,49 L27,46.96875 C38.339844,46.457031 47.457031,37.339844 47.96875,26 L50,26 C50.359375,26.003906 50.695313,25.816406 50.878906,25.503906 C51.058594,25.191406 51.058594,24.808594 50.878906,24.496094 C50.695313,24.183594 50.359375,23.996094 50,24 L47.9375,24 C47.5,14.246094 40.746094,6.121094 31.625,3.71875 C31.089844,3.582031 30.542969,3.902344 30.40625,4.4375 C30.269531,4.972656 30.589844,5.519531 31.125,5.65625 C39.378906,7.832031 45.53125,15.160156 45.96875,24 L42,24 C41.96875,24 41.9375,24 41.90625,24 C41.355469,24.027344 40.925781,24.496094 40.953125,25.046875 C40.980469,25.597656 41.449219,26.027344 42,26 L45.96875,26 C45.464844,36.261719 37.261719,44.464844 27,44.96875 L27,41 C27.007813,40.691406 26.871094,40.398438 26.632813,40.203125 C26.398438,40.007813 26.082031,39.933594 25.78125,40 C25.316406,40.105469 24.988281,40.523438 25,41 L25,44.96875 C14.738281,44.464844 6.535156,36.261719 6.03125,26 L10,26 C10.359375,26.003906 10.695313,25.816406 10.878906,25.503906 C11.058594,25.191406 11.058594,24.808594 10.878906,24.496094 C10.695313,24.183594 10.359375,23.996094 10,24 L6.03125,24 C6.46875,15.160156 12.621094,7.832031 20.875,5.65625 C21.398438,5.542969 21.742188,5.035156 21.648438,4.507813 C21.554688,3.976563 21.0625,3.617188 20.53125,3.6875 Z" id="Shape"></path>
+                                    </g>
+                                </g>
+                            </g>
+                        </svg>
+                        <svg class="lyt-c-icon lyt-c-icon--minus-circle" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 30"><title>minus-circle</title><path d="M16,1A15,15,0,1,0,31,16,15,15,0,0,0,16,1Zm7.87,15.79a.74.74,0,0,1-.79.78H8.92a.74.74,0,0,1-.79-.78V15.21a.74.74,0,0,1,.79-.78H23.08a.74.74,0,0,1,.79.78Z" transform="translate(-1 -1)"/></svg>
+                    </div>
+                </div>
+                <div class="lyt-c-turn-on-bluetooth">
+                    <div class="lyt-c-action-buttons">
+                        <button class="lyt-btn lyt-btn--primary"
+                                (click)="showLocationSettings()">
+                            {{ 'location_services_disabled.enable' | translate | uppercase }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ion-content>

@@ -1,0 +1,115 @@
+/*
+ * LYT Animations
+ */
+
+@use "./variables" as vars; 
+@keyframes lyt-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes lyt-spin-inverse {
+    0% { transform: rotate(360deg); }
+    100% { transform: rotate(0deg); }
+}
+
+@keyframes lyt-pulse {
+    0% { opacity: .5 }
+    50% { opacity: 1 }
+    100% { opacity: .5 }
+}
+
+@keyframes rotate {
+    0% {transform: rotate(0deg)}
+    100% {transform: rotate(360deg)}
+}
+
+
+@keyframes main-button-circle-1 {
+    0% {transform: scale(.75)}
+    100% {transform: scale(1.2); opacity: 0}
+}
+
+@keyframes main-button-circle-2 {
+    0% {transform: scale(.6)}
+    100% {transform: scale(1.3); opacity: 0}
+}
+
+@keyframes lyt-move-h {
+    25% {opacity: .5}
+    50% {transform: translateX(50px); opacity: 1}
+    75% {opacity: .5}
+    100% {opacity: 1}
+}
+
+@keyframes lyt-move-v {
+    50% {transform: translateY(50px)}
+}
+
+@keyframes lyt-move-h-2 {
+    25% {opacity: 1}
+    50% {transform: translateX(-60px); opacity: .5}
+    75% {opacity: 1}
+    100% {opacity: .5}
+}
+
+@keyframes lyt-move-v-2 {
+    50% {transform: translateY(100px)}
+}
+
+@keyframes lyt-move-h-3 {
+    25% {opacity: 1}
+    50% {transform: translateX(50px); opacity: .5}
+    75% {opacity: 1}
+    100% {opacity: .5}
+}
+
+@keyframes lyt-move-v-3 {
+    50% {transform: translateY(-100px)}
+}
+
+.lyt-animate-circle-rings-3 {
+    .lyt-c-circle__outside-01 {
+        animation: main-button-circle-1 2s infinite cubic-bezier(vars.$lyt-c-main-button-bazier);
+    }
+
+    .lyt-c-circle__outside-02 {
+        animation: main-button-circle-2 2s infinite cubic-bezier(vars.$lyt-c-main-button-bazier);
+    }
+}
+
+.lyt-animate-pulse {
+    animation: lyt-pulse 3s linear infinite;
+}
+
+.lyt-animate-move {
+    animation: lyt-move-v 15s ease-in-out infinite;
+
+    &:after {
+        animation: lyt-move-h 40s cubic-bezier(.28,0,.74,1) infinite;
+    }
+}
+
+.lyt-animate-move-2 {
+    &:after {
+        opacity: .5;
+    }
+
+    animation: lyt-move-v-2 50s ease-in-out infinite;
+
+    &:after {
+        animation: lyt-move-h-2 25s ease-in-out infinite;
+    }
+}
+
+.lyt-animate-move-3 {
+    &:after {
+        opacity: .5;
+    }
+
+    animation: lyt-move-v-3 40s ease infinite;
+
+    &:after {
+        animation: lyt-move-h-3 30s ease-in infinite;
+    }
+}

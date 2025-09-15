@@ -1,0 +1,58 @@
+<navbar [title]="'light_director.title' | translate | uppercase"
+        [hideBackButton]="true"
+        [showLogo]="true">
+</navbar>
+
+<ion-content>
+    <div class="lyt-c-page-wrapper lyt-c-page-wrapper--has-navbar lyt-c-page-wrapper--padding-stack">
+        <div class="lyt-l-cross-app lyt-l-cross-app--no-min-heading">
+            <div class="lyt-l-cross-app__heading">
+                <div class="lyt-c-device-info">
+                    <div class="lyt-c-device-info__left">
+                        <div class="lyt-c-device-info__name">Device 2</div>
+                        <div class="lyt-c-device-info__status">
+                            <!--Switch classes between .lyt-c-status--avaliable or .lyt-c-status--unavaliable depending on status-->
+                            <div class="lyt-c-status lyt-c-status--unavaliable">
+                                <div class="lyt-c-status__icon">
+                                    <!--this icon also depends on status-->
+                                    <!--<ion-icon class="lyt-c-icon-sm" name="checkmark-circle-outline"></ion-icon>-->
+                                    <ion-icon class="lyt-c-icon-sm" name="ios-close-circle-outline"></ion-icon>
+                                </div>
+                                <div class="lyt-c-status__content">
+                                    <!--Text below depends on status-->
+                                    <!--Avaliable-->
+                                    {{ 'light_director.unavailable' | translate }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="lyt-c-device-info__right">
+                        <div class="lyt-c-device-info__action">
+                            <button class="lyt-btn-quiet lyt-btn-quiet--primary lyt-btn-quiet--sm lyt-btn-quiet--font-regular">
+                                {{ 'light_director.disconnect' | translate }}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="lyt-l-cross-app__body">
+                <div class="lyt-c-center-element">
+                    <svg class="lyt-c-icon lyt-c-icon--lg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30.68 30"><title>sparkles</title><circle id="Oval-7" cx="18.68" cy="20.03" r="0.86"/><circle id="Oval-7-Copy-7" cx="29.96" cy="11.89" r="0.71"/><circle id="Oval-7-Copy" cx="22.96" cy="5.46" r="0.86"/><circle id="Oval-7-Copy-2" cx="4.68" cy="20.89" r="0.86"/><path id="Line" d="M10,15.07,4.54,9.61" transform="translate(-0.66 -1)"/><rect x="7.12" y="8.34" width="0.29" height="8.01" transform="translate(-7.26 7.75) rotate(-45)"/><path id="Line-2" d="M22.21,11.69l5,5" transform="translate(-0.66 -1)"/><rect x="24.57" y="10.51" width="0.29" height="7.36" transform="translate(-3.46 20.63) rotate(-45)"/><path id="Line-3" d="M24.68,19,30,24.28" transform="translate(-0.66 -1)"/><rect x="27.18" y="17.76" width="0.29" height="7.76" transform="translate(-7.96 24.66) rotate(-45)"/><path id="Line-4" d="M6.62,28v2.87" transform="translate(-0.66 -1)"/><rect x="5.82" y="26.84" width="0.29" height="3.16"/><path id="Line-5" d="M16.05,6.6V1.14" transform="translate(-0.66 -1)"/><rect x="15.25" width="0.29" height="5.74"/><circle id="Oval-7-Copy-3" cx="11.96" cy="20.75" r="0.43"/><circle id="Oval-7-Copy-4" cx="16.82" cy="13.6" r="0.43"/><circle id="Oval-7-Copy-13" cx="23.68" cy="17.6" r="0.43"/><circle id="Oval-7-Copy-14" cx="5.96" cy="26.46" r="0.43"/><circle id="Oval-7-Copy-5" cx="15.39" cy="6.17" r="0.43"/><circle id="Oval-7-Copy-6" cx="9.11" cy="7.03" r="0.43"/><path d="M10.79,16.89a1,1,0,1,1,1-1A1,1,0,0,1,10.79,16.89Zm0-1.88a.87.87,0,1,0,.87.87A.87.87,0,0,0,10.79,15Z" transform="translate(-0.66 -1)"/><path d="M10.76,26.05a.44.44,0,0,1-.44-.44.45.45,0,1,1,.89,0A.44.44,0,0,1,10.76,26.05Zm0-.82a.38.38,0,1,0,0,.76.38.38,0,1,0,0-.76Z" transform="translate(-0.66 -1)"/><path d="M1.2,14a.54.54,0,1,1,.54-.54A.54.54,0,0,1,1.2,14Zm0-1a.46.46,0,1,0,.47.46A.46.46,0,0,0,1.2,13Z" transform="translate(-0.66 -1)"/><path d="M24.48,28.3a.41.41,0,0,1-.41-.41.41.41,0,1,1,.81,0A.41.41,0,0,1,24.48,28.3Zm0-.76a.35.35,0,1,0,.35.35A.35.35,0,0,0,24.48,27.54Z" transform="translate(-0.66 -1)"/><path d="M27.62,17.53a.45.45,0,1,1,.45-.45A.45.45,0,0,1,27.62,17.53Zm0-.84a.39.39,0,0,0-.39.39.4.4,0,0,0,.39.39.39.39,0,0,0,.39-.39A.38.38,0,0,0,27.62,16.69Z" transform="translate(-0.66 -1)"/></svg>
+                </div>
+                <div class="lyt-c-light-detector">
+                    <div class="lyt-c-light-detector__title">
+                        {{ 'light_director.timeout' | translate | uppercase }}
+                    </div>
+                    <div class="lyt-c-light-detector__timeout">
+                        3h 14m
+                    </div>
+                    <div class="lyt-c-light-detector__info">
+                        <div class="lyt-c-info">
+                            {{ 'light_director.info' | translate }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ion-content>

@@ -1,0 +1,93 @@
+/*
+ * LYT Spinning wheel
+ */
+
+@use "../partials/variables" as vars; 
+@use '../partials/mixins' as *;
+
+$lyt-spinning-wheel-coef: 7%;
+
+.lyt-c-spinning-wheel {
+    @include flex-center;
+    position: relative;
+    width: 200px;
+    height: 200px;
+}
+
+.lyt-c-spinning-wheel__quarter-ring,
+.lyt-c-spinning-wheel__half-ring,
+.lyt-c-spinning-wheel__full-ring-outer,
+.lyt-c-spinning-wheel__full-ring-inner {
+    position: absolute;
+
+    &:after {
+        content: "";
+        box-sizing: border-box;
+        display: block;
+        border: 3px solid vars.$lyt-color-primary;
+        border-radius: vars.$lyt-radius-round;
+    }
+}
+
+.lyt-c-spinning-wheel__quarter-ring {
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 50%;
+    overflow: hidden;
+    transform: rotateZ(0deg);
+    transform-origin: 100% 100%;
+    animation: lyt-spin 1.5s linear infinite;
+
+    &:after {
+        width: 200%;
+        height: 200%;
+    }
+}
+
+.lyt-c-spinning-wheel__half-ring {
+    top: 2 * $lyt-spinning-wheel-coef;
+    left: 2 * $lyt-spinning-wheel-coef;
+    width: calc(50% - (#{2 * $lyt-spinning-wheel-coef}));
+    height: calc(100% - (#{4 * $lyt-spinning-wheel-coef}));
+    overflow: hidden;
+    transform: rotateZ(-90deg);
+    transform-origin: 100% 50%;
+    animation: lyt-spin-inverse 1.5s linear infinite;
+
+    &:after {
+        width: 200%;
+        height: 100%;
+    }
+}
+
+.lyt-c-spinning-wheel__full-ring-outer {
+    top: $lyt-spinning-wheel-coef;
+    left: $lyt-spinning-wheel-coef;
+    width: calc(100% - (#{2 * $lyt-spinning-wheel-coef}));
+    height: calc(100% - (#{2 * $lyt-spinning-wheel-coef}));
+    animation: lyt-pulse 1.2s ease-out infinite;
+
+    &:after {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.lyt-c-spinning-wheel__full-ring-inner {
+    top: 3 * $lyt-spinning-wheel-coef;
+    left: 3 * $lyt-spinning-wheel-coef;
+    width: calc(100% - (#{6 * $lyt-spinning-wheel-coef}));
+    height: calc(100% - (#{6 * $lyt-spinning-wheel-coef}));
+    animation: lyt-pulse 1.2s ease-out infinite;
+
+    &:after {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+.lyt-c-spinning-wheel__content {
+    font-size: vars.$font-size-xs;
+    text-transform: uppercase;
+}

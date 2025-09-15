@@ -1,0 +1,28 @@
+/*
+ * LYT Item list
+ */
+@use "../partials/variables" as vars; 
+
+.lyt-c-item-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+
+    > li {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: vars.$lyt-gutter-075 vars.$lyt-gutter-05;
+        border-top: 1px solid vars.$lyt-color-gray-dark;
+        font-weight: 100;
+
+        &:last-child {
+            border-bottom: 1px solid vars.$lyt-color-gray-dark;
+        }
+    }
+}
+
+.lyt-c-item-title {
+    flex-grow: 1;
+    font-size: vars.$font-size-stack;
+}

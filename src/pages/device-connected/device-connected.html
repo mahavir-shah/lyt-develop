@@ -1,0 +1,63 @@
+<navbar [title]="'device_connected.title' | translate | uppercase"
+        [hideBackButton]="false"
+        [customBackAction]="true"
+        [showLogo]="false"
+        [hideSettingsButton]="true"
+        [showCustomButton]="true"
+        [customButtonTitle]="'common.done' | translate"
+        (onCustomButtonClick)="goToMainScreenPage()"
+        (onBackButtonClick)="disconnectFromDevice()">
+</navbar>
+
+<ion-content>
+    <div class="lyt-c-page-wrapper lyt-c-page-wrapper--has-navbar lyt-c-page-wrapper--padding-stack">
+        <div class="lyt-l-cross-app">
+            <div class="lyt-l-cross-app__heading lyt-l-cross-app--no-min-heading">
+                <svg class="lyt-c-icon lyt-c-icon--md lyt-u-text--green" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 30.51 30"><defs><mask id="mask" x="28.47" y="7.12" width="2.03" height="2.03" maskUnits="userSpaceOnUse"><g transform="translate(-0.75 -1)"><g id="mask-2"><polygon id="path-1" points="31.25 8.12 31.25 10.15 29.22 10.15 29.22 8.12 31.25 8.12" fill="#fff"/></g></g></mask></defs><title>connection</title><g mask="url(#mask)"><path id="Fill-1" d="M31.25,9.14a1,1,0,0,1-2,0,1,1,0,1,1,2,0" transform="translate(-0.75 -1)"/></g><path id="Fill-4" d="M29.22,16.25a1,1,0,1,1-2,0,1,1,0,0,1,2,0" transform="translate(-0.75 -1)"/><path id="Fill-6" d="M29.16,2a1,1,0,0,1-2,0,1,1,0,1,1,2,0" transform="translate(-0.75 -1)"/><path id="Fill-8" d="M2.78,9.14a1,1,0,0,1-2,0,1,1,0,1,1,2,0" transform="translate(-0.75 -1)"/><path id="Fill-10" d="M4.81,16.25a1,1,0,1,1-2,0,1,1,0,0,1,2,0" transform="translate(-0.75 -1)"/><path id="Fill-12" d="M4.76,2a1,1,0,0,1-2,0,1,1,0,1,1,2,0" transform="translate(-0.75 -1)"/><path id="Fill-14" d="M27.13,9.14a1,1,0,0,1-2,0,1,1,0,1,1,2,0" transform="translate(-0.75 -1)"/><path id="Fill-16" d="M26.11,4.05a1,1,0,1,1-2,0,1,1,0,1,1,2,0" transform="translate(-0.75 -1)"/><path id="Fill-18" d="M17,30a1,1,0,0,1-2,0,1,1,0,0,1,2,0" transform="translate(-0.75 -1)"/><path id="Fill-20" d="M17,25.91a1,1,0,1,1-2,0,1,1,0,0,1,2,0" transform="translate(-0.75 -1)"/><path id="Fill-22" d="M17,21.85a1,1,0,0,1-2,0,1,1,0,1,1,2,0" transform="translate(-0.75 -1)"/><path id="Fill-24" d="M17,17.78a1,1,0,0,1-2,0,1,1,0,0,1,2,0" transform="translate(-0.75 -1)"/><path id="Fill-26" d="M26.11,14.22a1,1,0,1,1-2,0,1,1,0,1,1,2,0" transform="translate(-0.75 -1)"/><path id="Fill-28" d="M6.79,9.14a1,1,0,0,1-2,0,1,1,0,1,1,2,0" transform="translate(-0.75 -1)"/><path id="Fill-30" d="M7.81,4.05a1,1,0,1,1-2,0,1,1,0,0,1,2,0" transform="translate(-0.75 -1)"/><path id="Fill-32" d="M7.81,14.22a1,1,0,0,1-2,0,1,1,0,0,1,2,0" transform="translate(-0.75 -1)"/><path d="M16,13.84a5.72,5.72,0,1,1,5.72-5.72A5.73,5.73,0,0,1,16,13.84Zm0-9.92a4.2,4.2,0,1,0,4.2,4.2A4.21,4.21,0,0,0,16,3.92Z" transform="translate(-0.75 -1)"/></svg>
+
+                <h2 class="lyt-c-heading lyt-c-heading--no-transform">{{ 'device_connected.message' | translate }}</h2>
+                <p class="lyt-c-heading-description">
+                    {{ devicesService.connectedDevice.name }}
+                </p>
+            </div>
+            <div class="lyt-l-cross-app__body">
+                <div class="lyt-c-center-element">
+                    <div class="lyt-c-device-connected-action">
+                        <div class="lyt-c-dots">
+                            <span class="lyt-animate-move"></span>
+                            <span class="lyt-animate-move"></span>
+                            <span class="lyt-animate-move-2"></span>
+                            <span class="lyt-animate-move-2"></span>
+                            <span class="lyt-animate-move-3"></span>
+                            <span class="lyt-animate-move-2"></span>
+                            <span class="lyt-animate-move-3"></span>
+                        </div>
+                        <div class="lyt-c-circle-btn lyt-c-circle-btn--md">
+                            <div class="lyt-c-circle lyt-c-circle--size-md lyt-c-circle--rings-3 lyt-animate-circle-rings-3">
+                                <div class="lyt-c-circle__outside-03"></div>
+                                <div class="lyt-c-circle__outside-02"></div>
+                                <div class="lyt-c-circle__outside-01"></div>
+                                <div class="lyt-c-circle__main">
+                                    <button (click)="flash()"
+                                            type="button"
+                                            class="lyt-btn-circle-md">
+                                        {{ 'device_connected.flash.title' | translate | uppercase }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lyt-c-info">
+                    <div class="lyt-u-padding-v--05">
+                        <ion-icon name="ios-arrow-round-up-outline" class="lyt-c-icon-lg"></ion-icon>
+                    </div>
+                    <div>
+                        {{ 'device_connected.flash.info' | translate }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ion-content>

@@ -1,0 +1,25 @@
+/*
+ * LYT Device info
+ */
+@use "../partials/variables" as vars; 
+@use '../partials/mixins' as *;
+
+.lyt-c-device-info {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.lyt-c-device-info__left {
+    overflow: hidden;
+}
+
+.lyt-c-device-info__right {
+    flex-shrink: 0;
+}
+
+.lyt-c-device-info__name {
+    @include text-ellipsis;
+    font-size: vars.$font-size-xxl;
+    margin: 0 vars.$lyt-gutter vars.$lyt-gutter-025 0;
+}

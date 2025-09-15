@@ -1,0 +1,34 @@
+<navbar class="lyt-c-toolbar" [title]="'account_settings.title' | translate | uppercase" [hideBackButton]="true" [hideSettingsButton]="true"
+    [showCustomButton]="true" [customButtonTitle]="'common.done' | translate" (onCustomButtonClick)="updateUser()">
+</navbar>
+
+<ion-content>
+    <div class="lyt-c-page-wrapper lyt-c-page-wrapper--has-navbar">
+        <div class="lyt-c-circle-bg lyt-c-circle-bg--top-left">
+            <div class="lyt-c-circle lyt-c-circle--size-lg lyt-c-circle--bg">
+                <div class="lyt-c-circle__outside-03"></div>
+                <div class="lyt-c-circle__outside-02"></div>
+                <div class="lyt-c-circle__outside-01"></div>
+                <div class="lyt-c-circle__main"></div>
+            </div>
+        </div>
+        <div class="lyt-l-top-content-bottom-footer">
+            <div class="lyt-l-top-content-bottom-footer__top">
+                <div class="lyt-c-edit-account-form">
+                    <account-info 
+                        [userPayload]="userPayload" 
+                    (userPayloadChange)="userPayload = $event"
+                    ></account-info>
+                    <button type="button" (click)="goToChangePasswordPage()" class="lyt-btn-quiet lyt-btn-quiet--secondary lyt-btn-quiet--sm">
+                        {{ 'common.change_password' | translate | uppercase }}
+                    </button>
+                </div>
+            </div>
+            <div class="lyt-l-top-content-bottom-footer__bottom">
+                <button type="button" (click)="goToDeleteAccountPage()" class="lyt-btn-quiet lyt-btn-quiet--uppercase">
+                    {{ 'delete_account.title' | translate | uppercase }}
+                </button>
+            </div>
+        </div>
+    </div>
+</ion-content>

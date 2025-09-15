@@ -1,0 +1,7 @@
+{
+  "/api": {
+    "target": "http://10.255.109.123:8000/api",
+    "secure": false,
+    "changeOrigin": true
+  }
+}

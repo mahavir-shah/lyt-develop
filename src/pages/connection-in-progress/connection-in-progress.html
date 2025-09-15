@@ -1,0 +1,30 @@
+<navbar [title]="'connection_in_progress.title' | translate | uppercase"
+        [hideBackButton]="true"
+        [showLogo]="true">
+</navbar>
+
+<ion-content>
+    <div class="lyt-c-page-wrapper lyt-c-page-wrapper--has-navbar">
+        <div class="lyt-l-cross-app">
+            <div class="lyt-l-cross-app__heading">
+                <h2 class="lyt-c-heading lyt-c-heading--no-transform">{{ 'connection_in_progress.title' | translate }}</h2>
+                <p class="lyt-c-heading-description">
+                    {{ 'connection_in_progress.please_wait_info' | translate }}
+                </p>
+            </div>
+            <div class="lyt-l-cross-app__body">
+                <div class="lyt-c-center-element">
+                    <div class="lyt-c-spinning-wheel">
+                        <div class="lyt-c-spinning-wheel__quarter-ring"></div>
+                        <div class="lyt-c-spinning-wheel__half-ring"></div>
+                        <div class="lyt-c-spinning-wheel__full-ring-outer"></div>
+                        <div class="lyt-c-spinning-wheel__full-ring-inner"></div>
+                        <div class="lyt-c-spinning-wheel__content">
+                            {{ 'connection_in_progress.connecting_info' | translate | uppercase }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</ion-content>

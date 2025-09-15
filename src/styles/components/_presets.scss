@@ -1,0 +1,19 @@
+/*
+ * LYT Presets
+ */
+
+@use "../partials/variables" as vars; 
+
+.lyt-c-view-presets {
+    display: flex;
+    align-items: center;
+    padding: (vars.$lyt-gutter + 5) 0;
+    margin-bottom: -(vars.$lyt-gutter);
+    color: vars.$lyt-color-secondary;
+    border-top: 1px solid vars.$lyt-color-white;
+}
+
+.lyt-c-view-presets__text {
+    flex-grow: 1;
+    padding: 0 vars.$lyt-gutter-075;
+}
