@@ -5,7 +5,7 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { AppRoutingModule } from './app-routing.module';
 import { ReactiveFormsModule } from '@angular/forms';
 
-import { ErrorHandler, NgModule, isDevMode } from '@angular/core';
+import { ErrorHandler, NgModule, isDevMode, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { StatusBar } from '@capacitor/status-bar';
 import { ScreenOrientation } from '@capawesome/capacitor-screen-orientation';
@@ -13,7 +13,8 @@ import { Camera } from '@capacitor/camera'; // Corrected syntax
 import { Geolocation } from '@capacitor/geolocation'; // Corrected syntax
 import { BluetoothLe } from '@capacitor-community/bluetooth-le'; // Corrected name
 
-import { HttpClientModule, HttpClient } from '@angular/common/http';
+import { HttpClientModule, HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
+
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 
@@ -60,7 +61,9 @@ import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from 'src/environments/environment.prod';
 
 import { DeeplinksService } from 'src/shared/services/deeplinks.service';
-import { DiagnosticService } from 'src/shared/services/diagnostic.service';
+import { DiagnosticService } from 'src/shared/services/diagnostic.service'; 
+import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular'; 
+import { AuthInterceptor } from 'src/interceptor/authInterceptor';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -98,6 +101,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     BrowserModule,
     HttpClientModule,
     ReactiveFormsModule,
+    AmplifyAuthenticatorModule,
     IonicModule.forRoot({}),
     TranslateModule.forRoot({
       loader: {
@@ -124,10 +128,17 @@ export function HttpLoaderFactory(http: HttpClient) {
       provide: EnvVariables,
       useValue: environment
     },
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
+    { 
+      provide: HTTP_INTERCEPTORS, 
+      useClass: AuthInterceptor, 
+      multi: true 
+    }
   ],
   bootstrap: [
     AppComponent
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+
 })
 export class AppModule {}

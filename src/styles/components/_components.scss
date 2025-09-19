@@ -80,7 +80,7 @@
 
 .lyt-c-heading {
     margin-top: var(--lyt-gutter-15, 30px);
-    font-size: var(--lyt-font-size-xl, 20px);
+    font-size: var(--font-size-xl, 20px);
     text-transform: uppercase;
 
     &.lyt-c-heading--no-transform {
@@ -111,7 +111,9 @@
 .lyt-c-center-element {
     // @include flex-center; is a mixin that is still valid.
     min-height: 200px;
-    font-size: var(--lyt-font-size-stack, 14px);
+    font-size: var(--font-size-stack, 14px);
+    display: flex;
+    justify-content: center;
 
     &.lyt-c-center-element--align-start {
         align-items: flex-start;
@@ -171,7 +173,7 @@
 
 .lyt-c-light-detector__title {
     font-weight: 400;
-    font-size: var(--lyt-font-size-sm, 12px);
+    font-size: var(--font-size-sm, 12px);
 }
 
 .lyt-c-light-detector__timeout {
@@ -292,4 +294,7 @@
         padding: var(--lyt-gutter-05, 10px) 0;
         margin: var(--lyt-gutter-05, 10px) 0;
     }
+}
+.lyt-c-toolbar__left{
+    margin-left: 20px;
 }

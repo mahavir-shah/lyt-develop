@@ -64,10 +64,10 @@ export class AppComponent {
           ScreenOrientation.lock({ type: OrientationType.PORTRAIT })
         }
 
-        authService.checkUser().then(
-          () => {
-            console.log(authService.user);
-            if (authService.user) {
+        authService.checkUser().subscribe({
+          next: (user) => {
+            console.log(user);
+            if (user) {
               BluetoothLe.isEnabled()
               .then(() => {
                   this.checkIfLocationIsEnabled().then(isEnabled => {
@@ -91,10 +91,10 @@ export class AppComponent {
               this.router.navigateByUrl('/login-page');
             }
           },
-          () => {
-            this.platformReady();
+          error: (error) => {
+            // handle error
           }
-        );
+        });
       });
 
     this.router.events.pipe(
@@ -213,7 +213,10 @@ export class AppComponent {
   }
 
   private isAccountSettingsOnScreen(): boolean {
-    return this.router.url.includes('/account-settings-preview') || this.router.url.includes('/account-settings-edit-page'); // adjust the path accordingly
+    return this.router.url.includes('/account-settings-preview') || 
+        this.router.url.includes('/account-settings-edit-page') || 
+        this.router.url.includes('/change-password-page') ||
+        this.router.url.includes('/delete-account-page') ; // adjust the path accordingly
   }
 
   private isPageCurrentlyActive(page: any): boolean {

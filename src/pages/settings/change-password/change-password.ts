@@ -3,7 +3,6 @@ import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { ValidationService } from '../../../shared/services/validation.service';
 import { TranslateService } from '@ngx-translate/core';
 import { NavController } from '@ionic/angular';
-import { UsersService } from '../../../shared/services/users.service';
 import { User } from '../../../shared/models/user.model';
 import { AuthService } from '../../../shared/services';
 import {
@@ -24,24 +23,26 @@ import { Location } from '@angular/common';
 export class ChangePassword {
   @Input()
   userPayload: any;
+  private strongPasswordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/;
 
   public changePasswordForm: FormGroup = new FormGroup({});
   private validationRules = {
     old_password: ['required'],
     new_password: [
       'required',
-      'validationOneNumberAndOneLetterPattern',
+      //'validationOneNumberAndOneLetterPattern',
       'maxlength',
-      'validationPasswordMinglength'
+      'validationPasswordMinglength',
+      'pattern'
     ],
     new_password_confirmation: ['required', 'validatePasswordConfirm']
   };
   public validationErrors: any = {};
   public submitted:boolean = false;
+
   constructor(
     private formBuilder: FormBuilder,
     public validationService: ValidationService,
-    private usersService: UsersService,
     private authService: AuthService,
     private location: Location,
     private translateService: TranslateService,
@@ -57,7 +58,7 @@ export class ChangePassword {
 
   ngOnInit() {
     this.initFormBuilder();
-    this.subscribeToFormChange();
+    //this.subscribeToFormChange();
   }
 
   private initFormBuilder() {
@@ -69,7 +70,8 @@ export class ChangePassword {
           Validators.compose([
             ValidationService.validatePasswordMinlength(8),
             Validators.maxLength(45),
-            ValidationService.validateOneNumberAndOneLetterPattern()
+            //ValidationService.validateOneNumberAndOneLetterPattern()
+            Validators.pattern(this.strongPasswordPattern)
           ])
         ],
         new_password_confirmation: ['']
@@ -84,7 +86,7 @@ export class ChangePassword {
   }
 
   private subscribeToFormChange() {
-    this.changePasswordForm.valueChanges.pipe(debounceTime(300)).subscribe(data => {
+    this.changePasswordForm.valueChanges.pipe(debounceTime(300))?.subscribe(data => {
       this.validationService.checkForm(
         data,
         this.validationRules,
@@ -113,9 +115,11 @@ export class ChangePassword {
     if (!this.changePasswordForm.valid) {
       return;
     }
-    this.usersService.changePassword(this.userPayload).subscribe(
-      response => {
-        this.handleSuccess(new User(response));
+    this.authService.changePassword(
+      this.changePasswordForm?.value?.old_password, 
+      this.changePasswordForm?.value?.new_password, 
+    ).subscribe(esponse => {
+        this.handleSuccess();
       },
       error => {
         this.handleFail();
@@ -123,9 +127,16 @@ export class ChangePassword {
     );
   }
 
-  private handleSuccess(user: User): void {
-    this.authService.user = cloneDeep(user);
-
+  private handleSuccess(): void {
+    this.authService.checkUser().subscribe({
+      next: (refreshedUser) => {
+        console.log('User data refreshed after password change');
+      },
+      error: (error) => {
+        console.error('Error refreshing user data:', error);
+      }
+    });
+    
     this.createAlert(AlertType.Success, () => {
       this.location.back();
     }).then(alert => {

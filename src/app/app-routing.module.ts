@@ -19,83 +19,104 @@ import { ChangePassword } from 'src/pages/settings/change-password/change-passwo
 import { AccountSettingsEditPage } from 'src/pages/settings/account-settings-edit/account-settings-edit';
 import { SearchFailedPage } from 'src/pages/search-failed/search-failed';
 import { AccountSettingsPreviewPage } from 'src/pages/settings/account-settings-preview/account-settings-preview';
-
+import { AuthGuard } from 'src/guards/auth.guard'; 
+import { ResetPasswordPage } from 'src/pages/onboarding/forgot-password/reset-password';
 const routes: Routes = [
   {
     path: 'home',
     component: AppComponent,
+    canActivate: [AuthGuard]
   },
   {
     path: 'connection-failed',
     component: ConnectionFailedPage,
+    canActivate: [AuthGuard]
   },
   {
     path: 'device-connected-page',
-    component: DeviceConnectedPage
+    component: DeviceConnectedPage,
+    canActivate: [AuthGuard]
   },
   {
     path: 'bluetooth-failed',
-    component: BluetoothFailedPage
+    component: BluetoothFailedPage,
+    canActivate: [AuthGuard]
   },
   {
     path: 'location-disabled-page',
-    component: LocationDisabledPage
+    component: LocationDisabledPage,
+    canActivate: [AuthGuard]
   },
   {
     path: 'search-inprogress-page',
-    component: SearchInProgressPage
+    component: SearchInProgressPage,
+    canActivate: [AuthGuard]
   },
   {
     path: 'presets-page',
-    component: PresetsPage
+    component: PresetsPage,
+    canActivate: [AuthGuard]
   },
   {
     path: 'debug-page',
-    component: DebugPage
+    component: DebugPage,
+    canActivate: [AuthGuard]
   },
   {
     path: 'color-picker-page',
-    component: ColorPickerPage
+    component: ColorPickerPage,
+    canActivate: [AuthGuard]
   },
   {
     path: 'connection-inprogress-page',
-    component: ConnectionInProgressPage
+    component: ConnectionInProgressPage,
+    canActivate: [AuthGuard]
   },
   {
     path: 'confirmation-sent-page',
-    component: ConfirmationSentPage
+    component: ConfirmationSentPage,
+    canActivate: [AuthGuard]
   },
   {
     path: 'login-page',
-    component: LoginPage
+    component: LoginPage,
   },
   {
     path: 'register-page',
-    component: RegistrationPage
+    component: RegistrationPage,
   },
   {
-    path: 'forgot-passwor-page',
-    component: ForgotPasswordPage
+    path: 'forgot-password-page',
+    component: ForgotPasswordPage,
+  },
+  {
+    path: 'reset-password-page',
+    component: ResetPasswordPage,
   },
   {
     path: 'delete-account-page',
-    component: DeleteAccountPage
+    component: DeleteAccountPage,
+    canActivate: [AuthGuard]
   },
   {
     path: 'change-password-page',
-    component: ChangePassword
+    component: ChangePassword,
+    canActivate: [AuthGuard]
   },
   {
     path: 'account-settings-edit-page',
-    component: AccountSettingsEditPage
+    component: AccountSettingsEditPage,
+    canActivate: [AuthGuard]
   },
   {
     path: 'search-failed-page',
-    component: SearchFailedPage
+    component: SearchFailedPage,
+    canActivate: [AuthGuard]
   },
   {
     path: 'account-settings-preview',
-    component: AccountSettingsPreviewPage
+    component: AccountSettingsPreviewPage,
+    canActivate: [AuthGuard]
   },
   {
     path: '',

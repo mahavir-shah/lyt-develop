@@ -80,7 +80,6 @@ export class LytNavbar implements OnInit, OnChanges, OnDestroy {
   }
 
   public customButtonClicked() {
-    debugger
     this.onCustomButtonClick.emit();
   }
 }

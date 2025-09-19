@@ -35,7 +35,7 @@
     &.lyt-l-main--has-no-bottom {
         &:after {
             content: "";
-            padding: vars.$lyt-gutter;
+            padding: var(--lyt-gutter);
         }
     }
 }

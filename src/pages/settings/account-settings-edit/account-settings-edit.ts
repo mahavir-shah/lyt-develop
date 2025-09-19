@@ -7,7 +7,6 @@ import * as _ from 'lodash';
 import { User } from '../../../shared/models/user.model';
 
 import { AuthService } from '../../../shared/services/auth.service';
-import { UsersService } from '../../../shared/services/users.service';
 
 import {
   AlertFactory,
@@ -29,7 +28,6 @@ export class AccountSettingsEditPage {
 
   constructor(
     public authService: AuthService,
-    private usersService: UsersService,
     private alertFactory: AlertFactory,
     private translateService: TranslateService,
     public navCtrl: NavController,
@@ -43,9 +41,9 @@ export class AccountSettingsEditPage {
   }
 
   public updateUser(): void {
-    this.usersService.updateUser(this.userPayload).subscribe(
+    this.authService.updateUser(this.userPayload).subscribe(
       response => {
-        this.handleSuccess(new User(response));
+        this.handleSuccess();
       },
       error => {
         this.handleFail();
@@ -53,9 +51,7 @@ export class AccountSettingsEditPage {
     );
   }
 
-  private handleSuccess(user: User): void {
-    this.authService.user = _.cloneDeep(user);
-
+  private handleSuccess(): void {
     this.createAlert(AlertType.Success, () => {
       this.location.back();
     }).then(alert => {
@@ -100,12 +96,12 @@ export class AccountSettingsEditPage {
   }
 
   private updateUserPayload(): void {
-    this.userPayload = _.pick(_.cloneDeep(this.authService.user), [
-      'id',
-      'first_name',
-      'last_name',
-      'email'
-    ]);
+    const currentUser = this.authService.getCurrentUser();
+    if (currentUser) {
+      this.userPayload = _.pick(_.cloneDeep(currentUser)['attributes'], [
+        'given_name', 'family_name', 'email'
+      ]);
+    }
   }
 
   public goToDeleteAccountPage(): void {

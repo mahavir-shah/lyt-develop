@@ -18,8 +18,8 @@ export class AccountInfo {
   public accountForm: FormGroup = new FormGroup({});
 
   private validationRules = {
-    first_name: ['required', 'maxlength', 'validationText'],
-    last_name: ['required', 'maxlength', 'validationText'],
+    given_name: ['required', 'maxlength', 'validationText'],
+    family_name: ['required', 'maxlength', 'validationText'],
     email: ['required', 'emailMaxlength', 'validationEmail']
   };
   public validationErrors: any = {};
@@ -36,16 +36,16 @@ export class AccountInfo {
 
   private initFormBuilder() {
     this.accountForm = this.formBuilder.group({
-      first_name: [
-        this.userPayload.first_name,
+      given_name: [
+        this.userPayload.given_name,
         Validators.compose([
           Validators.required,
           Validators.maxLength(45),
           ValidationService.validateText()
         ])
       ],
-      last_name: [
-        this.userPayload.last_name,
+      family_name: [
+        this.userPayload.family_name,
         Validators.compose([
           Validators.required,
           Validators.maxLength(45),

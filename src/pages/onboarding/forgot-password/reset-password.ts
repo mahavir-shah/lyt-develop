@@ -111,7 +111,7 @@ export class ResetPasswordPage {
 
     this.payload.password_reset_request_id = this.deeplinksService.data.id;
 
-    this.authService.resetPassword(this.payload).then(
+    this.authService.resetPassword( "",this.payload.password,"").subscribe(
       () => {
         this.handleSuccess();
       },

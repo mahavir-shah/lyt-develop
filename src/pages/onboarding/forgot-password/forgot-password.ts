@@ -82,7 +82,7 @@ export class ForgotPasswordPage {
   }
 
   public sendResetPasswordRequest(): void {
-    this.authService.sendResetPasswordRequest(this.email).then(
+    this.authService.requestPasswordReset(this.email).subscribe(
       () => {
         this.navCtrl.navigateForward('/confirmation-sent-page');
       },

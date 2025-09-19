@@ -17,7 +17,7 @@
                 <div class="lyt-c-edit-account-form">
                     <account-info 
                         [userPayload]="userPayload" 
-                    (userPayloadChange)="userPayload = $event"
+                        (userPayloadChange)="userPayload = $event"
                     ></account-info>
                     <button type="button" (click)="goToChangePasswordPage()" class="lyt-btn-quiet lyt-btn-quiet--secondary lyt-btn-quiet--sm">
                         {{ 'common.change_password' | translate | uppercase }}

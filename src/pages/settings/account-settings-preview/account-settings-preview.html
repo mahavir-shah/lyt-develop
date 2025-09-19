@@ -26,7 +26,7 @@
                                 {{ 'common.name' | translate }}
                             </div>
                             <div class="lyt-c-form-preview__content">
-                                {{ authService.user.first_name }}
+                                {{ currentUser?.attributes?.given_name }}
                             </div>
                         </div>
                     </div>
@@ -36,7 +36,7 @@
                                 {{ 'common.last_name' | translate }}
                             </div>
                             <div class="lyt-c-form-preview__content">
-                                {{ authService.user.last_name }}
+                                {{ currentUser?.attributes?.family_name }}
                             </div>
                         </div>
                     </div>
@@ -46,7 +46,7 @@
                                 {{ 'common.email' | translate }}
                             </div>
                             <div class="lyt-c-form-preview__content">
-                                {{ authService.user.email }}
+                                {{ currentUser?.attributes?.email }}
                             </div>
                         </div>
                     </div>

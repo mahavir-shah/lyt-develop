@@ -22,6 +22,8 @@ import { SearchInProgressPage } from '../../search-in-progress/search-in-progres
 export class RegistrationPage {
   public registrationForm: FormGroup;
   public submitted: boolean = false;
+  private strongPasswordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/;
+
 
   private validationRules = {
     first_name: ['required', 'maxlength', 'validationText'],
@@ -29,9 +31,10 @@ export class RegistrationPage {
     email: ['required', 'emailMaxlength', 'validationEmail'],
     password: [
       'required',
-      'validationOneNumberAndOneLetterPattern',
+      //'validationOneNumberAndOneLetterPattern',
       'maxlength',
-      'validationPasswordMinglength'
+      'validationPasswordMinglength',
+      'pattern'
     ],
     password_confirmation: ['required', 'validatePasswordConfirm']
   };
@@ -84,7 +87,9 @@ export class RegistrationPage {
             Validators.required,
             ValidationService.validatePasswordMinlength(8),
             Validators.maxLength(45),
-            ValidationService.validateOneNumberAndOneLetterPattern()
+            //ValidationService.validateOneNumberAndOneLetterPattern(),
+            Validators.pattern(this.strongPasswordPattern)
+
           ])
         ],
         password_confirmation: ['', Validators.compose([Validators.required])],
@@ -128,9 +133,9 @@ export class RegistrationPage {
       this.submitted
     );
     if (form.valid) {
-      this.authService.register(form.value).then(
+      this.authService.registerUser(form.value).subscribe(
         response => {
-          this.authService.onUserAuthenticated(response);
+          // this.authService.onUserAuthenticated(response);
           this.navCtrl.navigateRoot('/search-inprogress-page');
         },
         error => {

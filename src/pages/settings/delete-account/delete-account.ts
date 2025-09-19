@@ -1,12 +1,7 @@
 import { Component } from '@angular/core';
 import { NavController } from '@ionic/angular';
-
 import { AuthService } from '../../../shared/services/auth.service';
-import { UsersService } from '../../../shared/services/users.service';
-
 import { AlertFactory } from '../../../shared/factories/alert.factory';
-
-import { LoginPage } from '../../onboarding/login/login';
 import { Location } from '@angular/common';
 
 @Component({
@@ -17,7 +12,6 @@ import { Location } from '@angular/common';
 export class DeleteAccountPage {
   constructor(
     private authService: AuthService,
-    private usersService: UsersService,
     private alertFactory: AlertFactory,
     public navCtrl: NavController,
     private location: Location
@@ -28,17 +22,27 @@ export class DeleteAccountPage {
   }
 
   public deleteAccount() {
-    this.usersService.deleteUser(this.authService.user).subscribe(
+    this.authService.deleteUser().subscribe(
       response => {
         this.handleDeletionSuccess();
       },
-      error => {
+      error => {  
         this.handleDeletionFail();
       }
     );
   }
 
-   private async handleDeletionSuccess() {
+  private async handleDeletionSuccess() {
+    // Await the creation of the alert
+    const alert = await this.createDeletionSuccessAlert(() => {
+      this.logoutAndGoToLoginPage();
+    });
+
+    // Await the presentation of the alert
+    await alert.present();
+  } 
+
+   /* private async handleDeletionSuccess() {
     let alert:any = await this.createDeletionSuccessAlert(() => {
       this.logoutAndGoToLoginPage();
     });
@@ -46,7 +50,7 @@ export class DeleteAccountPage {
     await alert.then(alert => {
       alert.present();
     });
-  }
+  } */
 
   private async handleDeletionFail() {
     let alert:any = await this.createDeletionFailAlert();
@@ -56,7 +60,7 @@ export class DeleteAccountPage {
   }
 
   private logoutAndGoToLoginPage() {
-    this.authService.logout();
+    this.authService.signOut();
     this.navCtrl.navigateForward('/login-page');
   }
 

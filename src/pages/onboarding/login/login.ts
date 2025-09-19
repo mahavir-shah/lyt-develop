@@ -101,7 +101,7 @@ export class LoginPage {
     );
     if (this.loginForm.valid) {
       this.authService
-        .login(
+        .loginUser(
           this.loginForm.controls['email'].value,
           this.loginForm.controls['password'].value
         )
@@ -110,7 +110,7 @@ export class LoginPage {
             this.navCtrl.navigateRoot('/search-inprogress-page');
           },
           error => {
-            if (error && error.status === 401) {
+            if (error) {
               this.invalidCredentials = true;
             }
           }
@@ -119,6 +119,6 @@ export class LoginPage {
   }
 
   public goToForgotPasswordPage(): void {
-    this.navCtrl.navigateForward('/forgot-passwor-page');
+    this.navCtrl.navigateForward('/forgot-password-page');
   }
 }

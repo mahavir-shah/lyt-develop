@@ -23,7 +23,9 @@ $font-path: "../assets/fonts";
 // http://ionicframework.com/docs/theming/rtl-support/
 $app-direction: ltr;
 
-
+:host{
+  --ion-background-color: #1d212a !important;
+}
 :root {
   --font-size-xxl:     24px;
   --font-size-xl:      20px;
@@ -41,7 +43,7 @@ $app-direction: ltr;
   --ion-color-danger: #f53d3d;
   --ion-color-light: #f4f4f4;
   --ion-color-dark: #222;
-  --ion-background-color: #1d212a;
+  --ion-background-color: #1d212a !important;
 
   --ion-color-primary: #ee384e;
   --ion-color-primary-rgb: 238, 56, 78; /* Converted from #ee384e */
@@ -76,26 +78,80 @@ $app-direction: ltr;
   --gutter:                  20px;
   --gutter-025:   --gutter*.25;
   --gutter-05:     --gutter*.5;
-  --gutter-075:   --gutter*.75;
+  --gutter-075:   --gutter *.75;
   --gutter-15:    --gutter*1.5;
   --gutter-2:       --gutter*2;
   --gutter-3:       --gutter*3;
 
-  --lyt-gutter:       20px;
-  --lyt-gutter-025:   --lyt-gutter*.25;
-  --lyt-gutter-05:    --lyt-gutter*.5;
-  --lyt-gutter-075:   --lyt-gutter*.75;
-  --lyt-gutter-15:    --lyt-gutter*1.5;
-  --lyt-gutter-2:     --lyt-gutter*2;
-  --lyt-gutter-3:     --lyt-gutter*3;
 
+/*
+ * LYT Variables
+ */
+  --lyt-gutter: 20px;
+  --lyt-gutter-025: calc(var(--lyt-gutter) * .25); /* Corrected */
+  --lyt-gutter-05: calc(var(--lyt-gutter) * .5);   /* Corrected */
+  --lyt-gutter-075: calc(var(--lyt-gutter) * .75); /* Corrected */
+  --lyt-gutter-15: calc(var(--lyt-gutter) * 1.5);  /* Corrected */
+  --lyt-gutter-2: calc(var(--lyt-gutter) * 2);     /* Corrected */
+  --lyt-gutter-3: calc(var(--lyt-gutter) * 3);     /* Corrected */
+
+  /* Fonts */
+
+  --font-size-xxl:     24px;
+  --font-size-xl:      20px;
+  --font-size-lg:      16px;
+  --font-size-stack:   14px;
+  --font-size-sm:      12px;
+  --font-size-xs:      10px;
+
+  /* Colors */
+  --lyt-color-text:             #ffffff;
+  --lyt-color-background:       #1d212a;
+  --lyt-color-primary:          #ee384e;
+  --lyt-color-primary-01:       #bc3343;
+  --lyt-color-primary-02:       #812a38;
+  --lyt-color-primary-03:       #632834;
+  --lyt-color-primary-04:       #36222c;
+  --lyt-color-secondary:        #8ec140;
+
+  --lyt-color-white:            #ffffff;
+  --lyt-color-gray:             #8c8c8c;
+  --lyt-color-black:            #000000;
+  --lyt-color-gray-dark:       #484848;
+  /* Colors */
+
+  --lyt-color-rings-bg-3-0:    var(--lyt-color-primary);
+  --lyt-color-rings-bg-3-1:     #852a3b;
+  --lyt-color-rings-bg-3-2:     #3e242f;
+
+  /* Radius */
+  --lyt-radius-xs:     3px;
+  --lyt-radius-sm:     5px;
+  --lyt-radius:       15px;
+  --lyt-radius-lg:    20px;
+  --lyt-radius-round:  50%;
+  --lyt-toolbar-height:           70px;
+  --lyt-toolbar-background-color: transparent;
+  /* Lyt circle */
+
+  --lyt-circle-size-xs:                    42px; // submit button on login page
+  --lyt-circle-size-sm:                    70px; // color picker center
+  --lyt-circle-size-md:                   110px; // scan button
+  --lyt-circle-size-lg:                    67vw; // background
+
+  --lyt-circle-increment-coefficient:       0.5;
+  --lyt-circle-increment-coefficient-sm:   0.33;
+
+  --lyt-c-main-button-bazier:              .23,.32,.08,.18;
+
+  --color-webkit-text-fill:     --lyt-color-white;
+  --color-warning:              #ee384e;
   /* Navbar */
 
   --toolbar-height:           70px;
   --toolbar-background-color: transparent;
 
   /* Lyt circle */
-
   --circle-size-xs:                    42px; // submit button on login page
   --circle-size-sm:                    70px; // color picker center
   --circle-size-md:                   110px; // scan button
@@ -105,6 +161,33 @@ $app-direction: ltr;
   --circle-increment-coefficient-sm:   0.33;
 
   --c-main-button-bazier:              .23,.32,.08,.18;
+
+   /** primary **/
+   /** Primary Color **/
+  --ion-color-primary: var(--lyt-color-primary);
+  --ion-color-primary-shade: var(--lyt-color-primary-01);
+  /* The default Ionic tint will be auto-generated, but for a custom value,
+     you would define one here. */
+  --ion-color-primary-tint: #ff667e; /* Example tint value */
+
+  /* You can also define contrast colors if needed, e.g., for text on top of the primary color */
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+
+
+  /** Secondary Color **/
+  --ion-color-secondary: var(--lyt-color-secondary);
+  --ion-color-secondary-shade: #7ca836; /* A custom shade for your secondary color */
+  --ion-color-secondary-tint: #9fd45b; /* A custom tint for your secondary color */
+  --ion-color-secondary-contrast: #000000; /* Example contrast color */
+
+
+  /** ... and so on for tertiary, success, warning, danger, light, medium, dark */
+
+  /** App-wide variables **/
+  --ion-text-color: #ffffff;
+  --ion-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+
 }
 
 

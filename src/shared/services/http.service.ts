@@ -11,7 +11,6 @@ export class HttpService {
   private apiUrl: string;
 
   constructor(private http: HttpClient, @Inject(EnvVariables) public envVariables) {
-    console.log("envVariables:", envVariables);
     this.apiUrl = envVariables.apiEndpoint;
   }
 
