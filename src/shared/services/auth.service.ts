@@ -211,7 +211,6 @@ export class AuthService {
           email: data.user.username,
           attributes: data.attributes
         };
-        console.log("userObj:",userObj);
         return userObj;
       })
     );

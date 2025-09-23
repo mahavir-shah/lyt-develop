@@ -12,7 +12,7 @@ import { Subscription } from 'rxjs';
   templateUrl: 'account-settings-preview.html',
   standalone: false,
 })
-export class AccountSettingsPreviewPage implements OnInit {
+export class AccountSettingsPreviewPage {
   public currentUser:any = null;
   private userSubscription: Subscription;
   constructor(
@@ -24,12 +24,21 @@ export class AccountSettingsPreviewPage implements OnInit {
     });
   }
 
-  ngOnInit() {
-    
-  }
   public logout() {
-    this.authService.signOut();
-    this.navCtrl.navigateRoot('/login-page');
+    this.authService.signOut().subscribe({
+        next: (result) => {
+            console.log('Sign-out successful, navigating...');
+            this.navCtrl.navigateRoot('/login-page');
+        },
+        error: (error) => {
+            console.error('Sign-out failed:', error);
+            // You might still want to navigate even on error
+            // this.navCtrl.navigateRoot('/login-page'); 
+        },
+        complete: () => {
+            console.log('Sign-out stream completed.');
+        }
+    });
   }
 
   public goToAccountSettingsEditPage() {
