@@ -31,6 +31,7 @@ import { ResetPasswordPage } from '../pages/onboarding/forgot-password/reset-pas
 import { LocationDisabledPage } from '../pages/location-disabled/location-disabled';
 import { filter } from 'rxjs';
 import { Capacitor } from '@capacitor/core';
+import { App } from '@capacitor/app';
 
 @Component({
   selector: 'app-root',
@@ -101,6 +102,25 @@ export class AppComponent {
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: NavigationEnd) => {
       this.currentRoute = event.urlAfterRedirects;
+    });
+  }
+
+  ngOnInit() {
+    App.addListener('appUrlOpen', ({ url }) => {
+       // Create a URL object from the incoming deep link
+      const parsedUrl = new URL(url);
+
+      // Get the value of a specific query parameter (e.g., 'id')
+      const code = parsedUrl.searchParams.get('id');
+      
+      console.log('Deep link URL:', url);
+      console.log('Confirmation code:', code);
+
+      this.navCtrl.navigateForward('/reset-password-page', {
+        state: {
+          code: code
+        }
+      });
     });
   }
 

@@ -15,6 +15,7 @@ import { LoginPage } from '../login/login';
 import { AuthService } from '../../../shared/services/auth.service';
 import { DeeplinksService } from '../../../shared/services/deeplinks.service';
 import { ValidationService } from '../../../shared/services/validation.service';
+import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
   selector: 'reset-password',
@@ -24,7 +25,7 @@ import { ValidationService } from '../../../shared/services/validation.service';
 export class ResetPasswordPage {
   private payload: any = {};
   public submitted: boolean = false;
-
+  private confirmationCode: string  = "";
 
   public resetPasswordForm: FormGroup = new FormGroup({});
 
@@ -40,6 +41,7 @@ export class ResetPasswordPage {
   public validationErrors: any = {};
 
   constructor(
+    private router: Router,
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private alertFactory: AlertFactory,
@@ -47,7 +49,13 @@ export class ResetPasswordPage {
     private translateService: TranslateService,
     public validationService: ValidationService,
     public navCtrl: NavController
-  ) {}
+  ) {
+     const navigation = this.router.getCurrentNavigation();
+      const state = navigation?.extras?.state;
+      if (state?.['code']) {
+        this.confirmationCode = state?.['code'];
+      }
+  }
 
   ngOnInit() {
     this.initFormBuilder();
