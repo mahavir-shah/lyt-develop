@@ -1,5 +1,5 @@
 PODS:
-  - Capacitor (6.2.1):
+  - Capacitor (7.4.3):
     - CapacitorCordova
   - CapacitorApp (7.1.0):
     - Capacitor
@@ -9,7 +9,7 @@ PODS:
     - Capacitor
   - CapacitorCommunityBluetoothLe (7.2.0):
     - Capacitor
-  - CapacitorCordova (6.2.1)
+  - CapacitorCordova (7.4.3)
   - CapacitorDevice (7.0.2):
     - Capacitor
   - CapacitorGeolocation (7.1.5):
@@ -85,12 +85,12 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capawesome/capacitor-screen-orientation"
 
 SPEC CHECKSUMS:
-  Capacitor: 1e0d0e7330dea9f983b50da737d8918abcf273f8
+  Capacitor: b4741ca7affb32c1b70debd03df92cbf522d8a80
   CapacitorApp: 846d4b4a1dbb19dd1e9029c08ba6f028aa7be862
   CapacitorBrowser: 45c681e7abc3b4384e54eb52bafeef1347d98fa8
   CapacitorCamera: 6e18d54c8ab30d7dc7b8cd93d96f9b4f57e9202a
   CapacitorCommunityBluetoothLe: ed9743fc77d7feca5c017e28bd9255a656615cc3
-  CapacitorCordova: 8d93e14982f440181be7304aa9559ca631d77fff
+  CapacitorCordova: 435121e81a2df4d0034f0fb11fcefab5104cfdb5
   CapacitorDevice: a50a45f0d075e55e2392c7a4be5404d4f69515de
   CapacitorGeolocation: b96474c3259dd4a294227ea8ec19140b1837cceb
   CapacitorKeyboard: 3822c3a0c6b58168f96ca562f9534ed095d40860

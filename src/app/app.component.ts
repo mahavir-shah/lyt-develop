@@ -107,20 +107,24 @@ export class AppComponent {
 
   ngOnInit() {
     App.addListener('appUrlOpen', ({ url }) => {
-       // Create a URL object from the incoming deep link
-      const parsedUrl = new URL(url);
+      // For reset password deeplink
+      if(url.includes("password-reset?id=")) {
+        const parsedUrl = new URL(url);
 
-      // Get the value of a specific query parameter (e.g., 'id')
-      const code = parsedUrl.searchParams.get('id');
-      
-      console.log('Deep link URL:', url);
-      console.log('Confirmation code:', code);
+        // Get the value of a specific query parameter (e.g., 'id')
+        const code = parsedUrl.searchParams.get('id');
+        const email = parsedUrl.searchParams.get('user');
+        
+        console.log('Deep link URL:', url);
+        console.log('Confirmation code:', code);
 
-      this.navCtrl.navigateForward('/reset-password-page', {
-        state: {
-          code: code
-        }
-      });
+        this.navCtrl.navigateForward('/reset-password-page', {
+          state: {
+            code: code,
+            email: email            
+          }
+        });
+      }
     });
   }
 
