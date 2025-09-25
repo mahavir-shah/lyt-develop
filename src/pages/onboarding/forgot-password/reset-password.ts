@@ -23,18 +23,19 @@ import { ActivatedRoute, Router } from '@angular/router';
   standalone: false,
 })
 export class ResetPasswordPage {
-  private payload: any = {};
   public submitted: boolean = false;
   private confirmationCode: string  = "";
+  private userEmail: string  = "";
+  private strongPasswordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/;Ω
 
   public resetPasswordForm: FormGroup = new FormGroup({});
 
   private validationRules = {
     password: [
       'required',
-      'validationOneNumberAndOneLetterPattern',
       'maxlength',
-      'validationPasswordMinglength'
+      'validationPasswordMinglength',
+      'pattern'
     ],
     password_confirmation: ['required', 'validatePasswordConfirm']
   };
@@ -52,8 +53,9 @@ export class ResetPasswordPage {
   ) {
      const navigation = this.router.getCurrentNavigation();
       const state = navigation?.extras?.state;
-      if (state?.['code']) {
+      if (state?.['code'] && state?.['email']) {
         this.confirmationCode = state?.['code'];
+        this.userEmail = state?.['email'];
       }
   }
 
@@ -70,7 +72,8 @@ export class ResetPasswordPage {
           Validators.compose([
             ValidationService.validatePasswordMinlength(8),
             Validators.maxLength(45),
-            ValidationService.validateOneNumberAndOneLetterPattern()
+            //ValidationService.validateOneNumberAndOneLetterPattern()
+            Validators.pattern(this.strongPasswordPattern)
           ])
         ],
         password_confirmation: ['']
@@ -96,7 +99,7 @@ export class ResetPasswordPage {
     });
   }
 
-  public update(form, field) {
+  /*  public update(form, field) {
     this.validationService.checkForm(
       form.value,
       this.validationRules,
@@ -108,7 +111,7 @@ export class ResetPasswordPage {
     if (form.controls[field].valid) {
       this.payload[field] = form.controls[field].value;
     }
-  }
+  } */
 
   public resetPassword(): void {
     this.submitted = true;
@@ -116,10 +119,11 @@ export class ResetPasswordPage {
       return;
     }
     
-
-    this.payload.password_reset_request_id = this.deeplinksService.data.id;
-
-    this.authService.resetPassword( "",this.payload.password,"").subscribe(
+    this.authService.resetPassword( 
+      this.userEmail,
+      this.confirmationCode,
+      this.resetPasswordForm?.value?.password
+    ).subscribe(
       () => {
         this.handleSuccess();
       },
