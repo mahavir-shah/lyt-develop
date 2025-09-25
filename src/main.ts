@@ -1,5 +1,5 @@
 import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
-import { Amplify } from 'aws-amplify'; // Corrected import path
+import { Amplify } from 'aws-amplify';
 
 import { AppModule } from './app/app.module';
 import awsExports from './aws-exports';
