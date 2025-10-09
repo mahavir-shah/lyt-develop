@@ -1,11 +1,6 @@
 import { Component } from '@angular/core';
 import { Platform, NavController } from '@ionic/angular';
-
 import { DevicesService } from '../../shared/services/devices.service';
-
-import { ColorPickerPage } from '../color-picker/color-picker';
-import { SearchInProgressPage } from '../search-in-progress/search-in-progress';
-
 @Component({
   selector: 'device-connected',
   templateUrl: 'device-connected.html',

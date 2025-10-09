@@ -17,7 +17,8 @@ export class ValidationService {
     validationEmail: 'The email field must be a valid email.',
     validationOneNumberAndOneLetterPattern:
       'This field must contain at least one letter and one number.',
-    validatePasswordConfirm: 'Password do not match.'
+    validatePasswordConfirm: 'Password do not match.',
+    pattern: 'Must include at least one uppercase letter, one lowercase letter, one number, and one special character.'
   };
 
   constructor() {}

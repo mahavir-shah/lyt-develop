@@ -57,7 +57,6 @@ export class AppComponent {
     private activatedRoute: ActivatedRoute
   ) {
     translate.use('en');
-
       this.initializeApp();
 
       platform.ready().then(() => {
@@ -67,7 +66,6 @@ export class AppComponent {
 
         authService.checkUser().subscribe({
           next: (user) => {
-            console.log(user);
             if (user) {
               BluetoothLe.isEnabled()
               .then(() => {
@@ -120,7 +118,7 @@ export class AppComponent {
 
         this.navCtrl.navigateForward('/reset-password-page', {
           state: {
-            code: code,
+            code: atob(code),
             email: email            
           }
         });
@@ -196,7 +194,7 @@ export class AppComponent {
       return;
     }
 
-    if (this.getRootPage() === LoginPage || this.isAccountSettingsOnScreen()) {
+    if (this.getRootPage() === LoginPage || this.isAccountSettingsOnScreen() || this.deviceConnectProcessPage()) {
       return;
     }
 
@@ -241,6 +239,15 @@ export class AppComponent {
         this.router.url.includes('/account-settings-edit-page') || 
         this.router.url.includes('/change-password-page') ||
         this.router.url.includes('/delete-account-page') ; // adjust the path accordingly
+  }
+
+  private deviceConnectProcessPage(): boolean {
+    return this.router.url.includes('/devices-list') || 
+        this.router.url.includes('/search-inprogress-page') || 
+        this.router.url.includes('/connection-inprogress-page') ||
+        this.router.url.includes('/connection-failed') ||
+        this.router.url.includes('/device-connected-page') ||
+        this.router.url.includes('/search-failed-page') 
   }
 
   private isPageCurrentlyActive(page: any): boolean {

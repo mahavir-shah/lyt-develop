@@ -4,7 +4,7 @@ import { BluetoothLe, ScanResult } from '@capacitor-community/bluetooth-le';
 import * as _ from 'lodash';
 import { Device } from '../../shared/models/device.model';
 import { DevicesService } from '../../shared/services/devices.service';
-import { Subscription, timer } from 'rxjs';
+import { Subscription, take, timer } from 'rxjs';
 
 @Component({
   selector: 'search-in-progress',
@@ -33,10 +33,15 @@ export class SearchInProgressPage implements OnInit, OnDestroy {
         this.handleDeviceFound(device);
       });
 
-      this.timerSubscription = timer(1000, 1000).subscribe(tick => {
-        this.onTimerTick(tick);
+     this.timerSubscription = timer(1000, 1000).pipe(
+      take(10) // <-- This limits the emissions to exactly 10
+      ).subscribe(tick => {
+          this.onTimerTick(tick);
+      }, 
+      // Optional: A complete handler that fires after the 10th emission
+      () => {
+          console.log('Timer finished checking after 10 seconds.');
       });
-
     } catch (error) {
       console.error('BLE scan failed', error);
       this.goToSearchFailedPage();
@@ -51,7 +56,10 @@ export class SearchInProgressPage implements OnInit, OnDestroy {
   private handleDeviceFound(device: any) {
     // Assuming your Device constructor accepts ScanResult or compatible
     if(device) {
-      if (!this.devicesService.devices.find((d :any) => d?.deviceId === device?.deviceId)) {
+      console.log("device list: this.devicesService.devices: ", this.devicesService.devices);
+      console.log("seleced Device: ", device);
+
+      if (!this.devicesService.devices.find((d :any) => d?.device?.deviceId === device)) {
         this.devicesService.devices.push(new Device(device));
       }
     }

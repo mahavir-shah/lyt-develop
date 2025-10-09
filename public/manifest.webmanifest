@@ -1,6 +1,6 @@
 {
-  "name": "lytdevelop",
-  "short_name": "lytdevelop",
+  "name": "lyt-control",
+  "short_name": "lyt-control",
   "start_url": "index.html",
   "display": "standalone",
   "icons": [{

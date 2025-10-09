@@ -134,15 +134,33 @@ export class RegistrationPage {
     );
     if (form.valid) {
       this.authService.registerUser(form.value).subscribe(
-        response => {
-          // this.authService.onUserAuthenticated(response);
-          this.navCtrl.navigateRoot('/search-inprogress-page');
+        (response:any) => {
+          if (response.isSignUpComplete && response.userId) {
+            this.loginUser(form.value.email, form.value.password);  
+          }
         },
         error => {
-          this.validationErrors = _.first(error);
+          console.log("error:", error?.message)
+          if(error?.message) {
+            this.validationErrors ={email: error?.message };
+          } else {
+            this.validationErrors ={email: "Email address already registerd" };
+          }
         }
       );
     }
+  }
+
+  loginUser(email, password) {
+    this.authService.loginUser(email, password).subscribe(response => {
+        this.navCtrl.navigateRoot('/search-inprogress-page');
+      },
+      error => {
+        if (error) {
+          console.log("error:", error);
+        }
+      }
+    );
   }
 
   goToLogin() {

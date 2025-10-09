@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">lyt-control</string>
+    <string name="title_activity_main">lyt-control</string>
+    <string name="package_name">com.lytcontrol</string>
+    <string name="custom_url_scheme">com.lytcontrol</string>
+</resources>

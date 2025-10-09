@@ -58,14 +58,10 @@ export class AuthService {
           given_name: data.first_name,
           family_name: data.last_name
         },
-        autoSignIn: {
-          enabled: true
-        }
-      }
+      },
     })).pipe(
-      map(result => {
-        console.log('User registered successfully:', result);
-        return result;
+      map((result:any) => {
+          return result;
       }),
       catchError(error => {
         console.error('Registration error:', error);

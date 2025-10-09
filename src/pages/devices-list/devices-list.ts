@@ -17,7 +17,10 @@ export class DevicesListPage {
   constructor(
     public devicesService: DevicesService,
     public navCtrl: NavController
-  ) {}
+  ) {
+    alert(JSON.stringify(devicesService.devices));
+    console.log("devicesService.devices:", devicesService.devices);
+  }
 
   doRefresh(refresher) {
     this.navCtrl.navigateForward('/search-inprogress-page');

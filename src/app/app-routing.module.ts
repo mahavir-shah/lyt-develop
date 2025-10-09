@@ -21,6 +21,7 @@ import { SearchFailedPage } from 'src/pages/search-failed/search-failed';
 import { AccountSettingsPreviewPage } from 'src/pages/settings/account-settings-preview/account-settings-preview';
 import { AuthGuard } from 'src/guards/auth.guard'; 
 import { ResetPasswordPage } from 'src/pages/onboarding/forgot-password/reset-password';
+import { DevicesListPage } from 'src/pages/devices-list/devices-list';
 const routes: Routes = [
   {
     path: 'home',
@@ -116,6 +117,11 @@ const routes: Routes = [
   {
     path: 'account-settings-preview',
     component: AccountSettingsPreviewPage,
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'devices-list',
+    component: DevicesListPage,
     canActivate: [AuthGuard]
   },
   {

@@ -68,3 +68,6 @@ Thumbs.db
 UserInterfaceState.xcuserstate
 .sourcemaps/
 
+
+resources/ios/**/*
+resources/android/**/*

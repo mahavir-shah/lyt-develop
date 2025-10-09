@@ -84,7 +84,11 @@ export class ForgotPasswordPage {
   public sendResetPasswordRequest(): void {
     this.authService.requestPasswordReset(this.email).subscribe(
       () => {
-        this.navCtrl.navigateForward('/confirmation-sent-page');
+        this.navCtrl.navigateForward('/reset-password-page', { 
+          state: {
+            email: this.email
+          }
+        });
       },
       () => {
         this.createAlert().then(alert => {

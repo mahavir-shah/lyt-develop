@@ -6,6 +6,7 @@
     "password": "Password",
     "old_password": "Old password",
     "new_password": "New password",
+    "verification_code" : "Verification Code",
     "confirm_password": "Re-type new password",
     "cancel": "Cancel",
     "start": "Start",

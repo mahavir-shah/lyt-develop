@@ -307,10 +307,11 @@ export class BluetoothFailedPage implements OnDestroy {
         },
         (result: ScanResult) => {
           console.log('Discovered device:', result);
+          console.log('this.discoveredDevices:', this.discoveredDevices)
           
           // Add device if not already in list
           const existingDevice = this.discoveredDevices.find(
-            device => device.deviceId === result.device.deviceId
+            (device:any) => device.device.deviceId === result.device.deviceId
           );
           
           if (!existingDevice) {
@@ -513,7 +514,7 @@ export class BluetoothFailedPage implements OnDestroy {
   public async isDeviceConnected(deviceId: string): Promise<boolean> {
     try {
       const connectedDevices = await this.getConnectedDevices();
-      return connectedDevices.some(device => device.deviceId === deviceId);
+      return connectedDevices.some((device: any) => device.device.deviceId === deviceId);
     } catch (error) {
       console.error('Failed to check device connection:', error);
       return false;
@@ -604,9 +605,11 @@ export class BluetoothFailedPage implements OnDestroy {
       }
 
       // Disconnect from all devices
-      const connectedDevices = await this.getConnectedDevices();
+      const connectedDevices: any = await this.getConnectedDevices();
       for (const device of connectedDevices) {
-        await this.disconnectFromDevice(device.deviceId);
+        if(device & device?.device) {
+          await this.disconnectFromDevice(device?.device?.deviceId);
+        }
       }
 
       // Reinitialize

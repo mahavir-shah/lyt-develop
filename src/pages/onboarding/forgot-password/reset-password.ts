@@ -24,13 +24,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 })
 export class ResetPasswordPage {
   public submitted: boolean = false;
-  private confirmationCode: string  = "";
   private userEmail: string  = "";
   private strongPasswordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/;Ω
 
   public resetPasswordForm: FormGroup = new FormGroup({});
 
   private validationRules = {
+    code: ['required'],
     password: [
       'required',
       'maxlength',
@@ -39,7 +39,9 @@ export class ResetPasswordPage {
     ],
     password_confirmation: ['required', 'validatePasswordConfirm']
   };
-  public validationErrors: any = {};
+  public validationErrors: any = {
+
+  };
 
   constructor(
     private router: Router,
@@ -53,8 +55,7 @@ export class ResetPasswordPage {
   ) {
      const navigation = this.router.getCurrentNavigation();
       const state = navigation?.extras?.state;
-      if (state?.['code'] && state?.['email']) {
-        this.confirmationCode = state?.['code'];
+      if (state?.['email']) {
         this.userEmail = state?.['email'];
       }
   }
@@ -67,6 +68,7 @@ export class ResetPasswordPage {
   private initFormBuilder() {
     this.resetPasswordForm = this.formBuilder.group(
       {
+        code: ['', Validators.required],
         password: [
           '',
           Validators.compose([
@@ -121,7 +123,7 @@ export class ResetPasswordPage {
     
     this.authService.resetPassword( 
       this.userEmail,
-      this.confirmationCode,
+      this.resetPasswordForm?.value?.code,
       this.resetPasswordForm?.value?.password
     ).subscribe(
       () => {

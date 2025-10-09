@@ -18,7 +18,7 @@
                     <div class="lyt-c-list">
                         <ul class="lyt-c-item-list">
                             <li *ngFor="let device of devicesService.devices" (click)="connectToDevice(device)">
-                                <span class="lyt-c-item-title">{{ device.name ? device.name : device.id }}</span>
+                                <span class="lyt-c-item-title">{{ device?.device?.name ? device.device.name : device.device.deviceId }}</span>
                                 <div class="lyt-c-actions">
 
                                     <!-- Toggle between .lyt-u-text--green, .lyt-u-text--danger and .lyt-u-text--default -->

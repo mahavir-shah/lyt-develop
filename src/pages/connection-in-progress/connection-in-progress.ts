@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router';
 
 import { Subscription, timer } from 'rxjs';
 import { Observable } from 'rxjs';
-import { map, filter } from 'rxjs/operators';
+import { map, filter, take } from 'rxjs/operators';
 
 import { Device } from '../../shared/models/device.model';
 
@@ -46,8 +46,14 @@ export class ConnectionInProgressPage {
   }
 
   private connect() {
-    this.timerSubscription = timer(1000, 1000).subscribe(tick => {
-      this.onTimerTick(tick);
+    this.timerSubscription = timer(1000, 1000).pipe(
+      take(10) // <-- This limits the emissions to exactly 10
+    ).subscribe(tick => {
+        this.onTimerTick(tick);
+    }, 
+    // Optional: A complete handler that fires after the 10th emission
+    () => {
+        console.log('Timer finished checking after 10 seconds.');
     });
 
     this.device.connect().then(
