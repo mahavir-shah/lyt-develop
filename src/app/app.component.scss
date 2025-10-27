@@ -38,3 +38,7 @@
 @use "../styles/components/_color-picker";
 @use "../styles/components/_hex";
 @use "../styles/components/_presets";
+
+.lyt-control.main-container {
+  padding-top: max(40px, 25px)
+}

@@ -8,12 +8,23 @@ import {
 import { Color } from './../components/color-wheel/color';
 import { BaseModel } from './base.model';
 
-const DEVICE_SERVICE_UUID = 'fff0';
-const CHARACTERISTIC_UUID = { 
+// const DEVICE_SERVICE_UUID = 'fff0';
+const DEVICE_SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
+/* const CHARACTERISTIC_UUID = { 
   BRIGHTNESS: 'fff4', 
   COLOR: 'fff5',
   // Add a separate characteristic for saturation if available
   SATURATION: 'fff6' // Update this with actual UUID if different
+}; */
+const CHARACTERISTIC_UUID = { 
+  // 0000fff4-0000-1000-8000-00805f9b34fb
+  BRIGHTNESS: '0000fff4-0000-1000-8000-00805f9b34fb', 
+  
+  // 0000fff5-0000-1000-8000-00805f9b34fb
+  COLOR: '0000fff5-0000-1000-8000-00805f9b34fb',
+  
+  // 0000fff6-0000-1000-8000-00805f9b34fb
+  SATURATION: '0000fff6-0000-1000-8000-00805f9b34fb' 
 };
 
 export class Device extends BaseModel {
@@ -39,6 +50,9 @@ export class Device extends BaseModel {
    */
   public async connect(): Promise<void> {
     try {
+      console.log('this.device:',this.device);
+      console.log('this.name:',this.name);
+
       await BleClient.connect(this.device.deviceId);
       console.log(`Connected to device: ${this.name}`);
     } catch (error) {
@@ -65,13 +79,19 @@ export class Device extends BaseModel {
    */
   public async flash(previousBrightnessLevel: number = 100): Promise<void> {
     try {
+      if(!this.isConnected()) {
+        await BleClient.connect(this.device.deviceId);
+      }
+      console.log('first brightness call 100')
       await this.changeBrightnessLevel(100);
       await this.delay(300);
       
+      console.log('second brightness call 0')
       await this.changeBrightnessLevel(0);
       await this.delay(300);
       
       await this.changeBrightnessLevel(previousBrightnessLevel);
+      console.log('second brightness call' + previousBrightnessLevel)
     } catch (error) {
       console.error('Flash operation failed:', error);
       throw error;

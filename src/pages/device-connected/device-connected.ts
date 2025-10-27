@@ -20,6 +20,7 @@ export class DeviceConnectedPage {
   }
 
   public flash(): void {
+    console.log('flash', this.devicesService.connectedDevice)
     this.devicesService.connectedDevice.flash();
   }
 

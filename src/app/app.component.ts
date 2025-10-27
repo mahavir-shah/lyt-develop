@@ -59,42 +59,11 @@ export class AppComponent {
     translate.use('en');
       this.initializeApp();
 
-      platform.ready().then(() => {
-        if (Capacitor.isNativePlatform()) {
-          ScreenOrientation.lock({ type: OrientationType.PORTRAIT })
-        }
-
-        authService.checkUser().subscribe({
-          next: (user) => {
-            if (user) {
-              BluetoothLe.isEnabled()
-              .then(() => {
-                  this.checkIfLocationIsEnabled().then(isEnabled => {
-                    if(isEnabled) {
-                      this.router.navigateByUrl('/search-inprogress-page');
-                    } else {
-                      this.router.navigateByUrl('/location-disabled-page');
-                    }
-                  });
-                },
-                () => {
-                  this.router.navigateByUrl('/bluetooth-failed');
-                }
-              );
-              //this.navCtrl = app.getActiveNav();
-              this.configureDeeplinks();
-              this.subscribeToBluetoothAndLocationChanges();
-              this.platformReady();
-            } else {
-              this.platformReady();
-              this.router.navigateByUrl('/login-page');
-            }
-          },
-          error: (error) => {
-            // handle error
-          }
-        });
-      });
+    platform.ready().then(() => {
+      if (Capacitor.isNativePlatform()) {
+        ScreenOrientation.lock({ type: OrientationType.PORTRAIT })
+      }
+    });
 
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
@@ -104,6 +73,38 @@ export class AppComponent {
   }
 
   ngOnInit() {
+    console.log('ng on init initialize..')
+    this.authService.checkUser().subscribe({
+      next: (user) => {
+        if (user) {
+          BluetoothLe.isEnabled()
+          .then(() => {
+              this.checkIfLocationIsEnabled().then(isEnabled => {
+                if(isEnabled) {
+                  this.router.navigateByUrl('/search-inprogress-page');
+                } else {
+                  this.router.navigateByUrl('/location-disabled-page');
+                }
+              });
+            },
+            () => {
+              this.router.navigateByUrl('/bluetooth-failed');
+            }
+          );
+          //this.navCtrl = app.getActiveNav();
+          this.configureDeeplinks();
+          this.subscribeToBluetoothAndLocationChanges();
+          this.platformReady();
+        } else {
+          this.platformReady();
+          this.router.navigateByUrl('/login-page');
+        }
+      },
+      error: (error) => {
+        // handle error
+      }
+    });
+
     App.addListener('appUrlOpen', ({ url }) => {
       // For reset password deeplink
       if(url.includes("password-reset?id=")) {
