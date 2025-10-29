@@ -78,19 +78,18 @@ export class AppComponent {
       next: (user) => {
         if (user) {
           BluetoothLe.isEnabled()
-          .then(() => {
-              this.checkIfLocationIsEnabled().then(isEnabled => {
+          .then(() => { 
+            this.checkIfLocationIsEnabled().then(isEnabled => {
                 if(isEnabled) {
-                  this.router.navigateByUrl('/search-inprogress-page');
+                    this.router.navigateByUrl('/search-inprogress-page');
                 } else {
-                  this.router.navigateByUrl('/location-disabled-page');
+                    this.router.navigateByUrl('/location-disabled-page');
                 }
-              });
-            },
-            () => {
+            });
+          })
+          .catch(() => {
               this.router.navigateByUrl('/bluetooth-failed');
-            }
-          );
+          });
           //this.navCtrl = app.getActiveNav();
           this.configureDeeplinks();
           this.subscribeToBluetoothAndLocationChanges();
@@ -248,7 +247,12 @@ export class AppComponent {
         this.router.url.includes('/connection-inprogress-page') ||
         this.router.url.includes('/connection-failed') ||
         this.router.url.includes('/device-connected-page') ||
-        this.router.url.includes('/search-failed-page') 
+        this.router.url.includes('/search-failed-page') ||
+        this.router.url.includes('/bluetooth-failed') ||
+        this.router.url.includes('/color-picker-page') ||
+        this.router.url.includes('/debug-page') ||
+        this.router.url.includes('/confirmation-sent-page') ||
+        this.router.url.includes('/presets-page')
   }
 
   private isPageCurrentlyActive(page: any): boolean {

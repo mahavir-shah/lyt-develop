@@ -91,7 +91,6 @@
                                     <span class="lyt-c-color-picker__icon">
                                         <svg width="24px" height="24px" viewBox="0 0 24 24" version="1.1" xmlns="http://www.w3.org/2000/svg"
                                             xmlns:xlink="http://www.w3.org/1999/xlink">
-                                            <!-- Generator: Sketch 52.1 (67048) - http://www.bohemiancoding.com/sketch -->
                                             <title>saturation-icon</title>
                                             <desc>Created with Sketch.</desc>
                                             <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
@@ -163,15 +162,15 @@
                         <div class="lyt-c-rgb">
                             <div class="lyt-c-rgb__color">
                                 <span class="lyt-c-rgb__letter">R</span>
-                                <span class="lyt-c-rgb__value">{{ adjustedColor.r }}</span>
+                                <span class="lyt-c-rgb__value">{{ adjustedColor ? adjustedColor.r : '' }}</span>
                             </div>
                             <div class="lyt-c-rgb__color">
                                 <span class="lyt-c-rgb__letter">G</span>
-                                <span class="lyt-c-rgb__value">{{ adjustedColor.g }}</span>
+                                <span class="lyt-c-rgb__value">{{ adjustedColor ? adjustedColor.g : ''}}</span>
                             </div>
                             <div class="lyt-c-rgb__color">
                                 <span class="lyt-c-rgb__letter">B</span>
-                                <span class="lyt-c-rgb__value">{{ adjustedColor.b }}</span>
+                                <span class="lyt-c-rgb__value">{{ adjustedColor ? adjustedColor.b : ''}}</span>
                             </div>
                         </div>
                     </div>

@@ -56,9 +56,11 @@ export class BluetoothFailedPage implements OnDestroy {
       message: 'Opening Bluetooth settings...',
       duration: 2000
     });
-    await loading?.then(alert => {
+    
+    await loading.present();
+    /*await loading?.then(alert => {
       alert.present();
-    });
+    });*/
 
     try {
       const deviceInfo = await Device.getInfo();

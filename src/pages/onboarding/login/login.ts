@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NavController, Platform } from '@ionic/angular';
 import { debounceTime } from 'rxjs/operators';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
@@ -16,7 +16,7 @@ import { Subscription } from 'rxjs';
   templateUrl: 'login.html',
   standalone: false,
 })
-export class LoginPage {
+export class LoginPage implements OnInit {
   public invalidCredentials: boolean = false;
   public email: string;
   public password: string;
@@ -40,13 +40,13 @@ export class LoginPage {
     this.subscribeToFormChange();
   }
 
-  ionViewDidLoad() {
+  ngOnInit() {
     this.platform.backButton.subscribeWithPriority(100, () => {
       // This blocks default back button behavior
       // console.log('Back button pressed, default prevented.');
     });
   }
-
+  
   private initFormBuilder() {
     this.loginForm = this.formBuilder.group({
       password: [
@@ -66,11 +66,6 @@ export class LoginPage {
         ])
       ]
     });
-  }
-
-  public ionViewCanEnter() {
-    let currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    return !currentUser;
   }
 
   private subscribeToFormChange() {

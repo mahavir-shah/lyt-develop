@@ -37,6 +37,7 @@ class PresetsService {
   constructor() {}
   
   emitPreset(preset: any) {
+    console.log('selected RGB Preset:', preset)
     this.presetSelectedSource.next(preset);
   }
 }

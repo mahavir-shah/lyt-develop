@@ -1,0 +1,46 @@
+/* color-wheel.scss */
+
+:host {
+    /* 1. Sets the positioning context for the absolutely positioned selector. */
+    /* Must be 'relative' for the selector to be positioned relative to this component. */
+    position: relative; 
+    
+    /* Ensures it acts like a block element, usually taking full width */
+    display: block;
+    overflow: hidden; 
+}
+
+#color-selector {
+    /* 2. Takes the selector out of the normal flow and allows 'translate' */
+    position: absolute;
+    
+    /* Ensures the selector is above the canvas for interaction */
+    z-index: 10; 
+    
+    /* These values should match your CSS definition of the selector size (36px assumed) */
+    width: 36px; 
+    height: 36px;
+    
+    /* 3. Start position */
+    /* We set top/left to 0, and the TypeScript code handles the precise centering via transform: translate(...) */
+    top: 0; 
+    left: 0;
+    
+    /* Smooth transition for visual movement (optional but nice) */
+    transition: transform 0.05s linear; 
+}
+
+/* Optional: Styles for the selector elements themselves */
+.lyt-c-color-wheel-point {
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.lyt-c-color-wheel-point__item {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    /* Add a white border around the background to make it visible against a dark canvas */
+    border: 3px solid #FFF; 
+    box-sizing: border-box;
+}

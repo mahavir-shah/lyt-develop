@@ -41,7 +41,7 @@ export class ConnectionInProgressPage {
     }
   }
 
-  public ionViewDidEnter() {
+  public ionViewWillEnter() {
     this.connect();
   }
 

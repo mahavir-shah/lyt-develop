@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { Platform, NavController } from '@ionic/angular';
 
 import { ColorWheel } from '../../shared/components/color-wheel/color-wheel';
@@ -23,41 +23,51 @@ enum SliderType {
   templateUrl: 'color-picker.html',
   standalone: false,
 })
-export class ColorPickerPage {
+export class ColorPickerPage implements OnInit, AfterViewInit {
   @ViewChild(ColorWheel)
   colorWheel: ColorWheel;
 
-  private color: Color;
+  public color: Color;
   public adjustedColor: Color;
 
-  private brightnessLevel: number;
-  private saturationLevel: number;
+  public brightnessLevel: number;
+  public saturationLevel: number;
 
   public connectedDevice: Device;
 
-  private bottomColorCircle: any;
+  public bottomColorCircle: any;
 
-  private colorChangeTimeout: any;
+  public colorChangeTimeout: any;
 
   public preset: Preset;
 
   constructor(
-    private devicesService: DevicesService,
-    private platform: Platform,
+    public devicesService: DevicesService,
+    public platform: Platform,
     public navCtrl: NavController,
-    private presetService: PresetsService
+    public presetService: PresetsService
   ) {
     this.connectedDevice = this.devicesService.connectedDevice;
   }
 
-  ionViewDidLoad() {
+  ngOnInit() {
+    this.presetService.presetSelected$.subscribe(preset => {
+      console.log('assinged preset function:', preset)
+      this.preset = preset;
+    });
+
     this.platform.backButton.subscribeWithPriority(100, () => {
       // This blocks default back button behavior
       // console.log('Back button pressed, default prevented.');
     });
+  }
 
+  ngAfterViewInit() {
     this.bottomColorCircle = document.getElementById('bottom-color-circle');
-    this.bottomColorCircle.style.backgroundColor = this.adjustedColor.getHexCode();
+    
+    if (this.bottomColorCircle && this.adjustedColor) {
+      this.bottomColorCircle.style.backgroundColor = this.adjustedColor.getHexCode();
+    }
   }
 
   public setColor(color: Color) {
@@ -94,11 +104,11 @@ export class ColorPickerPage {
     this.connectedDevice.changeSaturationLevel(saturationLevel);
   }
 
-  private getAdjustedColor(): Color {
+  public getAdjustedColor(): Color {
     return this.color.desaturated(this.saturationLevel);
   }
 
-  private updateSliderOfType(sliderType: SliderType): void {
+  public updateSliderOfType(sliderType: SliderType): void {
     const sliderDotNumber =
       (sliderType == SliderType.left
         ? this.brightnessLevel
@@ -122,7 +132,7 @@ export class ColorPickerPage {
     }, 1000);
   }
 
-  private changeColor(): void {
+  public changeColor(): void {
     this.connectedDevice.changeColor(this.adjustedColor);
   }
 
@@ -136,11 +146,19 @@ export class ColorPickerPage {
     });
   }
 
-  public goToPresetsPage(): void {  
+  public goToPresetsPage() { 
+    console.log('this.preset:', this.preset);
     this.presetService.emitPreset(({
-      onPresetSelect: preset => (this.preset = preset)
+      onPresetSelect: (preset: any) => {
+        console.log('selected Preset:', preset)
+        this.preset = preset
+      }
     }));
+
     this.navCtrl.navigateForward('/presets-page');
+    /* this.presetService.emitPreset(({
+      onPresetSelect: preset => (this.preset = preset)
+    }), this.navCtrl); */
   }
 
   public goToDebugPage(): void {

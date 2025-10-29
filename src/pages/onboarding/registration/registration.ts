@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { Platform, NavController } from '@ionic/angular';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { debounceTime } from 'rxjs/operators';
@@ -19,7 +19,7 @@ import { SearchInProgressPage } from '../../search-in-progress/search-in-progres
   templateUrl: 'registration.html',
   standalone: false,
 })
-export class RegistrationPage {
+export class RegistrationPage implements OnInit {
   public registrationForm: FormGroup;
   public submitted: boolean = false;
   private strongPasswordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/;
@@ -52,10 +52,7 @@ export class RegistrationPage {
     this.subscribeToFormChange();
   }
 
-  ionViewDidLoad() {
-    /* this.platform.registerBackButtonAction(event => {
-      event.preventDefault();
-    }, 100); */
+  ngOnInit() {
     this.platform.backButton.subscribeWithPriority(100, () => {
       // This blocks default back button behavior
       // console.log('Back button pressed, default prevented.');

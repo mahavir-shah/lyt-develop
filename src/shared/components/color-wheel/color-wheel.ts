@@ -1,68 +1,62 @@
-import { Component, Output, ViewChild, EventEmitter } from '@angular/core';
-
+// color-wheel.component.ts
+import { Component, Output, ViewChild, EventEmitter, ElementRef, OnInit, AfterViewInit } from '@angular/core';
 import { Point } from './point';
 import { Color } from './color';
-import { EVENT, getPixelRatio } from './helpers';
+
+const EVENT = {
+  START: 'pointerdown',
+  MOVE: 'pointermove',
+  STOP: 'pointerup'
+};
+
+function getPixelRatio(context: CanvasRenderingContext2D): number {
+  return window.devicePixelRatio || 1;
+}
 
 @Component({
   selector: 'color-wheel',
-  templateUrl: 'color-wheel.html',
-  standalone: false,
+  templateUrl: './color-wheel.html',
+  // styleUrls: ['./color-wheel.scss'],
+  standalone: false
 })
-export class ColorWheel {
-  @Output()
-  didRelease = new EventEmitter<boolean>();
-  @Output()
-  colorDidChange = new EventEmitter<Color>();
+export class ColorWheel implements OnInit, AfterViewInit {
+  @Output() didRelease = new EventEmitter<boolean>();
+  @Output() colorDidChange = new EventEmitter<Color>();
+  @Output() leftSliderDidChange = new EventEmitter<number>();
+  @Output() rightSliderDidChange = new EventEmitter<number>();
 
-  @Output()
-  leftSliderDidChange = new EventEmitter<number>();
-  @Output()
-  rightSliderDidChange = new EventEmitter<number>();
+  @ViewChild('colorWheel', { static: false }) colorWheel!: ElementRef<HTMLCanvasElement>;
 
-  @ViewChild('colorWheel')
-  colorWheel;
+  private leftSliderValue: number = 100;
+  private rightSliderValue: number = 100;
+  private color!: Color;
+  private colorWheelPoint!: Point;
+  private colorSelector: HTMLElement | null = null;
+  private colorSelectorBackground: HTMLElement | null = null;
+  private center!: Point;
+  private radius: number = 0;
+  private pixelRatio: number = 1;
+  private didTapSelector: boolean = false;
+  private context!: CanvasRenderingContext2D;
+  private offScreenColorWheelCanvas!: HTMLCanvasElement;
+  private offScreenColorWheelContext!: CanvasRenderingContext2D;
 
-  private leftSliderValue: number;
-  private rightSliderValue: number;
+  ngOnInit(): void { }
 
-  private color: Color;
-  private colorWheelPoint: Point;
-
-  private colorSelector: any;
-  private colorSelectorBackground: any;
-
-  private center: Point;
-  private radius: number;
-
-  private pixelRatio: number;
-
-  private didTapSelector: boolean;
-
-  private context: CanvasRenderingContext2D;
-
-  private offScreenColorWheelCanvas: any;
-  private offScreenColorWheelContext: CanvasRenderingContext2D;
-
-  private offScreenColorSelectorCanvas: any;
-  private offScreenColorSelectorContext: CanvasRenderingContext2D;
-
-  ngOnInit() {
-    this.initalize();
+  ngAfterViewInit(): void {
+    this.initialize();
   }
 
-  private initalize(): void {
+  private initialize(): void {
     this.initializeColorWheel();
   }
 
   private initializeColorWheel(): void {
     const canvasColorWheel = this.colorWheel.nativeElement;
-    this.context = canvasColorWheel.getContext('2d');
+    this.context = canvasColorWheel.getContext('2d')!;
 
     this.colorSelector = document.getElementById('color-selector');
-    this.colorSelectorBackground = document.getElementById(
-      'color-selector-background'
-    );
+    this.colorSelectorBackground = document.getElementById('color-selector-background');
 
     const width = window.innerWidth;
     const height = width * 0.75;
@@ -71,7 +65,6 @@ export class ColorWheel {
 
     this.context.canvas.width = width * this.pixelRatio;
     this.context.canvas.height = height * this.pixelRatio;
-
     this.context.canvas.style.width = width + 'px';
     this.context.canvas.style.height = height + 'px';
 
@@ -84,16 +77,7 @@ export class ColorWheel {
     this.offScreenColorWheelCanvas = document.createElement('canvas');
     this.offScreenColorWheelCanvas.width = canvasColorWheel.width;
     this.offScreenColorWheelCanvas.height = canvasColorWheel.height;
-    this.offScreenColorWheelContext = this.offScreenColorWheelCanvas.getContext(
-      '2d'
-    );
-
-    this.offScreenColorSelectorCanvas = document.createElement('canvas');
-    this.offScreenColorSelectorCanvas.width = 2 * (18 * this.pixelRatio);
-    this.offScreenColorSelectorCanvas.height = 2 * (18 * this.pixelRatio);
-    this.offScreenColorSelectorContext = this.offScreenColorSelectorCanvas.getContext(
-      '2d'
-    );
+    this.offScreenColorWheelContext = this.offScreenColorWheelCanvas.getContext('2d')!;
 
     this.drawColorWheel();
     this.renderColorWheel();
@@ -103,140 +87,110 @@ export class ColorWheel {
     this.leftSliderDidChange.emit(100);
     this.rightSliderDidChange.emit(100);
 
-    const onMove = event => {
-      this.color = this.getPointFromTouch(event).getColor(this.context);
-
-      if (
-        !this.colorWheelPoint.isInStroke(this.context, this.center, this.radius)
-      ) {
-        this.colorWheelPoint = this.colorWheelPoint.getClosestPointInStroke(
-          this.context,
-          this.radius
-        );
+    const onMove = (event: PointerEvent) => {
+      this.colorWheelPoint = this.getPointFromTouch(event);
+      
+      if (!this.colorWheelPoint.isInStroke(this.context, this.center, this.radius)) {
+        this.colorWheelPoint = this.colorWheelPoint.getClosestPointInStroke(this.context, this.radius);
       }
 
       this.color = this.colorWheelPoint.getColor(this.context);
       this.colorDidChange.emit(this.color);
 
       const update = () => {
-        this.colorSelector.style.transform =
-          'translate(' +
-          this.colorWheelPoint.x / this.pixelRatio +
-          'px' +
-          ',' +
-          this.colorWheelPoint.y / this.pixelRatio +
-          'px)';
-        this.colorSelectorBackground.style.background = this.color.getHexCode();
+        if (this.colorSelector && this.colorSelectorBackground) {
+          this.colorSelector.style.transform =
+            'translate(' +
+            this.colorWheelPoint.x / this.pixelRatio +
+            'px,' +
+            this.colorWheelPoint.y / this.pixelRatio +
+            'px)';
+          this.colorSelectorBackground.style.background = this.color.getHexCode();
+        }
       };
 
       requestAnimationFrame(update);
     };
 
-    const onLeftSliderChange = event => {
+    const onLeftSliderChange = (event: PointerEvent) => {
       const angle = this.calculateAngleFromTouch(event);
-      let newValue: number;
+      let newValue: number = this.leftSliderValue;
 
       if (angle > 0) {
-        if (angle < 137.5) {
-          newValue = 10;
-        } else if (angle < 146.5) {
-          newValue = 20;
-        } else if (angle < 156.5) {
-          newValue = 30;
-        } else if (angle < 166) {
-          newValue = 40;
-        } else if (angle < 175) {
-          newValue = 50;
-        }
+        if (angle < 137.5) newValue = 10;
+        else if (angle < 146.5) newValue = 20;
+        else if (angle < 156.5) newValue = 30;
+        else if (angle < 166) newValue = 40;
+        else if (angle < 175) newValue = 50;
       } else {
-        if (angle < -175) {
-          newValue = 60;
-        } else if (angle < -165) {
-          newValue = 70;
-        } else if (angle < -156) {
-          newValue = 80;
-        } else if (angle < -147) {
-          newValue = 90;
-        } else {
-          newValue = 100;
-        }
+        if (angle < -175) newValue = 60;
+        else if (angle < -165) newValue = 70;
+        else if (angle < -156) newValue = 80;
+        else if (angle < -147) newValue = 90;
+        else newValue = 100;
       }
 
-      if (newValue && newValue != this.leftSliderValue) {
+      if (newValue !== this.leftSliderValue) {
         this.leftSliderValue = newValue;
         this.leftSliderDidChange.emit(newValue);
       }
     };
 
-    const onRightSliderChange = event => {
+    const onRightSliderChange = (event: PointerEvent) => {
       const angle = this.calculateAngleFromTouch(event);
-      let newValue: number;
+      let newValue: number = this.rightSliderValue;
 
       if (angle > 0) {
-        if (angle > 43) {
-          newValue = 10;
-        } else if (angle > 33) {
-          newValue = 20;
-        } else if (angle > 23.5) {
-          newValue = 30;
-        } else if (angle > 14.5) {
-          newValue = 40;
-        } else if (angle > 4.5) {
-          newValue = 50;
-        }
+        if (angle > 43) newValue = 10;
+        else if (angle > 33) newValue = 20;
+        else if (angle > 23.5) newValue = 30;
+        else if (angle > 14.5) newValue = 40;
+        else if (angle > 4.5) newValue = 50;
       } else {
-        if (angle < -33.5) {
-          newValue = 100;
-        } else if (angle < -23.5) {
-          newValue = 90;
-        } else if (angle < -14.5) {
-          newValue = 80;
-        } else if (angle < -4.5) {
-          newValue = 70;
-        } else {
-          newValue = 60;
-        }
+        if (angle < -33.5) newValue = 100;
+        else if (angle < -23.5) newValue = 90;
+        else if (angle < -14.5) newValue = 80;
+        else if (angle < -4.5) newValue = 70;
+        else newValue = 60;
       }
 
-      if (newValue && newValue != this.rightSliderValue) {
+      if (newValue !== this.rightSliderValue) {
         this.rightSliderValue = newValue;
         this.rightSliderDidChange.emit(newValue);
       }
     };
 
-    canvasColorWheel.addEventListener(EVENT.START, event => {
-      const point = this.getPointFromTouch(event, false);
+    canvasColorWheel.addEventListener(EVENT.START, (event: Event) => {
+      const pointerEvent = event as PointerEvent;
+      const point = this.getPointFromTouch(pointerEvent, false);
 
       if (point.distanceTo(this.colorWheelPoint) < 16 * this.pixelRatio) {
         this.didTapSelector = true;
-        canvasColorWheel.addEventListener(EVENT.MOVE, onMove);
+        canvasColorWheel.addEventListener(EVENT.MOVE, onMove as EventListener);
         return;
       }
 
       this.didTapSelector = false;
 
-      if (
-        point.isInStroke(this.context, this.center, this.radius * 1.58, 100)
-      ) {
+      if (point.isInStroke(this.context, this.center, this.radius * 1.58, 100)) {
         const angle =
-          Math.atan2(point.y - this.center.y, point.x - this.center.x) *
-          (180 / Math.PI);
+          Math.atan2(point.y - this.center.y, point.x - this.center.x) * (180 / Math.PI);
 
         if (this.isOnLeftSlider(angle)) {
-          canvasColorWheel.addEventListener(EVENT.MOVE, onLeftSliderChange);
+          canvasColorWheel.addEventListener(EVENT.MOVE, onLeftSliderChange as EventListener);
         } else if (this.isOnRightSlider(angle)) {
-          canvasColorWheel.addEventListener(EVENT.MOVE, onRightSliderChange);
+          canvasColorWheel.addEventListener(EVENT.MOVE, onRightSliderChange as EventListener);
         }
       }
     });
 
-    canvasColorWheel.addEventListener(EVENT.STOP, event => {
-      canvasColorWheel.removeEventListener(EVENT.MOVE, onLeftSliderChange);
-      canvasColorWheel.removeEventListener(EVENT.MOVE, onRightSliderChange);
+    canvasColorWheel.addEventListener(EVENT.STOP, (event: Event) => {
+      canvasColorWheel.removeEventListener(EVENT.MOVE, onLeftSliderChange as EventListener);
+      canvasColorWheel.removeEventListener(EVENT.MOVE, onRightSliderChange as EventListener);
 
       if (this.didTapSelector) {
         this.didRelease.emit(true);
-        canvasColorWheel.removeEventListener(EVENT.MOVE, onMove);
+        canvasColorWheel.removeEventListener(EVENT.MOVE, onMove as EventListener);
         return;
       }
     });
@@ -244,28 +198,26 @@ export class ColorWheel {
 
   public setColor(color: Color): void {
     this.color = color;
-    this.colorSelectorBackground.style.background = this.color.getHexCode();
+    if (this.colorSelectorBackground) {
+      this.colorSelectorBackground.style.background = this.color.getHexCode();
+    }
   }
 
   private renderColorWheel(): void {
-    this.context.clearRect(
-      0,
-      0,
-      this.context.canvas.width,
-      this.context.canvas.height
-    );
+    this.context.clearRect(0, 0, this.context.canvas.width, this.context.canvas.height);
     this.context.drawImage(this.offScreenColorWheelCanvas, 0, 0);
   }
 
   private update(): void {
-    this.colorSelector.style.transform =
-      'translate(' +
-      this.colorWheelPoint.x / this.pixelRatio +
-      'px' +
-      ',' +
-      this.colorWheelPoint.y / this.pixelRatio +
-      'px)';
-    this.colorSelectorBackground.style.background = this.color.getHexCode();
+    if (this.colorSelector && this.colorSelectorBackground) {
+      this.colorSelector.style.transform =
+        'translate(' +
+        this.colorWheelPoint.x / this.pixelRatio +
+        'px,' +
+        this.colorWheelPoint.y / this.pixelRatio +
+        'px)';
+      this.colorSelectorBackground.style.background = this.color.getHexCode();
+    }
   }
 
   private setRandomInitialPosition(): void {
@@ -291,23 +243,19 @@ export class ColorWheel {
       this.offScreenColorWheelContext.closePath();
 
       this.offScreenColorWheelContext.lineWidth = 6 * this.pixelRatio;
-      this.offScreenColorWheelContext.strokeStyle =
-        'hsl(' + angle + ', 100%, 50%)';
+      this.offScreenColorWheelContext.strokeStyle = 'hsl(' + angle + ', 100%, 50%)';
       this.offScreenColorWheelContext.stroke();
     }
   }
 
-  private getPointFromTouch(
-    event,
-    shouldChangeColorWheelPoint: boolean = true
-  ): Point {
+  private getPointFromTouch(event: PointerEvent, shouldChangeColorWheelPoint: boolean = true): Point {
     const boundingRect = this.context.canvas.getBoundingClientRect();
     const touch = this.calculatePointOnScreen(event);
 
     const x = Math.round((touch.x - boundingRect.left) * this.pixelRatio);
     const y = Math.round((touch.y - boundingRect.top) * this.pixelRatio);
 
-    if (shouldChangeColorWheelPoint) {
+    if (shouldChangeColorWheelPoint && this.colorWheelPoint) {
       this.colorWheelPoint.x = x;
       this.colorWheelPoint.y = y;
     }
@@ -315,23 +263,16 @@ export class ColorWheel {
     return new Point(x, y);
   }
 
-  private calculatePointOnScreen(event): Point {
+  private calculatePointOnScreen(event: PointerEvent): Point {
     return new Point(
-      event.pageX ||
-        event.changedTouches[0].pageX ||
-        event.changedTouches[0].screenX,
-      event.pageY ||
-        event.changedTouches[0].pageY ||
-        event.changedTouches[0].screenX
+      event.pageX || (event as any).changedTouches?.[0]?.pageX || (event as any).changedTouches?.[0]?.screenX || event.clientX,
+      event.pageY || (event as any).changedTouches?.[0]?.pageY || (event as any).changedTouches?.[0]?.screenY || event.clientY
     );
   }
 
-  private calculateAngleFromTouch(event): number {
+  private calculateAngleFromTouch(event: PointerEvent): number {
     const point = this.getPointFromTouch(event, false);
-    return (
-      Math.atan2(point.y - this.center.y, point.x - this.center.x) *
-      (180 / Math.PI)
-    );
+    return Math.atan2(point.y - this.center.y, point.x - this.center.x) * (180 / Math.PI);
   }
 
   private isOnLeftSlider(angle: number): boolean {
@@ -344,7 +285,6 @@ export class ColorWheel {
 
   private getRandomPointOnWheel(): Point {
     const randomAngle = Math.random() * 361;
-
     return new Point(
       Math.round(this.center.x + Math.cos(randomAngle) * this.radius),
       Math.round(this.center.y + Math.sin(randomAngle) * this.radius)

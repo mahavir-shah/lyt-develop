@@ -9,24 +9,26 @@ import { PresetsService, Preset } from '../../shared/services/presets.service';
   standalone: false,
 })
 export class PresetsPage {
-  private onPresetSelect: Function;
+  // public onPresetSelect: Function;
 
   constructor(
-    private location: Location,
+    public location: Location,
     public presetService: PresetsService,
   ) {
   }
 
 
   ngOnInit() {
-    this.presetService.presetSelected$.subscribe(preset => {
+    /* this.presetService.presetSelected$.subscribe(preset => {
+      console.log('assinged preset function:', preset)
       this.onPresetSelect = preset;
-    });
+    }); */
   }
 
 
   public activatePreset(preset: Preset): void {
-    this.onPresetSelect(preset);
+    console.log('call preset function arg:', preset)
+    this.presetService.emitPreset(preset);
     this.location.back();
   }
 }

@@ -18,7 +18,6 @@ export class DevicesListPage {
     public devicesService: DevicesService,
     public navCtrl: NavController
   ) {
-    alert(JSON.stringify(devicesService.devices));
     console.log("devicesService.devices:", devicesService.devices);
   }
 

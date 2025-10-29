@@ -10,7 +10,7 @@ import { BaseModel } from './base.model';
 
 // const DEVICE_SERVICE_UUID = 'fff0';
 const DEVICE_SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
-/* const CHARACTERISTIC_UUID = { 
+/*const CHARACTERISTIC_UUID = { 
   BRIGHTNESS: 'fff4', 
   COLOR: 'fff5',
   // Add a separate characteristic for saturation if available
@@ -25,6 +25,15 @@ const CHARACTERISTIC_UUID = {
   
   // 0000fff6-0000-1000-8000-00805f9b34fb
   SATURATION: '0000fff6-0000-1000-8000-00805f9b34fb' 
+};
+
+const calculateChecksum = (data: Uint8Array): number => {
+    let checksum = 0;
+    // Iterate over all bytes provided
+    for (const byte of data) {
+        checksum ^= byte;
+    }
+    return checksum;
 };
 
 export class Device extends BaseModel {
@@ -48,16 +57,15 @@ export class Device extends BaseModel {
   /**
    * Connect to the BLE device
    */
-  public async connect(): Promise<void> {
+  public async connect(): Promise<any> {
     try {
-      console.log('this.device:',this.device);
-      console.log('this.name:',this.name);
-
-      await BleClient.connect(this.device.deviceId);
-      console.log(`Connected to device: ${this.name}`);
+      const result = await BleClient.connect(this.device.deviceId);
+      await this.delay(500);
+      await this.getCharacteristics(DEVICE_SERVICE_UUID);
+      console.log(`Connected to device: ${this.device.name}`);
+      return result;
     } catch (error) {
-      console.error('Connection failed:', error);
-      throw error;
+      return error;
     }
   }
 
@@ -79,19 +87,20 @@ export class Device extends BaseModel {
    */
   public async flash(previousBrightnessLevel: number = 100): Promise<void> {
     try {
-      if(!this.isConnected()) {
+      if(! (await this.isConnected())) {
         await BleClient.connect(this.device.deviceId);
+        await this.delay(500);  
       }
       console.log('first brightness call 100')
       await this.changeBrightnessLevel(100);
-      await this.delay(300);
+      await this.delay(1000);
       
       console.log('second brightness call 0')
       await this.changeBrightnessLevel(0);
-      await this.delay(300);
+      await this.delay(1000);
       
       await this.changeBrightnessLevel(previousBrightnessLevel);
-      console.log('second brightness call' + previousBrightnessLevel)
+      console.log('second brightness call ---' + previousBrightnessLevel)
     } catch (error) {
       console.error('Flash operation failed:', error);
       throw error;
@@ -130,26 +139,48 @@ export class Device extends BaseModel {
    * Change device brightness level
    */
   public async changeBrightnessLevel(value: number): Promise<void> {
-    try {
-      // Ensure value is between 0 and 100
-      const clampedValue = Math.max(0, Math.min(100, value));
-      const scaled = Math.floor((254 * clampedValue) / 100);
-      const dataView = new DataView(new ArrayBuffer(1));
-      dataView.setUint8(0, scaled);
+        try {
+            // 1. Clamp and Scale Value (0-100% to 0-255)
+            const clampedValue = Math.max(0, Math.min(100, value));
+            const scaled = Math.floor((255 * clampedValue) / 100);
 
-      await BleClient.write(
-        this.device.deviceId,
-        DEVICE_SERVICE_UUID,
-        CHARACTERISTIC_UUID.BRIGHTNESS,
-        dataView
-      );
-      
-      console.log(`Brightness changed to: ${clampedValue}%`);
-    } catch (error) {
-      console.error('Change brightness failed:', error);
-      throw error;
+            // 2. Construct the 6-byte payload (without final checksum)
+            const commandData = new Uint8Array(6);
+            commandData[0] = 0xAA; // Common Header 1 (Needs verification)
+            commandData[1] = 0xBB; // Common Header 2 (Needs verification)
+            commandData[2] = 0x01; // Command ID: Set Brightness (Needs verification)
+            commandData[3] = scaled; // The brightness value (0-255)
+            commandData[4] = 0x00; // Unused Byte 1
+            commandData[5] = 0x00; // Unused Byte 2
+
+            // 3. Calculate Checksum (XOR sum of the 6 command bytes)
+            const checksum = calculateChecksum(commandData);
+
+            // 4. Create Final 7-byte Packet (Command + Checksum)
+            const payload = new Uint8Array(7);
+            payload.set(commandData, 0); // Copy the first 6 bytes
+            payload[6] = checksum;      // Append the calculated checksum
+
+            // 5. Prepare DataView for BLE write
+            const dataView = new DataView(payload.buffer);
+            
+            // 6. Write to BLE Characteristic
+            await BleClient.writeWithoutResponse(
+                this.device.deviceId,
+                DEVICE_SERVICE_UUID,
+                CHARACTERISTIC_UUID.BRIGHTNESS,
+                dataView
+            );
+            
+            console.log(`Brightness changed to: ${clampedValue}% (Sent value: ${scaled})`);
+            console.log(`Full Packet (Hex): ${Array.from(payload).map(b => '0x' + b.toString(16).padStart(2, '0')).join(' ')}`);
+
+        } catch (error) {
+            console.error('Change brightness failed:', error);
+            // Re-throw the error so the caller can handle it
+            throw error; 
+        }
     }
-  }
 
   /**
    * Change device saturation level
@@ -259,6 +290,7 @@ export class Device extends BaseModel {
     try {
       const services = await BleClient.getServices(this.device.deviceId);
       const targetService = services.find(service => service.uuid === serviceUUID);
+      console.log('XXXX - ', targetService?.characteristics);
       return targetService?.characteristics || [];
     } catch (error) {
       console.error('Get characteristics failed:', error);
