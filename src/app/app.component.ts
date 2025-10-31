@@ -9,7 +9,7 @@ import { Geolocation } from '@capacitor/geolocation';
 import { OrientationType, ScreenOrientation } from '@capawesome/capacitor-screen-orientation';
 
 // Capacitor Community Plugin for Bluetooth
-import { BluetoothLe } from '@capacitor-community/bluetooth-le';
+import { BleClient } from '@capacitor-community/bluetooth-le';
 
 // ngx-translate
 import { TranslateService } from '@ngx-translate/core';
@@ -74,27 +74,27 @@ export class AppComponent {
 
   ngOnInit() {
     console.log('ng on init initialize..')
-    this.authService.checkUser().subscribe({
+    /* this.authService.checkUser().subscribe({
       next: (user) => {
-        if (user) {
-          BluetoothLe.isEnabled()
-          .then(() => { 
+        if (user) { */
+          BleClient.isEnabled()
+          .then(() => {
             this.checkIfLocationIsEnabled().then(isEnabled => {
-                if(isEnabled) {
-                    this.router.navigateByUrl('/search-inprogress-page');
-                } else {
-                    this.router.navigateByUrl('/location-disabled-page');
-                }
+              if(isEnabled) {
+                this.router.navigateByUrl('/search-inprogress-page');
+              } else {
+                this.router.navigateByUrl('/location-disabled-page');
+              }
             });
           })
           .catch(() => {
-              this.router.navigateByUrl('/bluetooth-failed');
+            this.router.navigateByUrl('/bluetooth-failed');
           });
           //this.navCtrl = app.getActiveNav();
           this.configureDeeplinks();
           this.subscribeToBluetoothAndLocationChanges();
           this.platformReady();
-        } else {
+       /*  } else {
           this.platformReady();
           this.router.navigateByUrl('/login-page');
         }
@@ -102,7 +102,7 @@ export class AppComponent {
       error: (error) => {
         // handle error
       }
-    });
+    }); */
 
     App.addListener('appUrlOpen', ({ url }) => {
       // For reset password deeplink

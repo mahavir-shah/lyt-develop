@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BluetoothLe } from '@capacitor-community/bluetooth-le';
+import { BleClient } from '@capacitor-community/bluetooth-le';
 import { Geolocation } from '@capacitor/geolocation';
 import { Observable } from 'rxjs';
 
@@ -22,7 +22,7 @@ export class DiagnosticService {
   private createIsBluetoothEnabledObservable(): Observable<any> {
     return Observable.create(observer => {
       setInterval(() => {
-        BluetoothLe.isEnabled().then(() => {
+        BleClient.isEnabled().then(() => {
             observer.next({
               previous: this.previousValues.bluetooth,
               current: true

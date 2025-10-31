@@ -1,13 +1,12 @@
 import { Component, inject, OnDestroy } from '@angular/core';
 import { Platform } from '@ionic/angular';
 import { BleClient, ScanResult, BleDevice } from '@capacitor-community/bluetooth-le';
-import { Browser } from '@capacitor/browser';
 import { Device } from '@capacitor/device';
 import { AlertController, LoadingController, ToastController } from '@ionic/angular';
 import { TranslateModule } from '@ngx-translate/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
-
+import { Router } from '@angular/router';
 @Component({
   selector: 'bluetooth-failed',
   templateUrl: 'bluetooth-failed.html',
@@ -27,7 +26,8 @@ export class BluetoothFailedPage implements OnDestroy {
   
   private scanSubscription?: Subscription;
 
-  constructor() {
+  constructor(private router: Router) {
+    
     this.initializeBluetooth();
   }
 
@@ -40,7 +40,10 @@ export class BluetoothFailedPage implements OnDestroy {
    */
   private async initializeBluetooth(): Promise<void> {
     try {
-      await this.checkBluetoothStatus();
+      const status = await this.checkBluetoothStatus();
+      if (status) {
+        this.router.navigateByUrl('/search-inprogress-page');
+      }
     } catch (error) {
       console.error('Failed to initialize Bluetooth:', error);
       this.bluetoothStatus = 'Failed to Initialize';
@@ -52,112 +55,115 @@ export class BluetoothFailedPage implements OnDestroy {
    * Opens device-specific settings based on platform
    */
   public async showBluetoothSettings(): Promise<void> {
-    const loading:any = await this.loadingController.create({
-      message: 'Opening Bluetooth settings...',
-      duration: 2000
-    });
-    
-    await loading.present();
-    /*await loading?.then(alert => {
-      alert.present();
-    });*/
-
     try {
       const deviceInfo = await Device.getInfo();
       console.log('Device platform:', deviceInfo.platform);
       
       if (this.platform.is('android')) {
-        await this.openAndroidBluetoothSettings();
+        // First, try to use BleClient.enable() which prompts user
+        const shouldEnable = await this.showConfirmAlert(
+          'Enable Bluetooth',
+          'This app needs Bluetooth to be enabled. Would you like to enable it now?'
+        );
+        
+        if (shouldEnable) {
+          const enableResult = await this.enableBluetooth();
+          if (!enableResult) {
+            // If enable failed, show manual instructions
+            await this.openAndroidBluetoothSettings();
+          } else {
+            this.router.navigateByUrl('/search-inprogress-page');
+            // await this.showToast('Bluetooth enabled successfully!');
+          }
+        } else {
+          await this.openAndroidBluetoothSettings();
+        }
       } else if (this.platform.is('ios')) {
         await this.openIOSSettings();
       } else {
-        console.warn('Platform not supported for opening Bluetooth settings');
         await this.showWebInstructions();
       }
       
-      await this.showToast('Settings opened. Please enable Bluetooth and return to the app.');
     } catch (error) {
       console.error('Failed to open Bluetooth settings:', error);
-      await this.showErrorAlert('Settings Error', 'Failed to open Bluetooth settings. Please open them manually.');
-    } finally {
-      await loading.dismiss();
+      await this.openAndroidBluetoothSettings();
     }
   }
 
   /**
-   * Open Android Bluetooth settings using intent URLs
+   * Open Android Bluetooth settings
+   * Uses the most reliable method: showing user instructions
    */
   private async openAndroidBluetoothSettings(): Promise<void> {
-    const settingsAttempts = [
-      {
-        name: 'Bluetooth Settings',
-        url: 'intent:///#Intent;action=android.settings.BLUETOOTH_SETTINGS;end'
-      },
-      {
-        name: 'Wireless Settings', 
-        url: 'intent:///#Intent;action=android.settings.WIRELESS_SETTINGS;end'
-      },
-      {
-        name: 'Application Details',
-        url: 'intent:///#Intent;action=android.settings.APPLICATION_DETAILS_SETTINGS;end'
-      },
-      {
-        name: 'General Settings',
-        url: 'intent:///#Intent;action=android.settings.SETTINGS;end'
-      }
-    ];
+    // Show manual instructions - most reliable method
+    await this.showManualSettingsInstructions();
+  }
 
-    for (const attempt of settingsAttempts) {
-      try {
-        console.log(`Trying to open: ${attempt.name}`);
-        await Browser.open({ 
-          url: attempt.url,
-          windowName: '_system'
-        });
-        return; // Success, exit the loop
-      } catch (error) {
-        console.error(`Failed to open ${attempt.name}:`, error);
-        continue; // Try next option
-      }
-    }
-
-    throw new Error('Unable to open any Android settings');
+  /**
+   * Show manual instructions for opening Bluetooth settings on Android
+   */
+  private async showManualSettingsInstructions(): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Enable Bluetooth',
+      cssClass: 'bluetooth-instructions-alert',
+      message: `
+        <div style="text-align: left;">
+          <p><strong>Quick Method:</strong></p>
+          <ol style="padding-left: 20px; margin: 10px 0;">
+            <li>Swipe down from the top of your screen twice</li>
+            <li>Tap the <strong>Bluetooth</strong> icon to turn it on</li>
+          </ol>
+          
+          <p><strong>Or through Settings:</strong></p>
+          <ol style="padding-left: 20px; margin: 10px 0;">
+            <li>Open <strong>Settings</strong></li>
+            <li>Tap <strong>Connected devices</strong></li>
+            <li>Tap <strong>Connection preferences</strong></li>
+            <li>Tap <strong>Bluetooth</strong> and turn it on</li>
+          </ol>
+          
+          <p style="margin-top: 15px;"><em>After enabling, return to this app and tap "Check Bluetooth Status"</em></p>
+        </div>
+      `,
+      buttons: [
+        {
+          text: 'I Understand',
+          role: 'confirm',
+          cssClass: 'primary-button'
+        }
+      ]
+    });
+    await alert.present();
   }
 
   /**
    * Open iOS Settings app
    */
   private async openIOSSettings(): Promise<void> {
-    const iosSettingsAttempts = [
-      'App-Prefs:Bluetooth',
-      'App-Prefs:root=Bluetooth',
-      'prefs:root=Bluetooth', 
-      'app-settings:',
-      'prefs:'
-    ];
-
-    for (const settingsUrl of iosSettingsAttempts) {
-      try {
-        console.log(`Trying iOS settings: ${settingsUrl}`);
-        await Browser.open({ 
-          url: settingsUrl,
-          windowName: '_system'
-        });
-        return; // Success
-      } catch (error) {
-        console.error(`Failed to open iOS settings with ${settingsUrl}:`, error);
-        continue;
-      }
-    }
-
-    throw new Error('Unable to open iOS settings');
+    // iOS doesn't allow direct opening of Bluetooth settings
+    // Show instructions instead
+    const alert = await this.alertController.create({
+      header: 'Enable Bluetooth',
+      message: `
+        <p><strong>Please enable Bluetooth:</strong></p>
+        <ol style="text-align: left; padding-left: 20px;">
+          <li>Swipe down from the top-right corner</li>
+          <li>Tap and hold the <strong>Bluetooth</strong> icon</li>
+          <li>Or go to: <strong>Settings → Bluetooth</strong></li>
+          <li>Turn on <strong>Bluetooth</strong></li>
+          <li>Return to this app</li>
+        </ol>
+      `,
+      buttons: ['OK']
+    });
+    await alert.present();
   }
 
   /**
    * Show instructions for web/desktop users
    */
   private async showWebInstructions(): Promise<void> {
-    const alert:any = await this.alertController.create({
+    const alert = await this.alertController.create({
       header: 'Enable Bluetooth',
       message: `
         <p>Please enable Bluetooth manually:</p>
@@ -169,9 +175,7 @@ export class BluetoothFailedPage implements OnDestroy {
       `,
       buttons: ['OK']
     });
-    await alert?.then(alert => {
-      alert.present();
-    });
+    await alert.present();
   }
 
   /**
@@ -179,45 +183,58 @@ export class BluetoothFailedPage implements OnDestroy {
    */
   public async checkBluetoothStatus(): Promise<boolean> {
     try {
-      // Initialize BLE client
       await BleClient.initialize({ 
         androidNeverForLocation: true 
       });
-      
-      // Check if Bluetooth is enabled
-      const isEnabled = await BleClient.isEnabled();
-      this.isBluetoothEnabled = isEnabled;
-      this.bluetoothStatus = isEnabled ? 'Enabled' : 'Disabled';
-      
-      console.log('Bluetooth enabled:', isEnabled);
-      
-      if (!isEnabled) {
-        await this.showToast('Bluetooth is disabled. Please enable it in settings.');
+        
+      this.isBluetoothEnabled = await BleClient.isEnabled();
+
+      if (this.isBluetoothEnabled) {
+        this.bluetoothStatus = 'Enabled';
+        return true;
+      } else {
+        this.isBluetoothEnabled = false;
+        this.bluetoothStatus = 'Disabled';
+        return false;
       }
-      
-      return isEnabled;
     } catch (error) {
-      console.error('Bluetooth not available:', error);
-      this.isBluetoothEnabled = false;
-      this.bluetoothStatus = 'Not Available';
+      console.error('Error checking Bluetooth status:', error);
+      this.bluetoothStatus = 'Error';
       return false;
     }
   }
 
   /**
-   * Request Bluetooth permissions
+   * Request Bluetooth permissions and enable if needed
    */
   public async requestBluetoothPermissions(): Promise<boolean> {
-    const loading:any = await this.loadingController.create({
+    const loading = await this.loadingController.create({
       message: 'Requesting Bluetooth permissions...'
     });
-    await loading?.then(alert => {
-      alert.present();
-    });
+    await loading.present();
 
     try {
       if (this.platform.is('android')) {
+        // Initialize first
         await BleClient.initialize({ androidNeverForLocation: true });
+        
+        // Check if already enabled
+        const isEnabled = await BleClient.isEnabled();
+        
+        if (!isEnabled) {
+          // Try to enable Bluetooth - this will trigger permission request
+          try {
+            await BleClient.enable();
+            await this.showToast('Bluetooth enabled successfully!');
+            await this.checkBluetoothStatus();
+            return true;
+          } catch (enableError) {
+            console.log('Enable error, opening settings:', enableError);
+            await loading.dismiss();
+            await this.showBluetoothSettings();
+            return false;
+          }
+        }
         
         // Test permissions by attempting a brief scan
         const permissionGranted = await this.testBluetoothPermissions();
@@ -229,7 +246,7 @@ export class BluetoothFailedPage implements OnDestroy {
         } else {
           await this.showErrorAlert(
             'Permissions Required', 
-            'Bluetooth permissions are required for this app to function. Please grant permissions in the next dialog.'
+            'Bluetooth permissions are required. Please grant them in the next dialog.'
           );
           return false;
         }
@@ -294,7 +311,14 @@ export class BluetoothFailedPage implements OnDestroy {
       // Check Bluetooth status first
       const isEnabled = await this.checkBluetoothStatus();
       if (!isEnabled) {
-        await this.showErrorAlert('Bluetooth Disabled', 'Please enable Bluetooth first.');
+        const userWantsToEnable = await this.showConfirmAlert(
+          'Bluetooth Disabled',
+          'Bluetooth is currently disabled. Would you like to enable it?'
+        );
+        
+        if (userWantsToEnable) {
+          await this.setupBluetooth();
+        }
         return;
       }
 
@@ -309,15 +333,15 @@ export class BluetoothFailedPage implements OnDestroy {
         },
         (result: ScanResult) => {
           console.log('Discovered device:', result);
-          console.log('this.discoveredDevices:', this.discoveredDevices)
           
           // Add device if not already in list
           const existingDevice = this.discoveredDevices.find(
-            (device:any) => device.device.deviceId === result.device.deviceId
+            (device) => device.deviceId === result.device.deviceId
           );
           
           if (!existingDevice) {
             this.discoveredDevices.push(result.device);
+            console.log(`Added device: ${result.device.name || 'Unknown'} (${result.device.deviceId})`);
           }
         }
       );
@@ -330,7 +354,18 @@ export class BluetoothFailedPage implements OnDestroy {
     } catch (error) {
       console.error('Failed to start device scan:', error);
       this.isScanning = false;
-      await this.showErrorAlert('Scan Error', 'Failed to start Bluetooth scan.');
+      
+      // Check if it's a permission error
+      const errorMessage = (error as Error).message || '';
+      if (errorMessage.includes('permission') || errorMessage.includes('Permission')) {
+        await this.showErrorAlert(
+          'Permission Required',
+          'Bluetooth permissions are required to scan for devices.'
+        );
+        await this.requestBluetoothPermissions();
+      } else {
+        await this.showErrorAlert('Scan Error', 'Failed to start Bluetooth scan. Please ensure Bluetooth is enabled.');
+      }
     }
   }
 
@@ -341,7 +376,7 @@ export class BluetoothFailedPage implements OnDestroy {
     try {
       await BleClient.stopLEScan();
       this.isScanning = false;
-      await this.showToast(`Scan completed. Found ${this.discoveredDevices.length} devices.`);
+      await this.showToast(`Scan completed. Found ${this.discoveredDevices.length} device(s).`);
     } catch (error) {
       console.error('Failed to stop scan:', error);
       this.isScanning = false;
@@ -352,23 +387,59 @@ export class BluetoothFailedPage implements OnDestroy {
    * Enable Bluetooth (Android only - limited support)
    */
   public async enableBluetooth(): Promise<boolean> {
-    const loading:any = await this.loadingController.create({
-      message: 'Attempting to enable Bluetooth...'
-    });
-    await loading?.then(alert => {
-      alert.present();
-    });
-
     try {
       if (this.platform.is('android')) {
-        await BleClient.enable();
-        await this.checkBluetoothStatus();
+        console.log('Attempting to enable Bluetooth...');
         
-        if (this.isBluetoothEnabled) {
-          await this.showToast('Bluetooth enabled successfully!');
+        // Check current status first
+        const currentStatus = await BleClient.isEnabled();
+        console.log('Current Bluetooth status:', currentStatus);
+        
+        if (currentStatus) {
+          await this.showToast('Bluetooth is already enabled!');
           return true;
-        } else {
-          await this.showToast('Could not enable Bluetooth automatically.');
+        }
+        
+        // Show loading
+        const loading = await this.loadingController.create({
+          message: 'Requesting Bluetooth access...'
+        });
+        await loading.present();
+        
+        try {
+          // This should trigger the system dialog
+          console.log('Calling BleClient.enable()...');
+          await BleClient.enable();
+          
+          // Wait for user action
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          
+          // Check if it was enabled
+          const newStatus = await BleClient.isEnabled();
+          console.log('New Bluetooth status:', newStatus);
+          
+          await loading.dismiss();
+          
+          if (newStatus) {
+            this.isBluetoothEnabled = true;
+            this.bluetoothStatus = 'Enabled';
+            await this.showToast('Bluetooth enabled successfully!');
+            return true;
+          } else {
+            await this.showToast('Bluetooth was not enabled. Please enable it manually.');
+            return false;
+          }
+        } catch (enableError) {
+          await loading.dismiss();
+          console.error('BleClient.enable() error:', enableError);
+          
+          // Check if error is because user denied
+          const errorMsg = (enableError as Error).message || '';
+          if (errorMsg.includes('denied') || errorMsg.includes('cancelled')) {
+            await this.showToast('Bluetooth enable request was denied.');
+          } else {
+            await this.showToast('Could not enable Bluetooth automatically.');
+          }
           return false;
         }
       } else {
@@ -382,8 +453,6 @@ export class BluetoothFailedPage implements OnDestroy {
         'Could not enable Bluetooth automatically. Please enable it manually in settings.'
       );
       return false;
-    } finally {
-      await loading.dismiss();
     }
   }
 
@@ -391,51 +460,53 @@ export class BluetoothFailedPage implements OnDestroy {
    * Complete Bluetooth setup flow
    */
   public async setupBluetooth(): Promise<boolean> {
-    const loading:any = await this.loadingController.create({
+    const loading = await this.loadingController.create({
       message: 'Setting up Bluetooth...'
     });
-    await loading?.then(alert => {
-      alert.present();
-    });
+    await loading.present();
 
     try {
-      // Step 1: Check if Bluetooth is available
-      console.log('Step 1: Checking Bluetooth status...');
+      // Step 1: Initialize
+      console.log('Step 1: Initializing Bluetooth...');
+      await BleClient.initialize({ androidNeverForLocation: true });
+      
+      // Step 2: Check if Bluetooth is available
+      console.log('Step 2: Checking Bluetooth status...');
       const isAvailable = await this.checkBluetoothStatus();
       
       if (!isAvailable) {
-        console.log('Step 2: Bluetooth not available, requesting permissions...');
+        console.log('Step 3: Bluetooth not enabled, attempting to enable...');
         
-        const permissionsGranted = await this.requestBluetoothPermissions();
-        
-        if (!permissionsGranted) {
-          console.log('Step 3: Permissions not granted, opening settings...');
-          await loading.dismiss();
-          await this.showBluetoothSettings();
-          return false;
-        }
-        
-        // Step 4: Try to enable Bluetooth
-        console.log('Step 4: Attempting to enable Bluetooth...');
+        // Try to enable Bluetooth
         const enabled = await this.enableBluetooth();
         
         if (!enabled) {
-          console.log('Step 5: Could not enable automatically, opening settings...');
+          console.log('Step 4: Could not enable automatically, opening settings...');
           await loading.dismiss();
           await this.showBluetoothSettings();
           return false;
         }
       }
       
+      // Step 5: Request permissions if needed
+      console.log('Step 5: Testing permissions...');
+      const permissionGranted = await this.testBluetoothPermissions();
+      
+      if (!permissionGranted) {
+        console.log('Step 6: Permissions not granted, requesting...');
+        await loading.dismiss();
+        return await this.requestBluetoothPermissions();
+      }
+      
       await loading.dismiss();
-      await this.showToast('Bluetooth setup completed successfully!');
+      // await this.showToast('Bluetooth setup completed successfully!');
       console.log('Bluetooth setup completed successfully');
       return true;
       
     } catch (error) {
       console.error('Bluetooth setup failed:', error);
       await loading.dismiss();
-      await this.showErrorAlert('Setup Failed', 'Bluetooth setup failed. Please try again.');
+      await this.showErrorAlert('Setup Failed', 'Bluetooth setup failed. Please try manually enabling Bluetooth in settings.');
       return false;
     }
   }
@@ -444,43 +515,14 @@ export class BluetoothFailedPage implements OnDestroy {
    * Refresh Bluetooth status
    */
   public async refreshBluetoothStatus(): Promise<void> {
-    const loading:any = await this.loadingController.create({
+    const loading = await this.loadingController.create({
       message: 'Checking Bluetooth status...',
       duration: 2000
     });
-    await loading?.then(alert => {
-      alert.present();
-    });
+    await loading.present();
     
     await this.checkBluetoothStatus();
     await loading.dismiss();
-  }
-
-  /**
-   * Connect to a specific Bluetooth device
-   */
-  public async connectToDevice(deviceId: string): Promise<boolean> {
-    const loading:any = await this.loadingController.create({
-      message: 'Connecting to device...'
-    });
-    await loading?.then(alert => {
-      alert.present();
-    });
-
-    try {
-      await BleClient.connect(deviceId, (deviceId) => {
-        console.log(`Device ${deviceId} disconnected`);
-      });
-      
-      await this.showToast('Device connected successfully!');
-      return true;
-    } catch (error) {
-      console.error('Failed to connect to device:', error);
-      await this.showErrorAlert('Connection Failed', 'Could not connect to the selected device.');
-      return false;
-    } finally {
-      await loading.dismiss();
-    }
   }
 
   /**
@@ -516,7 +558,7 @@ export class BluetoothFailedPage implements OnDestroy {
   public async isDeviceConnected(deviceId: string): Promise<boolean> {
     try {
       const connectedDevices = await this.getConnectedDevices();
-      return connectedDevices.some((device: any) => device.device.deviceId === deviceId);
+      return connectedDevices.some((device) => device.deviceId === deviceId);
     } catch (error) {
       console.error('Failed to check device connection:', error);
       return false;
@@ -527,22 +569,20 @@ export class BluetoothFailedPage implements OnDestroy {
    * Show error alert
    */
   private async showErrorAlert(header: string, message: string): Promise<void> {
-    const alert:any = await this.alertController.create({
+    const alert = await this.alertController.create({
       header,
       message,
       buttons: ['OK']
     });
-    await alert?.then(alert => {
-      alert.present();
-    });
+    await alert.present();
   }
 
   /**
    * Show confirmation alert
    */
   private async showConfirmAlert(header: string, message: string): Promise<boolean> {
-    return new Promise<boolean>((resolve) => {
-      this.alertController.create({
+    return new Promise<boolean>(async (resolve) => {
+      const alert = await this.alertController.create({
         header,
         message,
         buttons: [
@@ -556,7 +596,8 @@ export class BluetoothFailedPage implements OnDestroy {
             handler: () => resolve(true)
           }
         ]
-      }).then(alert => alert.present());
+      });
+      await alert.present();
     });
   }
 
@@ -564,14 +605,12 @@ export class BluetoothFailedPage implements OnDestroy {
    * Show toast message
    */
   private async showToast(message: string, duration: number = 3000): Promise<void> {
-    const toast:any = await this.toastController.create({
+    const toast = await this.toastController.create({
       message,
       duration,
       position: 'bottom'
     });
-    await toast?.then(alert => {
-      alert.present();
-    });
+    await toast.present();
   }
 
   /**
@@ -593,12 +632,10 @@ export class BluetoothFailedPage implements OnDestroy {
    * Reset Bluetooth connection
    */
   public async resetBluetooth(): Promise<void> {
-    const loading:any = await this.loadingController.create({
+    const loading = await this.loadingController.create({
       message: 'Resetting Bluetooth...'
     });
-    await loading?.then(alert => {
-      alert.present();
-    });
+    await loading.present();
 
     try {
       // Stop any ongoing scans
@@ -607,17 +644,17 @@ export class BluetoothFailedPage implements OnDestroy {
       }
 
       // Disconnect from all devices
-      const connectedDevices: any = await this.getConnectedDevices();
+      const connectedDevices = await this.getConnectedDevices();
       for (const device of connectedDevices) {
-        if(device & device?.device) {
-          await this.disconnectFromDevice(device?.device?.deviceId);
+        if (device && device.deviceId) {
+          await this.disconnectFromDevice(device.deviceId);
         }
       }
 
       // Reinitialize
       await this.initializeBluetooth();
       
-      await this.showToast('Bluetooth reset completed!');
+      // await this.showToast('Bluetooth reset completed!');
     } catch (error) {
       console.error('Failed to reset Bluetooth:', error);
       await this.showErrorAlert('Reset Failed', 'Could not reset Bluetooth connection.');
