@@ -74,9 +74,9 @@ export class AppComponent {
 
   ngOnInit() {
     console.log('ng on init initialize..')
-    /* this.authService.checkUser().subscribe({
+    this.authService.checkUser().subscribe({
       next: (user) => {
-        if (user) { */
+        if (user) {
           BleClient.isEnabled()
           .then(() => {
             this.checkIfLocationIsEnabled().then(isEnabled => {
@@ -94,7 +94,7 @@ export class AppComponent {
           this.configureDeeplinks();
           this.subscribeToBluetoothAndLocationChanges();
           this.platformReady();
-       /*  } else {
+        } else {
           this.platformReady();
           this.router.navigateByUrl('/login-page');
         }
@@ -102,7 +102,7 @@ export class AppComponent {
       error: (error) => {
         // handle error
       }
-    }); */
+    });
 
     App.addListener('appUrlOpen', ({ url }) => {
       // For reset password deeplink
