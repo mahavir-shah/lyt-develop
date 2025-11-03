@@ -9,32 +9,25 @@ import { Color } from './../components/color-wheel/color';
 import { BaseModel } from './base.model';
 
 // const DEVICE_SERVICE_UUID = 'fff0';
-const DEVICE_SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
 /*const CHARACTERISTIC_UUID = { 
   BRIGHTNESS: 'fff4', 
   COLOR: 'fff5',
-  // Add a separate characteristic for saturation if available
-  SATURATION: 'fff6' // Update this with actual UUID if different
+  SATURATION: 'fff6'
 }; */
+const DEVICE_SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
 const CHARACTERISTIC_UUID = { 
-  // 0000fff4-0000-1000-8000-00805f9b34fb
-  BRIGHTNESS: '0000fff4-0000-1000-8000-00805f9b34fb', 
-  
-  // 0000fff5-0000-1000-8000-00805f9b34fb
+  BRIGHTNESS: '0000fff3-0000-1000-8000-00805f9b34fb', 
   COLOR: '0000fff5-0000-1000-8000-00805f9b34fb',
-  
-  // 0000fff6-0000-1000-8000-00805f9b34fb
   SATURATION: '0000fff6-0000-1000-8000-00805f9b34fb' 
 };
 
-const calculateChecksum = (data: Uint8Array): number => {
-    let checksum = 0;
-    // Iterate over all bytes provided
-    for (const byte of data) {
-        checksum ^= byte;
-    }
-    return checksum;
-};
+function calculateChecksum(data: Uint8Array): number {
+  let checksum = 0;
+  for (let i = 0; i < data.length; i++) {
+    checksum ^= data[i];
+  }
+  return checksum & 0xFF;
+}
 
 export class Device extends BaseModel {
   public deviceId: string = '';
@@ -86,26 +79,27 @@ export class Device extends BaseModel {
    * Flash the device by changing brightness levels
    */
   public async flash(previousBrightnessLevel: number = 100): Promise<void> {
-    try {
-      if(! (await this.isConnected())) {
-        await BleClient.connect(this.device.deviceId);
-        await this.delay(500);  
-      }
-      console.log('first brightness call 100')
-      await this.changeBrightnessLevel(100);
-      await this.delay(1000);
-      
-      console.log('second brightness call 0')
-      await this.changeBrightnessLevel(0);
-      await this.delay(1000);
-      
-      await this.changeBrightnessLevel(previousBrightnessLevel);
-      console.log('second brightness call ---' + previousBrightnessLevel)
-    } catch (error) {
-      console.error('Flash operation failed:', error);
-      throw error;
+  try {
+    if (!(await this.isConnected())) {
+      await BleClient.connect(this.device.deviceId);
+      await this.delay(500); // Increased delay after connection
     }
+    
+    console.log('Setting brightness to 100%');
+    await this.changeBrightnessLevel(100);
+    await this.delay(300); // Increased delay to ensure device processes command
+    
+    console.log('Setting brightness to 0%');
+    await this.changeBrightnessLevel(0);
+    await this.delay(300);
+    
+    console.log(`Restoring brightness to ${previousBrightnessLevel}%`);
+    await this.changeBrightnessLevel(previousBrightnessLevel);
+  } catch (error) {
+    console.error('Flash operation failed:', error);
+    throw error;
   }
+}
 
   /**
    * Change device color
@@ -139,48 +133,83 @@ export class Device extends BaseModel {
    * Change device brightness level
    */
   public async changeBrightnessLevel(value: number): Promise<void> {
-        try {
-            // 1. Clamp and Scale Value (0-100% to 0-255)
-            const clampedValue = Math.max(0, Math.min(100, value));
-            const scaled = Math.floor((255 * clampedValue) / 100);
+    try {
+      // Ensure connection
+      if (!(await this.isConnected())) {
+        throw new Error('Device not connected');
+      }
 
-            // 2. Construct the 6-byte payload (without final checksum)
-            const commandData = new Uint8Array(6);
-            commandData[0] = 0xAA; // Common Header 1 (Needs verification)
-            commandData[1] = 0xBB; // Common Header 2 (Needs verification)
-            commandData[2] = 0x01; // Command ID: Set Brightness (Needs verification)
-            commandData[3] = scaled; // The brightness value (0-255)
-            commandData[4] = 0x00; // Unused Byte 1
-            commandData[5] = 0x00; // Unused Byte 2
+      // 1. Create a new ArrayBuffer to hold the data
+      const buffer = new ArrayBuffer(1); // 1 byte for brightness value
 
-            // 3. Calculate Checksum (XOR sum of the 6 command bytes)
-            const checksum = calculateChecksum(commandData);
+      // 2. Create a DataView to write to the buffer
+      const dataView = new DataView(buffer);
 
-            // 4. Create Final 7-byte Packet (Command + Checksum)
-            const payload = new Uint8Array(7);
-            payload.set(commandData, 0); // Copy the first 6 bytes
-            payload[6] = checksum;      // Append the calculated checksum
+      // 3. Write the desired brightness value (e.g., 75) as an 8-bit unsigned integer (Uint8)
+      // NOTE: Adjust '75' and the length of the buffer based on what your device expects.
+      dataView.setUint8(0, value);
+      
+     
+      await BleClient.write(
+        this.device.deviceId,
+        DEVICE_SERVICE_UUID,
+        CHARACTERISTIC_UUID.BRIGHTNESS,
+        dataView
+      );
 
-            // 5. Prepare DataView for BLE write
-            const dataView = new DataView(payload.buffer);
-            
-            // 6. Write to BLE Characteristic
-            await BleClient.writeWithoutResponse(
-                this.device.deviceId,
-                DEVICE_SERVICE_UUID,
-                CHARACTERISTIC_UUID.BRIGHTNESS,
-                dataView
-            );
-            
-            console.log(`Brightness changed to: ${clampedValue}% (Sent value: ${scaled})`);
-            console.log(`Full Packet (Hex): ${Array.from(payload).map(b => '0x' + b.toString(16).padStart(2, '0')).join(' ')}`);
+      /* await BleClient.writeWithoutResponse(
+        this.device.deviceId,
+        DEVICE_SERVICE_UUID,
+        CHARACTERISTIC_UUID.BRIGHTNESS,
+        dataView
+      ); */
 
-        } catch (error) {
-            console.error('Change brightness failed:', error);
-            // Re-throw the error so the caller can handle it
-            throw error; 
-        }
+      // If above doesn't work, try write with response instead:
+      // await BleClient.write(
+      //   this.device.deviceId,
+      //   DEVICE_SERVICE_UUID,
+      //   CHARACTERISTIC_UUID.BRIGHTNESS,
+      //   dataView
+      // );
+
+      console.log('Brightness command sent successfully');
+      
+      // Small delay to let device process
+      await this.delay(100);
+
+    } catch (error) {
+      console.error('Change brightness failed:', error);
+      throw error;
     }
+  }
+
+
+  /**
+   * Create brightness command with your checksum format
+   */
+  private createBrightnessCommand(brightnessValue: number): Uint8Array {
+    // Your original format
+    const commandData = new Uint8Array(6);
+    commandData[0] = 0xAA;
+    commandData[1] = 0xBB;
+    commandData[2] = 0x01;
+    commandData[3] = brightnessValue;
+    commandData[4] = 0x00;
+    commandData[5] = 0x00;
+
+    // Calculate checksum (XOR of all bytes)
+    let checksum = 0;
+    for (let i = 0; i < commandData.length; i++) {
+      checksum ^= commandData[i];
+    }
+
+    // Create final payload with checksum
+    const payload = new Uint8Array(7);
+    payload.set(commandData, 0);
+    payload[6] = checksum;
+
+    return payload;
+  }
 
   /**
    * Change device saturation level
