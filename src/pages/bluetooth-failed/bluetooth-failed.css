@@ -1,0 +1,4 @@
+.custom-color-alert {
+    --ion-alert-header-color: #852a3b !important;
+    --ion-alert-message-color: #444444 !important;
+}

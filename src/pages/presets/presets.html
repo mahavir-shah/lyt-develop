@@ -5,34 +5,97 @@
 
 <ion-content>
     <div class="lyt-c-page-wrapper lyt-c-page-wrapper--padding-stack lyt-c-page-wrapper--has-navbar">
-        <div class="lyt-l-cross-app lyt-l-cross-app--no-min-heading">
-            <div class="lyt-l-cross-app__heading">
-                <h2 class="lyt-c-heading lyt-c-heading--no-transform">{{ 'presets.choose_preset' | translate }}</h2>
+        <div class="content">
+            <div class="section">
+                <h2 class="section-title">Colors</h2>
+                <div class="colors-grid" *ngFor="let preset of presetService.presets">
+                    <div 
+                        class="color-circle" 
+                        *ngFor="let color of preset.colors" 
+                        [ngStyle]="{'background-color': color.getHexCode()}"
+                    ></div>
+                    <!-- <div class="color-circle" [style]="background-color: #ff007f"></div>
+                    <div class="color-circle" [style]="background-color: #0000ff"></div>
+                    <div class="color-circle" [style]="background-color: #00ff00"></div>
+                    <div class="color-circle" [style]="background-color: #ffff00"></div>
+                    <div class="color-circle" [style]="background-color: #ffa500"></div>
+                    <div class="color-circle" [style]="background-color: #008000"></div>
+                    <div class="color-circle" [style]="background-color: #00ffff"></div>
+                    <div class="color-circle" [style]="background-color: #800080"></div>
+                    <div class="color-circle" [style]="background-color: #800000"></div>
+                    <div class="color-circle" [style]="background-color: #808000"></div>
+                    <div class="color-circle" [style]="background-color: #008080"></div>
+                    <div class="color-circle" [style]="background-color: #0080ff"></div>
+                    <div class="color-circle" [style]="background-color: #8000ff"></div>
+                    <div class="color-circle" [style]="background-color: #ff69b4"></div> -->
+                </div>
             </div>
-            <div class="lyt-l-cross-app__body">
-                <div class="lyt-c-center-element lyt-c-center-element--align-start">
-                    <div class="lyt-c-list">
-                        <ul class="lyt-c-item-list">
-                            <li *ngFor="let preset of presetService.presets">
-                                <!-- to be extracted to css -->
-                                <div class="lyt-c-item-title">
-                                    <div class="lyt-c-preset-color-wrapper">
-                                        <div class="lyt-c-preset-color"
-                                             *ngFor="let color of preset.colors"
-                                             [ngStyle]="{'background-color': color.getHexCode()}">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="lyt-c-actions">
-                                    <button type="button"
-                                            class="lyt-btn lyt-btn--success"
-                                            (click)="activatePreset(preset)">
-                                        {{ 'common.start' | translate }}
-                                    </button>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
+
+            <div class="divider"></div>
+
+            <div class="section speed-section">
+                <h2 class="section-title">Speed</h2>
+                <div class="range-slider">
+                    <ion-range
+                        min="100"
+                        max="5000"
+                        step="1"
+                        snaps="true"
+                        pin="true"
+                        [min]="100"
+                        [max]="5000"
+                        [step]="1"
+                        formControlName="speedRange"
+                        (ionChange)="changeSpeed($event)"
+                    ></ion-range>
+                </div>
+                <ion-label slot="end">{{this.currentValue.speed}}</ion-label>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="section animation-section">
+                <h2 class="section-title">Animation effect</h2>
+                <div class="buttons-grid">
+                    <button
+                        [ngClass]="{ 
+                            'animation-button': true, 
+                            'selected': this.currentValue.animation == 'pulse' 
+                        }" 
+                        (click)="changeAnimation('pulse')"
+                    >
+                        Pulse
+                    </button>
+
+                    <button
+                        [ngClass]="{ 
+                            'animation-button': true, 
+                            'selected': this.currentValue.animation == 'wave' 
+                        }" 
+                        (click)="changeAnimation('wave')"
+                    >
+                        Wave
+                    </button>
+
+                    <button
+                        [ngClass]="{ 
+                            'animation-button': true, 
+                            'selected': this.currentValue.animation == 'strobe' 
+                        }" 
+                        (click)="changeAnimation('strobe')"
+                    >
+                        Strobe
+                    </button>
+
+                    <button
+                        [ngClass]="{ 
+                            'animation-button': true, 
+                            'selected': this.currentValue.animation == 'mix' 
+                        }" 
+                        (click)="changeAnimation('mix')"
+                    >
+                        Mix
+                    </button>
                 </div>
             </div>
         </div>

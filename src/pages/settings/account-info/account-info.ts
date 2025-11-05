@@ -6,6 +6,7 @@ import { debounceTime } from 'rxjs';
 
 @Component({
   selector: 'account-info',
+  styleUrl: 'account-info.scss',
   templateUrl: 'account-info.html',
   standalone: false,
 })

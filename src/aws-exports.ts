@@ -7,6 +7,11 @@ const awsExports = {
             region: "us-west-1",
             userPoolId: "us-west-1_CPUFWalUJ",
             userPoolClientId: "1nksb11gpfjnb2cu05odo3k9iq",
+
+            // region: "us-east-1",
+            // userPoolId: "us-east-1_DYPwz3GM7",
+            // userPoolClientId: "5uopk4r8hdou0704cjoo9cc1ph",
+
             connectionTimeout: 5000,           
             socketTimeout: 10000,
         }

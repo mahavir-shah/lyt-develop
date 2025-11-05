@@ -1,4 +1,4 @@
-<form [formGroup]="accountForm" class="lyt-c-form" *ngIf="!readonly">
+<form [formGroup]="accountForm" class="lyt-c-form">
     <div class="lyt-c-form__body">
         <div class="lyt-c-form-input-group">
             <ion-item class="lyt-c-form-input">
@@ -48,7 +48,8 @@
                     placeholder="{{ 'common.email' | translate | uppercase }}"
                     (keyup)="update(accountForm, 'email')"
                     [disabled]="true"
-                    [class.invalid]="validationService.isInvalid(accountForm, 'email', true)">
+                    [class.invalid]="validationService.isInvalid(accountForm, 'email', true)"
+                >
                 </ion-input>
             </ion-item>
             <div class="lyt-c-form-input-validation"

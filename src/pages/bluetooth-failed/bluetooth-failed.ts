@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'bluetooth-failed',
   templateUrl: 'bluetooth-failed.html',
-  styleUrls: ['bluetooth-failed.sass'],
+  styleUrls: ['bluetooth-failed.css'],
   standalone: false
 })
 export class BluetoothFailedPage implements OnDestroy {
@@ -584,6 +584,7 @@ export class BluetoothFailedPage implements OnDestroy {
     return new Promise<boolean>(async (resolve) => {
       const alert = await this.alertController.create({
         header,
+        cssClass: 'custom-color-alert',
         message,
         buttons: [
           {

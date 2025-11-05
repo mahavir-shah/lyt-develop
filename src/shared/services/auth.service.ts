@@ -108,7 +108,7 @@ export class AuthService {
    */
   loginUser(email: string, password: string): Observable<User> {
     return from(signIn({
-      username: email, // Use email as username
+      username: email,
       password
     })).pipe(
       switchMap((result) => {
