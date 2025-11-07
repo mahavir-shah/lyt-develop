@@ -35,3 +35,16 @@
 /* @use "@ionic/angular/css/palettes/dark.always.css"; */
 /* @use "@ionic/angular/css/palettes/dark.class.css"; */
 @use "@ionic/angular/css/palettes/dark.system.css";
+
+.custom-color-alert {
+    --header-color: #852a3b !important; 
+    --message-color: #444444 !important; 
+}
+
+.custom-color-alert .alert-head, 
+.custom-color-alert .alert-head * {
+    color: #852a3b !important;
+}
+.custom-color-alert .alert-message {
+    color: #444444 !important; 
+}

@@ -1,6 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Location } from '@angular/common';
-
 import { PresetsService, Preset } from '../../shared/services/presets.service';
 
 export type AnimationEffect = 'Pulse' | 'Wave' | 'Strobe' | 'Mix';
@@ -12,13 +11,16 @@ export type AnimationEffect = 'Pulse' | 'Wave' | 'Strobe' | 'Mix';
   standalone: false,
 })
 
-export class PresetsPage {
+export class PresetsPage implements OnInit {
   public preset 
   public currentValue: any = {
-    speed: 200,
-    animation: 'Pulse'
+    speed: 2000,
+    animation: 'Pulse',
+    presetStatus: false,
+    activeColor: null,
   };
   public animationEffects: AnimationEffect[] = ['Pulse', 'Wave', 'Strobe', 'Mix'];
+  public intervalId;
 
   constructor(
     public location: Location,
@@ -33,7 +35,6 @@ export class PresetsPage {
   }
 
   public activatePreset(preset: Preset): void {
-    console.log('call preset function arg:', preset)
     this.presetService.emitPreset(preset);
     this.location.back();
   }
@@ -43,9 +44,40 @@ export class PresetsPage {
   }
 
   changeAnimation(animation) {
-    this.preset = this.presetService.presets[0]
-    this.currentValue.animation = animation
-    this.presetService.emitPreset(this.preset);
-    this.location.back();
+    this.preset = this.presetService.presets[0];
+    this.currentValue.animation = animation;
+    this.currentValue.presetStatus = true;
+
+    let i = 0;
+    this.intervalId = setInterval(async () => { 
+      debugger
+        if(i < this.preset?.colors?.length) { 
+            const currentColor = this.preset?.colors[i];
+            this.currentValue.activeColor = currentColor?.getHexCode();
+            this.presetService.emitPreset(currentColor);
+            i++;
+        } else {
+            this.currentValue = {
+              speed: 2000,
+              animation: 'Pulse',
+              presetStatus: false,
+              activeColor: null,
+            };
+            clearInterval(this.intervalId); 
+        }
+    }, this.currentValue?.speed);
+
+    // this.presetService.emitPreset({colors: this.preset, ...this.currentValue});
+    // this.location.back();
+  }
+
+  deactivatePreset() {
+    clearInterval(this.intervalId); 
+    this.currentValue = {
+      speed: 2000,
+      animation: 'Pulse',
+      presetStatus: false,
+      activeColor: null,
+    };
   }
 }

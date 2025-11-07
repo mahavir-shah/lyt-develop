@@ -144,6 +144,7 @@ export class BluetoothFailedPage implements OnDestroy {
     // Show instructions instead
     const alert = await this.alertController.create({
       header: 'Enable Bluetooth',
+      cssClass: 'custom-color-alert',
       message: `
         <p><strong>Please enable Bluetooth:</strong></p>
         <ol style="text-align: left; padding-left: 20px;">
@@ -165,6 +166,7 @@ export class BluetoothFailedPage implements OnDestroy {
   private async showWebInstructions(): Promise<void> {
     const alert = await this.alertController.create({
       header: 'Enable Bluetooth',
+      cssClass: 'custom-color-alert',
       message: `
         <p>Please enable Bluetooth manually:</p>
         <ul>
@@ -571,6 +573,7 @@ export class BluetoothFailedPage implements OnDestroy {
   private async showErrorAlert(header: string, message: string): Promise<void> {
     const alert = await this.alertController.create({
       header,
+      cssClass: 'custom-color-alert',
       message,
       buttons: ['OK']
     });

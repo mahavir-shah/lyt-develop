@@ -6,7 +6,8 @@ import { Device } from '../../shared/models/device.model';
 import { DevicesService } from '../../shared/services/devices.service';
 import { Subscription, timer } from 'rxjs';
 import { take } from 'rxjs/operators';
-
+import { BleClient } from '@capacitor-community/bluetooth-le';
+import { Router } from '@angular/router';
 @Component({
   selector: 'search-in-progress',
   templateUrl: 'search-in-progress.html',
@@ -20,15 +21,21 @@ export class SearchInProgressPage implements OnDestroy {
 
   constructor(
     public devicesService: DevicesService,
-    public navCtrl: NavController
+    public navCtrl: NavController,
+    private router: Router,
   ) {}
 
   /* async ngOnInit() {
     console.log('SearchInProgressPage initialized');
     await this.startScan();
   } */
-  
+
   async ionViewWillEnter() {
+    await BleClient.initialize({ androidNeverForLocation: true });
+    const bleStatus = await BleClient.isEnabled()
+    if(! bleStatus) {
+      this.router.navigateByUrl('/bluetooth-failed');
+    }
     console.log('SearchInProgressPage is about to be shown (ionViewWillEnter)');
     await this.startScan();
   }

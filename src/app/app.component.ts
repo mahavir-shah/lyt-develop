@@ -54,10 +54,9 @@ export class AppComponent {
     private diagnosticService: DiagnosticService,
     private translate: TranslateService,
     private router: Router,
-    private activatedRoute: ActivatedRoute
   ) {
     translate.use('en');
-      this.initializeApp();
+    this.initializeApp();
 
     platform.ready().then(() => {
       if (Capacitor.isNativePlatform()) {
@@ -75,10 +74,11 @@ export class AppComponent {
   ngOnInit() {
     console.log('ng on init initialize..')
     this.authService.checkUser().subscribe({
-      next: (user) => {
+      next: async (user) => {
         if (user) {
-          BleClient.isEnabled()
-          .then(() => {
+          await BleClient.initialize({ androidNeverForLocation: true });
+          const bluetoothEnabled = await BleClient.isEnabled();          
+          if(bluetoothEnabled) {
             this.checkIfLocationIsEnabled().then(isEnabled => {
               if(isEnabled) {
                 this.router.navigateByUrl('/search-inprogress-page');
@@ -86,10 +86,9 @@ export class AppComponent {
                 this.router.navigateByUrl('/location-disabled-page');
               }
             });
-          })
-          .catch(() => {
+          } else {
             this.router.navigateByUrl('/bluetooth-failed');
-          });
+          }
           //this.navCtrl = app.getActiveNav();
           this.configureDeeplinks();
           this.subscribeToBluetoothAndLocationChanges();

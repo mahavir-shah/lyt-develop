@@ -79,12 +79,14 @@
     flex-direction: column;
     flex-grow: 1;
     flex-shrink: 0;
+    height: 50vh;
 }
 
 .lyt-l-top-content-bottom-footer__bottom {
     flex-grow: 0;
     flex-shrink: 0;
     margin-top: vars.$lyt-gutter;
+    height: 7vh;
 }
 
 /*
@@ -108,4 +110,7 @@
     align-items: center;
     min-height: 120px;
     margin-bottom: 20px;
+}
+.lyt-c-page-wrapper.lyt-c-page-wrapper--padding-stack{
+    padding-top: 20px;
 }

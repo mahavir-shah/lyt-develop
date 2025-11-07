@@ -51,9 +51,9 @@ export class ColorPickerPage implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.presetService.presetSelected$.subscribe(preset => {
-      console.log('assinged preset function:', preset)
-      this.preset = preset;
+    this.presetService.presetSelected$.subscribe(data => {
+      this.connectedDevice.changeColor(data.desaturated(this.saturationLevel));
+      // this.presetSet(data)
     });
 
     this.platform.backButton.subscribeWithPriority(100, () => {
@@ -61,6 +61,42 @@ export class ColorPickerPage implements OnInit, AfterViewInit {
       // console.log('Back button pressed, default prevented.');
     });
   }
+
+  /* public async presetSet(data) {
+    console.log('assinged preset function:', data)
+      if(!this.preset?.colors) {
+        this.preset = data;
+        let i = 0;
+
+        // 💡 FIX: Changed the function() { ... } to an arrow function () => { ... }
+        const intervalId = setInterval(async () => { 
+            // Now 'this' correctly refers to the class instance
+            
+            // Check loop condition carefully: use < or <= depending on if colors is 0-indexed
+            if(i < data?.colors?.colors?.length) { 
+                
+                const currentColor = data?.colors?.colors[i];
+                this.color = currentColor;
+                console.log("color hexa code: ", currentColor?.getHexCode());
+
+                this.adjustedColor = this.getAdjustedColor();
+                
+                this.setColor(currentColor);
+                this.colorWheel.setColor(this.adjustedColor);
+                this.colorWheel.setColorPosition(currentColor);
+                this.connectedDevice.changeColor(this.adjustedColor);
+
+                i++;
+            } else {
+                // Stop the interval once the loop is complete
+                clearInterval(intervalId); 
+            }
+        }, data?.speed);
+
+        // Store the interval ID if you need to manually stop it later
+        // this.intervalId = intervalId;
+      }
+  } */
 
   ngAfterViewInit() {
     this.bottomColorCircle = document.getElementById('bottom-color-circle');
@@ -148,12 +184,12 @@ export class ColorPickerPage implements OnInit, AfterViewInit {
 
   public goToPresetsPage() { 
     console.log('this.preset:', this.preset);
-    this.presetService.emitPreset(({
+    /* this.presetService.emitPreset(({
       onPresetSelect: (preset: any) => {
         console.log('selected Preset:', preset)
         this.preset = preset
       }
-    }));
+    })); */
 
     this.navCtrl.navigateForward('/presets-page');
     /* this.presetService.emitPreset(({

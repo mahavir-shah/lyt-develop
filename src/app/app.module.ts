@@ -3,7 +3,7 @@ import { RouteReuseStrategy } from '@angular/router';
 
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { AppRoutingModule } from './app-routing.module';
-import { ReactiveFormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { ErrorHandler, NgModule, isDevMode, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { SplashScreen } from '@capacitor/splash-screen';
@@ -101,8 +101,11 @@ export function HttpLoaderFactory(http: HttpClient) {
     BrowserModule,
     HttpClientModule,
     ReactiveFormsModule,
+    FormsModule,
     AmplifyAuthenticatorModule,
-    IonicModule.forRoot({}),
+    IonicModule.forRoot({
+      swipeBackEnabled: false
+    }),
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
