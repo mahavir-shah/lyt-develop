@@ -7,6 +7,7 @@ import {
 } from '@capacitor-community/bluetooth-le';
 import { Color } from './../components/color-wheel/color';
 import { BaseModel } from './base.model';
+import { DevicesService } from './../services/devices.service'
 
 // const DEVICE_SERVICE_UUID = 'fff0';
 /*const CHARACTERISTIC_UUID = { 
@@ -14,11 +15,18 @@ import { BaseModel } from './base.model';
   COLOR: 'fff5',
   SATURATION: 'fff6'
 }; */
+interface AnimationOptions {
+  type?: 'pulse' | 'wave' | 'strobe' | 'mix' | 'none';
+  speed?: number; // 0-100
+  brightness?: number; // 0-255
+}
+
 const DEVICE_SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
 const CHARACTERISTIC_UUID = { 
   BRIGHTNESS: '0000fff3-0000-1000-8000-00805f9b34fb', 
   COLOR: '0000fff5-0000-1000-8000-00805f9b34fb',
-  SATURATION: '0000fff6-0000-1000-8000-00805f9b34fb' 
+  SATURATION: '0000fff6-0000-1000-8000-00805f9b34fb',
+  ANIMATION: '0000fff7-0000-1000-8000-00805f9b34fb'
 };
 
 function calculateChecksum(data: Uint8Array): number {
@@ -38,8 +46,13 @@ export class Device extends BaseModel {
   public uuids: string[] = [];
   public manufacturerData: string = '';
   public serviceData: any = {};
-
-  constructor(deviceData?: Partial<Device>) {
+  public color: Color = new Color(255, 0, 0);
+  public currentAnimation: AnimationOptions = { type: 'none' };
+  
+  constructor(
+    deviceData?: Partial<Device>,
+    private deviceService?: DevicesService
+  ) {
     console.log("deviceData:",deviceData)
     super(deviceData || {}); // Pass deviceData or empty object to BaseModel constructor
     if (deviceData) {
@@ -56,6 +69,10 @@ export class Device extends BaseModel {
       await this.delay(500);
       await this.getCharacteristics(DEVICE_SERVICE_UUID);
       console.log(`Connected to device: ${this.device.name}`);
+
+      this.changeColor(this.color);
+      this.deviceService.devices = [];
+      console.log("device list clear current value for device list:", this.deviceService?.devices)
       return result;
     } catch (error) {
       return error;
@@ -104,8 +121,9 @@ export class Device extends BaseModel {
   /**
    * Change device color
    */
-  public async changeColor(color: Color): Promise<void> {
+  public async changeColor(color: Color, animationOptions?: AnimationOptions): Promise<void> {
     try {
+      this.color = color;
       const scaledColor = scaleColor(color);
       const dataView = new DataView(new ArrayBuffer(5));
       
@@ -123,8 +141,90 @@ export class Device extends BaseModel {
       );
       
       console.log(`Color changed to RGB(${scaledColor.r}, ${scaledColor.g}, ${scaledColor.b})`);
+      // If animation options provided, send animation command
+      if (animationOptions && animationOptions.type && animationOptions.type !== 'none') {
+        await this.delay(100);
+        await this.sendAnimation(animationOptions);
+      }
     } catch (error) {
       console.error('Change color failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Send animation command to device
+   */
+  public async sendAnimation(options: AnimationOptions): Promise<void> {
+    try {
+      if (!(await this.isConnected())) {
+        throw new Error('Device not connected');
+      }
+
+      const animationData = this.buildAnimationCommand(options);
+      
+      await BleClient.write(
+        this.device.deviceId,
+        DEVICE_SERVICE_UUID,
+        CHARACTERISTIC_UUID.ANIMATION,
+        animationData
+      );
+
+      console.log(`Animation sent: type=${options.type}, speed=${options.speed || 50}%, brightness=${options.brightness || 255}`);
+      this.currentAnimation = options;
+    } catch (error) {
+      console.error('Send animation failed:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Build animation command with proper data structure
+   */
+  private buildAnimationCommand(options: AnimationOptions): DataView {
+    const animationMap: any = {
+      'pulse': 0x01,
+      'wave': 0x02,
+      'strobe': 0x03,
+      'mix': 0x04,
+      'none': 0x00
+    };
+
+    const animationType = animationMap[options.type || 'none'] || 0x00;
+    const speed = options.speed ? Math.round((options.speed / 100) * 255) : 128; // Default 50%
+    const brightness = options.brightness || 255;
+
+    // Command structure: [animationType, speed, brightness, 0x00, 0x00]
+    const commandData = new Uint8Array(5);
+    commandData[0] = animationType;
+    commandData[1] = speed;
+    commandData[2] = brightness;
+    commandData[3] = 0x00;
+    commandData[4] = 0x00;
+
+    // Optional: Calculate and append checksum if your device requires it
+    const checksum = calculateChecksum(commandData);
+    const payload = new Uint8Array(6);
+    payload.set(commandData, 0);
+    payload[5] = checksum;
+
+    const dataView = new DataView(new ArrayBuffer(6));
+    for (let i = 0; i < payload.length; i++) {
+      dataView.setUint8(i, payload[i]);
+    }
+
+    return dataView;
+  }
+
+  /**
+   * Stop current animation
+   */
+  public async stopAnimation(): Promise<void> {
+    try {
+      await this.sendAnimation({ type: 'none' });
+      this.currentAnimation = { type: 'none' };
+    } catch (error) {
+      console.error('Stop animation failed:', error);
       throw error;
     }
   }

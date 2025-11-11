@@ -48,11 +48,17 @@ export class ColorPickerPage implements OnInit, AfterViewInit {
     public presetService: PresetsService
   ) {
     this.connectedDevice = this.devicesService.connectedDevice;
+    this.color = this.devicesService.connectedDevice.color;
+    this.adjustedColor = this.devicesService.connectedDevice.color;
   }
 
   ngOnInit() {
     this.presetService.presetSelected$.subscribe(data => {
-      this.connectedDevice.changeColor(data.desaturated(this.saturationLevel));
+      this.connectedDevice.changeColor(data.color.desaturated(this.saturationLevel), {
+        type: data.animation,
+        speed: 60,
+        brightness: 220
+      });
       // this.presetSet(data)
     });
 

@@ -103,13 +103,12 @@ $font-family-wp-base: $font-family-base;
 }
 
 .lyt-btn--success {
-    border: 1px solid vars.$lyt-color-secondary;
-    background-color: transparent;
-    color: vars.$lyt-color-secondary;
-    border-radius: vars.$lyt-radius-sm;
-    padding: vars.$lyt-gutter-025 vars.$lyt-gutter;
-    font-weight: normal;
-
+    border: 1px solid vars.$lyt-color-secondary !important;
+    background-color: transparent !important;
+    color: vars.$lyt-color-secondary !important;
+    border-radius: vars.$lyt-radius-sm !important;
+    padding: vars.$lyt-gutter-025 vars.$lyt-gutter !important;
+    font-weight: normal !important;
     &.lyt-btn--lg {
         padding: vars.$lyt-gutter-075 vars.$lyt-gutter-2;
     }

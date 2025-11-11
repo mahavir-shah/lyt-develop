@@ -4,7 +4,7 @@
 </navbar>
 
 <ion-content class="ion-no-swipe ion-padding-top-0">
-    <div class="lyt-c-page-wrapper lyt-c-page-wrapper--padding-stack lyt-c-page-wrapper--has-navbar">
+    <div class="lyt-c-page-wrapper">
         <div class="content">
             <div class="section">
                 <h2 class="section-title">Colors</h2>
@@ -19,77 +19,92 @@
 
             <div class="divider"></div>
             
-            <div class="section speed-section" *ngIf="!currentValue.presetStatus">
-                <h2 class="section-title">Speed</h2>
-                <div class="range-slider">
-                    <ion-range
-                        min="100"
-                        max="5000"
-                        step="1"
-                        snaps="true"
-                        pin="true"
-                        [min]="100"
-                        [max]="5000"
-                        [step]="1"
-                        [(ngModel)]="currentValue.speed"
-                    ></ion-range>
+            <div class="section">
+                <div class="section speed-section" *ngIf="!currentValue.presetStatus">
+                    <h2 class="section-title speed-label">Speed</h2>
+                    <div class="range-slider">
+                        <ion-range
+                            min="1.0"
+                            max="10.0"
+                            [min]="1.0"
+                            [max]="10.0"
+                            [step]="0.5"
+                            [pin]="true"
+                            [ticks]="false"
+                            [snaps]="true"
+                            [(ngModel)]="currentValue.speed"
+                            [pinFormatter]="formatSpeedPin"
+                            [ngStyle]="{
+                                'padding': '0px',
+                                'marginTop': '30px'
+                            }"
+                        >
+                        </ion-range>
+                    </div>
                 </div>
-                <ion-label slot="end">{{currentValue.speed}}</ion-label>
             </div>
 
             <div class="divider" *ngIf="!currentValue.presetStatus"></div>
+            
+            <div class="section">
+                <div class="section animation-section" *ngIf="!currentValue.presetStatus">
+                    <h2 class="section-title">Animation effect</h2>
+                    <div class="buttons-grid">
+                        <div class="lyt-c-action-buttons">
+                            <button 
+                                type="button" 
+                                class="lyt-btn lyt-btn--success lyt-btn--lg"
+                                [ngClass]="{ 
+                                    'selected': this.currentValue.animation == 'pulse' 
+                                }" 
+                                (click)="changeAnimation('pulse')"
+                            >
+                                Pulse
+                            </button>
 
-            <div class="section animation-section" *ngIf="!currentValue.presetStatus">
-                <h2 class="section-title">Animation effect</h2>
-                <div class="buttons-grid">
-                    <button
-                        [ngClass]="{ 
-                            'animation-button': true, 
-                            'selected': this.currentValue.animation == 'pulse' 
-                        }" 
-                        (click)="changeAnimation('pulse')"
-                    >
-                        Pulse
-                    </button>
+                            <button 
+                                type="button" 
+                                class="lyt-btn lyt-btn--success lyt-btn--lg"
+                                [ngClass]="{ 
+                                    'selected': this.currentValue.animation == 'wave' 
+                                }" 
+                                (click)="changeAnimation('wave')"
+                            >
+                                Wave
+                            </button>
 
-                    <button
-                        [ngClass]="{ 
-                            'animation-button': true, 
-                            'selected': this.currentValue.animation == 'wave' 
-                        }" 
-                        (click)="changeAnimation('wave')"
-                    >
-                        Wave
-                    </button>
+                            <button 
+                                type="button" 
+                                class="lyt-btn lyt-btn--success lyt-btn--lg"
+                                [ngClass]="{ 
+                                    'selected': this.currentValue.animation == 'strobe' 
+                                }" 
+                                (click)="changeAnimation('strobe')"
+                            >
+                                Strobe
+                            </button>
 
-                    <button
-                        [ngClass]="{ 
-                            'animation-button': true, 
-                            'selected': this.currentValue.animation == 'strobe' 
-                        }" 
-                        (click)="changeAnimation('strobe')"
-                    >
-                        Strobe
-                    </button>
-
-                    <button
-                        [ngClass]="{ 
-                            'animation-button': true, 
-                            'selected': this.currentValue.animation == 'mix' 
-                        }" 
-                        (click)="changeAnimation('mix')"
-                    >
-                        Mix
-                    </button>
+                            <button 
+                                type="button" 
+                                class="lyt-btn lyt-btn--success lyt-btn--lg"
+                                [ngClass]="{ 
+                                    'selected': this.currentValue.animation == 'mix' 
+                                }" 
+                                (click)="changeAnimation('mix')"
+                            >
+                                Mix
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <div *ngIf="currentValue.presetStatus" class="lyt-c-preset-cancel">
-                <h2 class="lyt-c-heading">Preset Activated</h2>
-                <div class="lyt-c-action-buttons">
-                    <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg" (click)="deactivatePreset()">
-                        {{ 'common.cancel' | translate }}
-                    </button>
+                <div *ngIf="currentValue.presetStatus" class="lyt-c-preset-cancel">
+                    <h2 class="lyt-c-heading">Preset Activated</h2>
+                    <div class="lyt-c-action-buttons">
+                        <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg" (click)="deactivatePreset()">
+                            {{ 'common.cancel' | translate }}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

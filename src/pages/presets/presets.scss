@@ -61,6 +61,9 @@
     margin-bottom: 20px;
     padding: 0 6px;
 }
+.section-title.speed-label {
+  margin-bottom: 5px;
+}
 
 .divider {
     height: 1px;
@@ -92,11 +95,11 @@
 }
 
 .range-slider {
-    width: 100%;
-    margin: 5px 0 5px 0;
+    // width: 100%;
+    // margin: 5px 0 5px 0;
     padding: 0 6px;
     background: var(--divider-color);
-    height: 4px;
+    // height: 4px;
     border-radius: 2px;
     position: relative;
 }
@@ -128,7 +131,7 @@
 
 .animation-section .buttons-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    // grid-template-columns: repeat(4, 1fr);
     gap: 8px;
 }
 
@@ -180,4 +183,53 @@
     .speed-value {
         font-size: 20px;
     }
+}
+.animation-button[_ngcontent-ng-c3083986763]{
+  padding: 0;
+  margin-right: 20px;
+}
+.lyt-btn {
+  margin-left: 5px !important;
+}
+
+ion-range::part(tick) {
+  background: #FFF;
+}
+
+ion-range::part(tick-active) {
+  background: #FFF;
+}
+
+ion-range::part(pin) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #FFF;
+  color: #f53d3d;
+
+  border-radius: 50%;
+  transform: scale(1.01);
+
+  top: -20px;
+
+  min-width: 28px;
+  height: 28px;
+  transition: transform 120ms ease, background 120ms ease;
+}
+
+ion-range::part(pin)::before {
+  content: none;
+}
+
+ion-range::part(knob) {
+  background: #FFF;
+}
+
+ion-range::part(bar) {
+  background: #FFF;
+}
+
+ion-range::part(bar-active) {
+  background: #FFF;
 }

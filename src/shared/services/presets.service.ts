@@ -31,6 +31,7 @@ class PresetsService {
       new Color(128, 0, 255),
       new Color(255, 105, 180)
     ])
+    
     /* new Preset([
       new Color(121, 241, 124),
       new Color(42, 141, 250),

@@ -17,6 +17,12 @@ export class DevicesService {
     ble: null
   }]; */
   public connectedDevice: Device;
+  public currentPresetValue: any = {
+    speed: 1.0,
+    animation: 'Pulse',
+    presetStatus: false,
+    activeColor: null,
+  };
 
   constructor() {}
 }

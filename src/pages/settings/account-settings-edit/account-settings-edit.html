@@ -1,5 +1,12 @@
-<navbar class="lyt-c-toolbar" [title]="'account_settings.title' | translate | uppercase" [hideBackButton]="true" [hideSettingsButton]="true"
-    [showCustomButton]="true" [customButtonTitle]="'common.done' | translate" (onCustomButtonClick)="updateUser()">
+<navbar 
+    class="lyt-c-toolbar" 
+    [title]="'account_settings.title' | translate | uppercase" 
+    [hideBackButton]="false" 
+    [hideSettingsButton]="true"
+    [showCustomButton]="true" 
+    [customButtonTitle]="'common.done' | translate" 
+    (onCustomButtonClick)="updateUser()"
+>
 </navbar>
 
 <ion-content>

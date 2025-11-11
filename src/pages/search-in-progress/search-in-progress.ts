@@ -1,5 +1,5 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { NavController } from '@ionic/angular';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { NavController, Platform } from '@ionic/angular';
 import { BluetoothLe, ScanResult } from '@capacitor-community/bluetooth-le';
 import * as _ from 'lodash';
 import { Device } from '../../shared/models/device.model';
@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
   standalone: false,
 })
 export class SearchInProgressPage implements OnDestroy {
+  public platform = inject(Platform);
   private ticks = 10;
   private timerSubscription?: Subscription;
   private scanListener: any;
@@ -33,7 +34,7 @@ export class SearchInProgressPage implements OnDestroy {
   async ionViewWillEnter() {
     await BleClient.initialize({ androidNeverForLocation: true });
     const bleStatus = await BleClient.isEnabled()
-    if(! bleStatus) {
+    if(! bleStatus && this.platform.is('android')) {
       this.router.navigateByUrl('/bluetooth-failed');
     }
     console.log('SearchInProgressPage is about to be shown (ionViewWillEnter)');
