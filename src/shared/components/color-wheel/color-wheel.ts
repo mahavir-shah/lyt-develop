@@ -53,6 +53,7 @@ export class ColorWheel implements OnInit, AfterViewInit {
 
   private initializeColorWheel(): void {
     const canvasColorWheel = this.colorWheel.nativeElement;
+    canvasColorWheel.style.touchAction = 'none';
     this.context = canvasColorWheel.getContext('2d')!;
 
     this.colorSelector = document.getElementById('color-selector');
@@ -161,6 +162,7 @@ export class ColorWheel implements OnInit, AfterViewInit {
     };
 
     canvasColorWheel.addEventListener(EVENT.START, (event: Event) => {
+      event.preventDefault();
       const pointerEvent = event as PointerEvent;
       const point = this.getPointFromTouch(pointerEvent, false);
 
@@ -264,10 +266,12 @@ export class ColorWheel implements OnInit, AfterViewInit {
   }
 
   private calculatePointOnScreen(event: PointerEvent): Point {
-    return new Point(
+    return new Point(event.clientX, event.clientY);
+
+    /* return new Point(
       event.pageX || (event as any).changedTouches?.[0]?.pageX || (event as any).changedTouches?.[0]?.screenX || event.clientX,
       event.pageY || (event as any).changedTouches?.[0]?.pageY || (event as any).changedTouches?.[0]?.screenY || event.clientY
-    );
+    ); */
   }
 
   private calculateAngleFromTouch(event: PointerEvent): number {
@@ -289,59 +293,5 @@ export class ColorWheel implements OnInit, AfterViewInit {
       Math.round(this.center.x + Math.cos(randomAngle) * this.radius),
       Math.round(this.center.y + Math.sin(randomAngle) * this.radius)
     );
-  }
-
-  public setColorPosition(color: Color): void {
-    // Convert RGB to HSL to get hue (position on wheel)
-    const hsl = this.rgbToHsl(color.r, color.g, color.b);
-    const hue = hsl.h; // 0-360 degrees
-
-    // Convert hue angle to point on the color wheel
-    const angleInRadians = (hue - 90) * (Math.PI / 180); // -90 to start from top
-    
-    const x = Math.round(this.center.x + Math.cos(angleInRadians) * this.radius);
-    const y = Math.round(this.center.y + Math.sin(angleInRadians) * this.radius);
-
-    // Update the color wheel point position
-    this.colorWheelPoint = new Point(x, y);
-    this.color = color;
-
-    // Update the UI
-    this.update();
-  }
-
-  private rgbToHsl(r: number, g: number, b: number): { h: number; s: number; l: number } {
-    r /= 255;
-    g /= 255;
-    b /= 255;
-
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    let h = 0;
-    let s = 0;
-    const l = (max + min) / 2;
-
-    if (max !== min) {
-      const d = max - min;
-      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-
-      switch (max) {
-        case r:
-          h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
-          break;
-        case g:
-          h = ((b - r) / d + 2) / 6;
-          break;
-        case b:
-          h = ((r - g) / d + 4) / 6;
-          break;
-      }
-    }
-
-    return {
-      h: Math.round(h * 360),
-      s: Math.round(s * 100),
-      l: Math.round(l * 100)
-    };
   }
 }

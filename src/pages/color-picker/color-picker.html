@@ -136,8 +136,13 @@
                         </div>
                     </div>
 
-                    <color-wheel class="lyt-c-canvas" (didRelease)="changeDeviceColor()" (colorDidChange)="setColor($event)"
-                        (leftSliderDidChange)="setBrightnessLevel($event)" (rightSliderDidChange)="setSaturationLevel($event)">
+                    <color-wheel 
+                        class="lyt-c-canvas" 
+                        (didRelease)="changeDeviceColor()" 
+                        (colorDidChange)="setColor($event)"
+                        (leftSliderDidChange)="setBrightnessLevel($event)" 
+                        (rightSliderDidChange)="setSaturationLevel($event)"
+                    >
                     </color-wheel>
 
                     <div class="lyt-u-absolute-center">
