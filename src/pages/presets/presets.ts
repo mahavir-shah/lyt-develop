@@ -56,27 +56,27 @@ export class PresetsPage implements OnInit {
 
     const currentColor = this.preset?.colors[0];
     this.currentValue.activeColor = currentColor?.getHexCode();
-    this.presetService.emitPreset({color: currentColor, animation: animation});
+    this.presetService.emitPreset({color: currentColor, animation: animation, speed: this.currentValue.speed});
 
     let i = 1;
     this.intervalId = setInterval(async () => { 
       if(i < this.preset?.colors?.length) { 
           const currentColor = this.preset?.colors[i];
           this.currentValue.activeColor = currentColor?.getHexCode();
-          this.presetService.emitPreset({color: currentColor, animation: animation});
+          this.presetService.emitPreset({color: currentColor, animation: animation, speed: this.currentValue.speed});
           i++;
       } else {
         clearInterval(this.intervalId); 
         this.changeAnimation(animation); 
       }
-   }, (this.currentValue?.speed ?? 0) * 1000);
+   }, (this.currentValue.speed + 2) * 1000);
 
     // this.presetService.emitPreset({colors: this.preset, ...this.currentValue});
     // this.location.back();
   }
 
   deactivatePreset() {
-    this.presetService.emitPreset(this.lastActiveColor);
+    this.presetService.emitPreset({color:this.lastActiveColor});
     clearInterval(this.intervalId); 
     this.currentValue = {
       speed: this.currentValue.speed,

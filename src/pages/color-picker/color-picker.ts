@@ -53,12 +53,30 @@ export class ColorPickerPage implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.presetService.presetSelected$.subscribe(data => {
-      this.connectedDevice.changeColor(data.color.desaturated(this.saturationLevel), {
+    this.presetService.presetSelected$.subscribe(async (data) => {
+      // 'pulse' | 'wave' | 'strobe' | 'mix' | 'none'; 
+      if(data?.speed && data?.animation) {
+        console.log('selected animation: ', data.animation)
+        console.log('selected color: ', data.color)
+        console.log('selected speed: ', data.speed)
+        if (data.animation == 'pulse') {
+          await this.connectedDevice.pulse(data.color, (data?.speed * 1000))
+        } else if(data.animation == 'wave') {
+          await this.connectedDevice.wave(data.color, (data?.speed * 1000))
+        } else if(data.animation == 'strobe') {
+          await this.connectedDevice.strobe(data.color, (data?.speed * 1000))
+        } else if(data.animation == 'mix') {
+          await this.connectedDevice.probe(data.color, (data?.speed * 1000))
+        }
+      } else {
+        this.connectedDevice.stop();
+      }
+      await this.connectedDevice.changeColor(data.color);
+      /* this.connectedDevice.changeColor(data.color.desaturated(this.saturationLevel), {
         type: data.animation,
         speed: 60,
         brightness: 220
-      });
+      }); */
       // this.presetSet(data)
     });
 

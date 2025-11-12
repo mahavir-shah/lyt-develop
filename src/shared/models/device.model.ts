@@ -48,6 +48,7 @@ export class Device extends BaseModel {
   public serviceData: any = {};
   public color: Color = new Color(255, 0, 0);
   public currentAnimation: AnimationOptions = { type: 'none' };
+  private stopFlag = false;
   
   constructor(
     deviceData?: Partial<Device>,
@@ -58,6 +59,10 @@ export class Device extends BaseModel {
     if (deviceData) {
       Object.assign(this, deviceData);
     }
+  }
+
+  public stop() {
+    this.stopFlag = true;
   }
 
   /**
@@ -573,6 +578,88 @@ public async  applyBrightnessAndSaturation(
    */
   private delay(ms: number): Promise<void> {
     return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  // -----------------------------------------------------------
+  // 1️⃣ Pulse Effect: fade in/out smoothly
+  // -----------------------------------------------------------
+  public async pulse(baseColor: Color, duration = 400, cycles = 3, stepDelay = 50) {
+    this.stopFlag = false;
+    const steps = 40;
+
+    const cycleDelay = (duration - (steps * 2 * stepDelay)) / cycles;
+
+    for (let c = 0; c < cycles && !this.stopFlag; c++) {
+      // Fade in
+      for (let i = 0; i <= steps && !this.stopFlag; i++) {
+        const scale = i / steps;
+        const [r, g, b] = [baseColor.r, baseColor.g, baseColor.b].map(v => Math.round(v * scale));
+        await this.changeColor(new Color(r, g, b));
+        await this.delay(stepDelay);
+      }
+      // Fade out
+      for (let i = steps; i >= 0 && !this.stopFlag; i--) {
+        const scale = i / steps;
+        const [r, g, b] = [baseColor.r, baseColor.g, baseColor.b].map(v => Math.round(v * scale));
+        await this.changeColor(new Color(r, g, b));
+        await this.delay(stepDelay);
+      }
+      await this.delay(cycleDelay);
+    }
+  }
+
+  // -----------------------------------------------------------
+  // 2️⃣ Wave Effect: smooth color wave using sinusoidal brightness
+  // -----------------------------------------------------------
+  public async wave(baseColor: Color, duration = 400, steps = 5) {
+    this.stopFlag = false;
+
+    for (let i = 0; i < steps && !this.stopFlag; i++) {
+      const t = (i / steps) * 2 * Math.PI; // 0 to 2π
+      const scale = (Math.sin(t) + 1) / 2; // 0 to 1
+      const [r, g, b] = [baseColor.r, baseColor.g, baseColor.b].map(v => Math.round(v * scale));
+      await this.changeColor(new Color(r, g, b));
+      await this.delay(duration / steps);
+    }
+  }
+
+  // -----------------------------------------------------------
+  // 3️⃣ Probe Effect: strong pulse, short fade, like a sonar ping
+  // -----------------------------------------------------------
+  public async probe(baseColor: Color, flashes = 5) {
+    this.stopFlag = false;
+
+    for (let i = 0; i < flashes && !this.stopFlag; i++) {
+      // Bright pulse
+      await this.changeColor(baseColor);
+      await this.delay(150);
+
+      // Rapid fade out
+      for (let j = 4; j >= 0 && !this.stopFlag; j--) {
+        const scale = j / 4;
+        const [r, g, b] = [baseColor.r, baseColor.g, baseColor.b].map(v => Math.round(v * scale));
+        await this.changeColor(new Color(r, g, b));
+        await this.delay(50);
+      }
+
+      await this.delay(200);
+    }
+  }
+
+  // -----------------------------------------------------------
+  // 4️⃣ Strobe Effect: quick on/off flashes
+  // -----------------------------------------------------------
+  public async strobe(baseColor: Color, duration = 400, frequency = 5) {
+    this.stopFlag = false;
+    const interval = duration / frequency; // ms per flash
+    const endTime = Date.now() + duration;
+
+    while (Date.now() < endTime && !this.stopFlag) {
+      await this.changeColor(baseColor); // on
+      await this.delay(interval / 2);
+      await this.changeColor(new Color(0, 0 ,0)); // off
+      await this.delay(interval / 2);
+    }
   }
 }
 
