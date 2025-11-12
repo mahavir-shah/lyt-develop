@@ -257,21 +257,6 @@ export class Device extends BaseModel {
         dataView
       );
 
-      /* await BleClient.writeWithoutResponse(
-        this.device.deviceId,
-        DEVICE_SERVICE_UUID,
-        CHARACTERISTIC_UUID.BRIGHTNESS,
-        dataView
-      ); */
-
-      // If above doesn't work, try write with response instead:
-      // await BleClient.write(
-      //   this.device.deviceId,
-      //   DEVICE_SERVICE_UUID,
-      //   CHARACTERISTIC_UUID.BRIGHTNESS,
-      //   dataView
-      // );
-
       console.log('Brightness command sent successfully');
       
       // Small delay to let device process
@@ -282,6 +267,25 @@ export class Device extends BaseModel {
       throw error;
     }
   }
+
+/**
+ * Use color blending to simulate brightness
+ */ 
+public async setLedBrightness(percent: number, color: Color) {
+  const scale = percent / 100;
+  const r = Math.floor(color.r * scale);
+  const g = Math.floor(color.g * scale);
+  const b = Math.floor(color.b * scale);
+
+  const data = new Uint8Array([r, g, b, 0, 0]);
+  await BleClient.write(
+    this.device.deviceId,
+    DEVICE_SERVICE_UUID,
+    CHARACTERISTIC_UUID.COLOR,
+    new DataView(data.buffer)
+  );
+  console.log('Updated the LED brightness to scale, r, g, b', scale, r, g, b);
+}
 
 
   /**
@@ -338,6 +342,46 @@ export class Device extends BaseModel {
       throw error;
     }
   }
+
+private applySaturation(r: number, g: number, b: number, saturation: number) {
+  // saturation = 0 → gray; saturation = 1 → full color
+  const gray = (r + g + b) / 3;
+  const newR = Math.round(gray + (r - gray) * saturation);
+  const newG = Math.round(gray + (g - gray) * saturation);
+  const newB = Math.round(gray + (b - gray) * saturation);
+  return [newR, newG, newB];
+}
+
+public async setSaturationLevel(percent: number, baseColor: Color) {
+  const saturation = Math.max(0, Math.min(1, percent / 100)); // clamp 0–1
+  const [r, g, b] = this.applySaturation(baseColor.r, baseColor.g, baseColor.b, saturation);
+
+  const data = new Uint8Array([r, g, b, 0, 0]);
+  await BleClient.write(
+    this.device.deviceId,
+    DEVICE_SERVICE_UUID,
+    CHARACTERISTIC_UUID.COLOR, // 0xFFF5
+    new DataView(data.buffer)
+  );
+  console.log('Updated the saturation to scale, r, g, b', saturation, r, g, b);
+}
+
+public async  applyBrightnessAndSaturation(
+  baseColor: Color,
+  brightness: number, saturation: number
+) {
+  // Brightness scaling first
+  const br = baseColor.r * brightness;
+  const bg = baseColor.g * brightness;
+  const bb = baseColor.b * brightness;
+
+  // Then apply saturation
+  const gray = (br + bg + bb) / 3;
+  const newR = Math.round(gray + (br - gray) * saturation);
+  const newG = Math.round(gray + (bg - gray) * saturation);
+  const newB = Math.round(gray + (bb - gray) * saturation);
+  return [newR, newG, newB];
+}
 
   /**
    * Write to a specific characteristic

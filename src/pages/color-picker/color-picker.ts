@@ -129,7 +129,12 @@ export class ColorPickerPage implements OnInit, AfterViewInit {
     this.brightnessLevel = brightnessLevel;
     this.updateSliderOfType(SliderType.left);
 
-    this.connectedDevice.changeBrightnessLevel(brightnessLevel);
+    if(this.saturationLevel == undefined || this.saturationLevel == 100) {
+      this.connectedDevice.setLedBrightness(brightnessLevel, this.adjustedColor);
+    }
+    else {
+      this.connectedDevice.applyBrightnessAndSaturation(this.adjustedColor, brightnessLevel, this.saturationLevel);
+    }
   }
 
   public setSaturationLevel(saturationLevel: number): void {
@@ -143,7 +148,12 @@ export class ColorPickerPage implements OnInit, AfterViewInit {
       this.bottomColorCircle.style.backgroundColor = this.adjustedColor.getHexCode();
     }
 
-    this.connectedDevice.changeSaturationLevel(saturationLevel);
+    if(this.brightnessLevel == undefined || this.brightnessLevel == 100) {
+      this.connectedDevice.setSaturationLevel(saturationLevel, this.adjustedColor);
+    }
+    else {
+      this.connectedDevice.applyBrightnessAndSaturation(this.adjustedColor, this.brightnessLevel, saturationLevel);
+    }
   }
 
   public getAdjustedColor(): Color {

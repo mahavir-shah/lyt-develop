@@ -60,23 +60,16 @@ export class BluetoothFailedPage implements OnDestroy {
       console.log('Device platform:', deviceInfo.platform);
       
       if (this.platform.is('android')) {
-        // First, try to use BleClient.enable() which prompts user
         const shouldEnable = await this.showConfirmAlert(
           'Enable Bluetooth',
-          'This app needs Bluetooth to be enabled. Would you like to enable it now?'
+          'This app needs Bluetooth to be enabled. Would you like to open Bluetooth settings?'
         );
         
         if (shouldEnable) {
           const enableResult = await this.enableBluetooth();
-          if (!enableResult) {
-            // If enable failed, show manual instructions
-            await this.openAndroidBluetoothSettings();
-          } else {
+          if (enableResult) {
             this.router.navigateByUrl('/search-inprogress-page');
-            // await this.showToast('Bluetooth enabled successfully!');
           }
-        } else {
-          await this.openAndroidBluetoothSettings();
         }
       } else if (this.platform.is('ios')) {
         await this.openIOSSettings();
@@ -86,10 +79,60 @@ export class BluetoothFailedPage implements OnDestroy {
       
     } catch (error) {
       console.error('Failed to open Bluetooth settings:', error);
-      await this.openAndroidBluetoothSettings();
+      await this.showManualSettingsInstructions();
     }
   }
 
+  
+  /**
+   * Open Bluetooth settings using Android Intent (works on all devices)
+   */
+  private async openBluetoothSettingsWithIntent(): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Open Bluetooth Settings',
+      cssClass: 'bluetooth-instructions-alert',
+      message: `
+        <div style="text-align: left;">
+          <p>Bluetooth needs to be enabled. We'll open your device settings.</p>
+          <p style="margin-top: 15px;"><strong>After enabling Bluetooth:</strong></p>
+          <ol style="padding-left: 20px; margin: 10px 0;">
+            <li>Turn on <strong>Bluetooth</strong></li>
+            <li>Return to this app</li>
+            <li>Tap "Check Bluetooth Status"</li>
+          </ol>
+        </div>
+      `,
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Open Settings',
+          role: 'confirm',
+          handler: () => {
+            // Use native Android Intent
+            if ((window as any).cordova && (window as any).plugins && (window as any).plugins.intentShim) {
+              (window as any).plugins.intentShim.startActivity(
+                {
+                  action: 'android.settings.BLUETOOTH_SETTINGS'
+                },
+                () => console.log('Opened Bluetooth settings'),
+                (error: any) => {
+                  console.error('Failed to open settings:', error);
+                  this.showManualSettingsInstructions();
+                }
+              );
+            } else {
+              // Fallback to manual instructions
+              this.showManualSettingsInstructions();
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
   /**
    * Open Android Bluetooth settings
    * Uses the most reliable method: showing user instructions
@@ -385,8 +428,9 @@ export class BluetoothFailedPage implements OnDestroy {
     }
   }
 
+  
   /**
-   * Enable Bluetooth (Android only - limited support)
+   * Enable Bluetooth - Opens system Bluetooth settings for reliable enabling
    */
   public async enableBluetooth(): Promise<boolean> {
     try {
@@ -402,58 +446,37 @@ export class BluetoothFailedPage implements OnDestroy {
           return true;
         }
         
-        // Show loading
-        const loading = await this.loadingController.create({
-          message: 'Requesting Bluetooth access...'
-        });
-        await loading.present();
-        
+        // Try BleClient.enable() first (works on some devices)
         try {
-          // This should trigger the system dialog
-          console.log('Calling BleClient.enable()...');
+          console.log('Trying BleClient.enable()...');
           await BleClient.enable();
           
-          // Wait for user action
-          await new Promise(resolve => setTimeout(resolve, 1500));
+          // Wait briefly for user action
+          await new Promise(resolve => setTimeout(resolve, 1000));
           
-          // Check if it was enabled
           const newStatus = await BleClient.isEnabled();
-          console.log('New Bluetooth status:', newStatus);
-          
-          await loading.dismiss();
-          
           if (newStatus) {
             this.isBluetoothEnabled = true;
             this.bluetoothStatus = 'Enabled';
             await this.showToast('Bluetooth enabled successfully!');
             return true;
-          } else {
-            await this.showToast('Bluetooth was not enabled. Please enable it manually.');
-            return false;
           }
         } catch (enableError) {
-          await loading.dismiss();
-          console.error('BleClient.enable() error:', enableError);
-          
-          // Check if error is because user denied
-          const errorMsg = (enableError as Error).message || '';
-          if (errorMsg.includes('denied') || errorMsg.includes('cancelled')) {
-            await this.showToast('Bluetooth enable request was denied.');
-          } else {
-            await this.showToast('Could not enable Bluetooth automatically.');
-          }
-          return false;
+          console.log('BleClient.enable() not supported, using Intent method');
         }
+        
+        // If BleClient.enable() fails, use Android Intent to open Bluetooth settings
+        // This works on ALL Android devices
+        await this.openBluetoothSettingsWithIntent();
+        return false; // Return false since we're waiting for user to enable manually
+        
       } else {
         await this.showToast('Automatic Bluetooth enable not supported on this platform.');
         return false;
       }
     } catch (error) {
       console.error('Failed to enable Bluetooth:', error);
-      await this.showErrorAlert(
-        'Enable Failed', 
-        'Could not enable Bluetooth automatically. Please enable it manually in settings.'
-      );
+      await this.openBluetoothSettingsWithIntent();
       return false;
     }
   }
