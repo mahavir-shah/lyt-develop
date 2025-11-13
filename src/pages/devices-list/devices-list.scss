@@ -1,0 +1,74 @@
+/* Container row */
+.filter-row {
+  display: flex;
+  justify-content: space-between;  // label left, toggle right
+  align-items: center;              // vertical alignment
+  width: 100%;
+  padding: 4px 0;
+  margin-top: 8px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid;
+}
+
+/* Label style */
+.filter-label {
+  // font-size: 14px;
+  font-weight: 400;
+  color: var(--lyt-color-gray, #8c8c8c);         // lyt-c-heading-description color
+  white-space: nowrap;
+}
+
+/* Slim toggle */
+// .filter-toggle {
+//   --handle-width: 14px;
+//   --handle-height: 14px;
+//   --bar-height: 12px;
+//   transform: scale(0.85);
+//   margin-left: 16px;       // keeps spacing from label
+// }
+.filter-toggle {
+  --handle-width: 14px;
+  --handle-height: 14px;
+  --bar-height: 12px;
+  transform: scale(0.85) scaleY(0.9);
+  margin-left: 16px;
+
+  /* OFF state bar (track) */
+  --background: transparent;    /* keep track transparent */
+  --border-color: #ffffff;      /* white border */
+  --bar-border-color: #ffffff;
+  --bar-border-width: 2px;
+  --bar-border-radius: 2px;
+
+  /* OFF state handle (circle) */
+  --handle-background: transparent;
+  --handle-border-color: #ffffff;
+  --handle-border-width: 2px;
+
+  /* ON state (same as before) */
+  --background-checked: #B83B49;      /* Lyt red track */
+  --handle-background-checked: #ffffff;
+  --handle-border-width-checked: 0px; /* no border in ON state */
+}
+
+.filter-toggle:checked::part(track) {
+  background: #B83B49 !important;  // LYT red
+  border-color: #B83B49 !important;
+}
+
+.filter-toggle:checked::part(handle) {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+}
+/* Make toggle visible on dark background using white borders */
+.filter-toggle::part(track) {
+  // background: transparent !important;     /* remove dark track */
+  border: 2px solid #ffffff !important;   /* ADD WHITE BORDER */
+  border-radius: 12px !important;
+}
+
+.filter-toggle::part(handle) {
+  // background: transparent !important;
+  border: 2px solid #ffffff !important;   /* ADD WHITE BORDER AROUND CIRCLE */
+}
+

@@ -1,14 +1,24 @@
 <navbar [title]="'search.success.title' | translate | uppercase" [hideBackButton]="true" [showLogo]="true">
 </navbar>
-<ion-content>
-    <ion-refresher (ionRefresh)="doRefresh($event)">
-        <ion-refresher-content>
+<ion-content fullscreen scrollEvents="true">
+    <!-- Pull-to-refresh — use slot="fixed" and enable scroll events so mobile will trigger it -->
+    <ion-refresher slot="fixed" pullMin="60" (ionRefresh)="doRefresh($event)">
+        <ion-refresher-content pullingText="Pull to refresh" refreshingSpinner="circles" refreshingText="Refreshing...">
         </ion-refresher-content>
     </ion-refresher>
     <div class="lyt-c-page-wrapper lyt-c-page-wrapper--has-navbar">
         <div class="lyt-l-cross-app">
+            <!-- Filter Slider + Refresh Button Section -->
+            <div class="lyt-filter-section">
+                <div class="filter-row">
+                    <span class="filter-label">Show only Lyt devices</span>
+                    <ion-toggle [(ngModel)]="showOnlyLyt" (ionChange)="filterDevices()"
+                        class="filter-toggle"></ion-toggle>
+                </div>
+            </div>
             <div class="lyt-l-cross-app__heading">
-                <h2 class="lyt-c-heading lyt-c-heading--no-transform">{{ 'search.success.lyts_found_info' | translate }}</h2>
+                <h2 class="lyt-c-heading lyt-c-heading--no-transform">{{ 'search.success.lyts_found_info' | translate }}
+                </h2>
                 <p class="lyt-c-heading-description">
                     {{ 'search.success.strongest_signal_info' | translate }}
                 </p>
@@ -17,34 +27,45 @@
                 <div class="lyt-c-center-element lyt-c-center-element--align-start">
                     <div class="lyt-c-list">
                         <ul class="lyt-c-item-list">
-                            <li *ngFor="let device of devicesService.devices" (click)="connectToDevice(device)">
-                                <span class="lyt-c-item-title">{{ device?.device?.name ? device.device.name : device.device.deviceId }}</span>
+                            <li *ngFor="let device of filteredDevices" (click)="connectToDevice(device)">
+                                <span class="lyt-c-item-title">{{ device?.device?.name ? device.device.name :
+                                    device.device.deviceId }}</span>
                                 <div class="lyt-c-actions">
 
                                     <!-- Toggle between .lyt-u-text--green, .lyt-u-text--danger and .lyt-u-text--default -->
-                                    <svg class="lyt-c-icon lyt-u-text--green" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 28.69">
+                                    <svg class="lyt-c-icon lyt-u-text--green" xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 30 28.69">
                                         <title>available</title>
                                         <g id="Page-1">
                                             <g id="iPhone-7-Copy-10">
                                                 <g id="Group-4">
-                                                    <path id="Oval-9" d="M16.26,22.2a6.29,6.29,0,1,1,6.29-6.28A6.28,6.28,0,0,1,16.26,22.2Zm0-.89a5.39,5.39,0,1,0-5.38-5.39A5.39,5.39,0,0,0,16.26,21.31Z"
+                                                    <path id="Oval-9"
+                                                        d="M16.26,22.2a6.29,6.29,0,1,1,6.29-6.28A6.28,6.28,0,0,1,16.26,22.2Zm0-.89a5.39,5.39,0,1,0-5.38-5.39A5.39,5.39,0,0,0,16.26,21.31Z"
                                                         transform="translate(-1 -1.66)" />
                                                     <circle id="Oval-9-Copy" cx="15.26" cy="14.26" r="2.24" />
-                                                    <path id="Path-2" d="M4.14,13.75C5,8.56,8.59,5.4,15,4.24l-.16-.89C8.08,4.58,4.18,8,3.25,13.6Z" transform="translate(-1 -1.66)"
-                                                    />
-                                                    <path id="Oval-8" d="M4.14,19.51a3.15,3.15,0,1,1,3.15-3.14A3.15,3.15,0,0,1,4.14,19.51Zm0-.9A2.25,2.25,0,1,0,1.9,16.37,2.24,2.24,0,0,0,4.14,18.61Z"
+                                                    <path id="Path-2"
+                                                        d="M4.14,13.75C5,8.56,8.59,5.4,15,4.24l-.16-.89C8.08,4.58,4.18,8,3.25,13.6Z"
                                                         transform="translate(-1 -1.66)" />
-                                                    <path d="M16.26,6.38A1.34,1.34,0,0,1,14.92,5V3a1.42,1.42,0,0,1,.14-.6,1.36,1.36,0,0,1,1.81-.6l2,1a1.34,1.34,0,0,1,.6.6,1.32,1.32,0,0,1,.07,1,1.36,1.36,0,0,1-.67.78l-2,1A1.3,1.3,0,0,1,16.26,6.38Zm0-3.82a.46.46,0,0,0-.41.24.51.51,0,0,0,0,.2V5a.46.46,0,0,0,.65.4l2-1a.45.45,0,0,0,.2-.6.43.43,0,0,0-.2-.2l-2-1A.51.51,0,0,0,16.27,2.56Z"
+                                                    <path id="Oval-8"
+                                                        d="M4.14,19.51a3.15,3.15,0,1,1,3.15-3.14A3.15,3.15,0,0,1,4.14,19.51Zm0-.9A2.25,2.25,0,1,0,1.9,16.37,2.24,2.24,0,0,0,4.14,18.61Z"
                                                         transform="translate(-1 -1.66)" />
-                                                    <path id="Path-3" d="M9.24,26.27a4,4,0,0,1-.76-.41,8.18,8.18,0,0,1-1.77-1.61,11,11,0,0,1-2.13-4.4l-.87.22A11.85,11.85,0,0,0,6,24.82a8.8,8.8,0,0,0,2,1.79,4.67,4.67,0,0,0,.93.5Z"
+                                                    <path
+                                                        d="M16.26,6.38A1.34,1.34,0,0,1,14.92,5V3a1.42,1.42,0,0,1,.14-.6,1.36,1.36,0,0,1,1.81-.6l2,1a1.34,1.34,0,0,1,.6.6,1.32,1.32,0,0,1,.07,1,1.36,1.36,0,0,1-.67.78l-2,1A1.3,1.3,0,0,1,16.26,6.38Zm0-3.82a.46.46,0,0,0-.41.24.51.51,0,0,0,0,.2V5a.46.46,0,0,0,.65.4l2-1a.45.45,0,0,0,.2-.6.43.43,0,0,0-.2-.2l-2-1A.51.51,0,0,0,16.27,2.56Z"
                                                         transform="translate(-1 -1.66)" />
-                                                    <path id="Path-2-2" data-name="Path-2" d="M27.91,18c-.77,5.2-4.31,8.42-10.69,9.7l.17.88C24.13,27.27,28,23.78,28.8,18.17Z"
+                                                    <path id="Path-3"
+                                                        d="M9.24,26.27a4,4,0,0,1-.76-.41,8.18,8.18,0,0,1-1.77-1.61,11,11,0,0,1-2.13-4.4l-.87.22A11.85,11.85,0,0,0,6,24.82a8.8,8.8,0,0,0,2,1.79,4.67,4.67,0,0,0,.93.5Z"
                                                         transform="translate(-1 -1.66)" />
-                                                    <path id="Oval-8-2" data-name="Oval-8" d="M27.8,12.28a3.15,3.15,0,1,1-3.08,3.2A3.14,3.14,0,0,1,27.8,12.28Zm0,.9a2.25,2.25,0,1,0,2.28,2.2A2.25,2.25,0,0,0,27.82,13.18Z"
+                                                    <path id="Path-2-2" data-name="Path-2"
+                                                        d="M27.91,18c-.77,5.2-4.31,8.42-10.69,9.7l.17.88C24.13,27.27,28,23.78,28.8,18.17Z"
                                                         transform="translate(-1 -1.66)" />
-                                                    <path d="M16,30.34a1.29,1.29,0,0,1-.58-.13l-2.05-1a1.35,1.35,0,0,1,0-2.41l2-1.05a1.27,1.27,0,0,1,.6-.15,1.33,1.33,0,0,1,1.37,1.32l0,2a1.43,1.43,0,0,1-.14.61,1.33,1.33,0,0,1-.76.69A1.41,1.41,0,0,1,16,30.34Zm0-3.83a.36.36,0,0,0-.21,0l-2,1.06a.44.44,0,0,0-.19.6.45.45,0,0,0,.21.2l2,1a.44.44,0,0,0,.34,0,.49.49,0,0,0,.26-.23.45.45,0,0,0,0-.2l0-2a.46.46,0,0,0-.13-.32A.48.48,0,0,0,15.94,26.51Z"
+                                                    <path id="Oval-8-2" data-name="Oval-8"
+                                                        d="M27.8,12.28a3.15,3.15,0,1,1-3.08,3.2A3.14,3.14,0,0,1,27.8,12.28Zm0,.9a2.25,2.25,0,1,0,2.28,2.2A2.25,2.25,0,0,0,27.82,13.18Z"
                                                         transform="translate(-1 -1.66)" />
-                                                    <path id="Path-3-2" data-name="Path-3" d="M22.59,5.61a4.8,4.8,0,0,1,.77.4,7.82,7.82,0,0,1,1.8,1.58A10.92,10.92,0,0,1,27.36,12l.87-.23A12.07,12.07,0,0,0,25.84,7a9.09,9.09,0,0,0-2-1.75,5.39,5.39,0,0,0-.95-.49Z"
+                                                    <path
+                                                        d="M16,30.34a1.29,1.29,0,0,1-.58-.13l-2.05-1a1.35,1.35,0,0,1,0-2.41l2-1.05a1.27,1.27,0,0,1,.6-.15,1.33,1.33,0,0,1,1.37,1.32l0,2a1.43,1.43,0,0,1-.14.61,1.33,1.33,0,0,1-.76.69A1.41,1.41,0,0,1,16,30.34Zm0-3.83a.36.36,0,0,0-.21,0l-2,1.06a.44.44,0,0,0-.19.6.45.45,0,0,0,.21.2l2,1a.44.44,0,0,0,.34,0,.49.49,0,0,0,.26-.23.45.45,0,0,0,0-.2l0-2a.46.46,0,0,0-.13-.32A.48.48,0,0,0,15.94,26.51Z"
+                                                        transform="translate(-1 -1.66)" />
+                                                    <path id="Path-3-2" data-name="Path-3"
+                                                        d="M22.59,5.61a4.8,4.8,0,0,1,.77.4,7.82,7.82,0,0,1,1.8,1.58A10.92,10.92,0,0,1,27.36,12l.87-.23A12.07,12.07,0,0,0,25.84,7a9.09,9.09,0,0,0-2-1.75,5.39,5.39,0,0,0-.95-.49Z"
                                                         transform="translate(-1 -1.66)" />
                                                 </g>
                                             </g>
