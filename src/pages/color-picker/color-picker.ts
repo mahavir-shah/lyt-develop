@@ -55,76 +55,32 @@ export class ColorPickerPage implements OnInit, AfterViewInit {
   ngOnInit() {
     this.presetService.presetSelected$.subscribe(async (data) => {
       // 'pulse' | 'wave' | 'strobe' | 'mix' | 'none'; 
-      if(data?.speed && data?.animation) {
+      if (data?.speed && data?.animation) {
         console.log('selected animation: ', data.animation)
         console.log('selected color: ', data.color)
         console.log('selected speed: ', data.speed)
         if (data.animation == 'pulse') {
           await this.connectedDevice.pulse(data.color, (data?.speed * 1000))
-        } else if(data.animation == 'wave') {
+        } else if (data.animation == 'wave') {
           await this.connectedDevice.wave(data.color, (data?.speed * 1000))
-        } else if(data.animation == 'strobe') {
+        } else if (data.animation == 'strobe') {
           await this.connectedDevice.strobe(data.color, (data?.speed * 1000))
-        } else if(data.animation == 'mix') {
-          await this.connectedDevice.probe(data.color, (data?.speed * 1000))
+        } else if (data.animation == 'mix') {
+          await this.connectedDevice.mix(data.color, (data?.speed * 1000))
         }
       } else {
         this.connectedDevice.stop();
+        await this.connectedDevice.writeColor(data.color);
       }
-      await this.connectedDevice.changeColor(data.color);
-      /* this.connectedDevice.changeColor(data.color.desaturated(this.saturationLevel), {
-        type: data.animation,
-        speed: 60,
-        brightness: 220
-      }); */
-      // this.presetSet(data)
     });
 
     this.platform.backButton.subscribeWithPriority(100, () => {
-      // This blocks default back button behavior
-      // console.log('Back button pressed, default prevented.');
     });
   }
 
-  /* public async presetSet(data) {
-    console.log('assinged preset function:', data)
-      if(!this.preset?.colors) {
-        this.preset = data;
-        let i = 0;
-
-        // 💡 FIX: Changed the function() { ... } to an arrow function () => { ... }
-        const intervalId = setInterval(async () => { 
-            // Now 'this' correctly refers to the class instance
-            
-            // Check loop condition carefully: use < or <= depending on if colors is 0-indexed
-            if(i < data?.colors?.colors?.length) { 
-                
-                const currentColor = data?.colors?.colors[i];
-                this.color = currentColor;
-                console.log("color hexa code: ", currentColor?.getHexCode());
-
-                this.adjustedColor = this.getAdjustedColor();
-                
-                this.setColor(currentColor);
-                this.colorWheel.setColor(this.adjustedColor);
-                this.colorWheel.setColorPosition(currentColor);
-                this.connectedDevice.changeColor(this.adjustedColor);
-
-                i++;
-            } else {
-                // Stop the interval once the loop is complete
-                clearInterval(intervalId); 
-            }
-        }, data?.speed);
-
-        // Store the interval ID if you need to manually stop it later
-        // this.intervalId = intervalId;
-      }
-  } */
-
   ngAfterViewInit() {
     this.bottomColorCircle = document.getElementById('bottom-color-circle');
-    
+
     if (this.bottomColorCircle && this.adjustedColor) {
       this.bottomColorCircle.style.backgroundColor = this.adjustedColor.getHexCode();
     }
@@ -147,7 +103,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit {
     this.brightnessLevel = brightnessLevel;
     this.updateSliderOfType(SliderType.left);
 
-    if(this.saturationLevel == undefined || this.saturationLevel == 100) {
+    if (this.saturationLevel == undefined || this.saturationLevel == 100) {
       this.connectedDevice.setLedBrightness(brightnessLevel, this.adjustedColor);
     }
     else {
@@ -166,7 +122,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit {
       this.bottomColorCircle.style.backgroundColor = this.adjustedColor.getHexCode();
     }
 
-    if(this.brightnessLevel == undefined || this.brightnessLevel == 100) {
+    if (this.brightnessLevel == undefined || this.brightnessLevel == 100) {
       this.connectedDevice.setSaturationLevel(saturationLevel, this.adjustedColor);
     }
     else {
@@ -199,11 +155,43 @@ export class ColorPickerPage implements OnInit, AfterViewInit {
     this.colorChangeTimeout = setTimeout(() => {
       this.changeColor();
       clearTimeout(this.colorChangeTimeout);
-    }, 1000);
+      
+      // Reset sliders to max
+      this.brightnessLevel = 100;
+      this.saturationLevel = 100;
+      this.updateBrightnessDots(100);
+      this.updateSaturationDots(100);
+    }, 200);
+  }
+
+  private updateBrightnessDots(level: number) {
+    for (let i = 1; i <= 10; i++) {
+      const dot = document.getElementById(`left-slider-dot-${i}`);
+      if (!dot) continue;
+
+      if (i == (level / 10)) {
+        dot.classList.add("active");
+      } else {
+        dot.classList.remove("active");
+      }
+    }
+  }
+
+  private updateSaturationDots(level: number) {
+    for (let i = 1; i <= 10; i++) {
+      const dot = document.getElementById(`right-slider-dot-${i}`);
+      if (!dot) continue;
+
+      if (i == (level / 10)) {
+        dot.classList.add("active");
+      } else {
+        dot.classList.remove("active");
+      }
+    }
   }
 
   public changeColor(): void {
-    this.connectedDevice.changeColor(this.adjustedColor);
+    this.connectedDevice.writeColor(this.adjustedColor);
   }
 
   public flash(): void {
@@ -216,7 +204,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit {
     });
   }
 
-  public goToPresetsPage() { 
+  public goToPresetsPage() {
     console.log('this.preset:', this.preset);
     /* this.presetService.emitPreset(({
       onPresetSelect: (preset: any) => {

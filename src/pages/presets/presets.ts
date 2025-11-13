@@ -14,11 +14,14 @@ export type AnimationEffect = 'Pulse' | 'Wave' | 'Strobe' | 'Mix';
 })
 
 export class PresetsPage implements OnInit {
-  public preset 
+  public preset
   public currentValue: any;
   public animationEffects: AnimationEffect[] = ['Pulse', 'Wave', 'Strobe', 'Mix'];
-  public intervalId;
+  private speedIntervalId: any;
+  private constantIntervalId: any;
+  private mainIntervalId: any;
   public lastActiveColor: Color;
+  private colorIndex: number = 0; // Add this at class level
 
   constructor(
     public location: Location,
@@ -29,12 +32,7 @@ export class PresetsPage implements OnInit {
     this.currentValue = this.deviceService?.currentPresetValue;
   }
 
-  ngOnInit() {
-    /* this.presetService.presetSelected$.subscribe(preset => {
-      console.log('assinged preset function:', preset)
-      this.onPresetSelect = preset;
-    }); */
-  }
+  ngOnInit() { }
 
   public activatePreset(preset: Preset): void {
     this.presetService.emitPreset(preset);
@@ -46,38 +44,80 @@ export class PresetsPage implements OnInit {
   }
 
   public formatSpeedPin(value: number): string {
-    return value.toFixed(1) + 's';
+    return value.toFixed(1) + ' s';
   }
 
   changeAnimation(animation) {
+    // Clear any existing intervals
+    if (this.speedIntervalId) {
+      clearInterval(this.speedIntervalId);
+    }
+    if (this.constantIntervalId) {
+      clearInterval(this.constantIntervalId);
+    }
+
     this.preset = this.presetService.presets[0];
     this.currentValue.animation = animation;
     this.currentValue.presetStatus = true;
+    this.colorIndex = 0;
 
-    const currentColor = this.preset?.colors[0];
-    this.currentValue.activeColor = currentColor?.getHexCode();
-    this.presetService.emitPreset({color: currentColor, animation: animation, speed: this.currentValue.speed});
+    const getCurrentColor = () => {
+      return this.preset?.colors[this.colorIndex];
+    };
 
-    let i = 1;
-    this.intervalId = setInterval(async () => { 
-      if(i < this.preset?.colors?.length) { 
-          const currentColor = this.preset?.colors[i];
-          this.currentValue.activeColor = currentColor?.getHexCode();
-          this.presetService.emitPreset({color: currentColor, animation: animation, speed: this.currentValue.speed});
-          i++;
-      } else {
-        clearInterval(this.intervalId); 
-        this.changeAnimation(animation); 
+    const cycleToNextColor = () => {
+      this.colorIndex++;
+      if (this.colorIndex >= this.preset?.colors?.length) {
+        this.colorIndex = 0;
       }
-   }, (this.currentValue.speed + 2) * 1000);
+    };
 
-    // this.presetService.emitPreset({colors: this.preset, ...this.currentValue});
-    // this.location.back();
+    // Emit immediately: Color1 WITH animation
+    const firstColor = getCurrentColor();
+    this.currentValue.activeColor = firstColor?.getHexCode();
+    this.presetService.emitPreset({
+      color: firstColor,
+      animation: animation,
+      speed: this.currentValue.speed
+    });
+
+    // After 'speed' seconds, emit color retention for first color
+    setTimeout(() => {
+      const currentColor = getCurrentColor();
+      this.presetService.emitPreset({ color: currentColor });
+
+      // Then start the interval for subsequent colors
+      this.constantIntervalId = setInterval(() => {
+        const currentColor = getCurrentColor();
+        this.presetService.emitPreset({ color: currentColor });
+      }, (this.currentValue.speed + 2) * 1000);
+    }, this.currentValue.speed * 1000);
+
+    // Cycle colors and emit with animation every (speed + 2) seconds
+    this.speedIntervalId = setInterval(() => {
+      cycleToNextColor();
+      const currentColor = getCurrentColor();
+      this.currentValue.activeColor = currentColor?.getHexCode();
+      this.presetService.emitPreset({
+        color: currentColor,
+        animation: animation,
+        speed: this.currentValue.speed
+      });
+    }, (this.currentValue.speed + 0.020 + 2) * 1000);
   }
 
   deactivatePreset() {
-    this.presetService.emitPreset({color:this.lastActiveColor});
-    clearInterval(this.intervalId); 
+    this.colorIndex = 0; // Reset index when animation changes
+    this.presetService.emitPreset({ color: this.lastActiveColor });
+    if (this.speedIntervalId) {
+      clearInterval(this.speedIntervalId);
+    }
+    if (this.constantIntervalId) {
+      clearInterval(this.constantIntervalId);
+    }
+    if (this.mainIntervalId) {
+      clearInterval(this.mainIntervalId);
+    }
     this.currentValue = {
       speed: this.currentValue.speed,
       animation: 'Pulse',
@@ -87,6 +127,15 @@ export class PresetsPage implements OnInit {
   }
 
   ngOnDestroy() {
+    if (this.speedIntervalId) {
+      clearInterval(this.speedIntervalId);
+    }
+    if (this.constantIntervalId) {
+      clearInterval(this.constantIntervalId);
+    }
+    if (this.mainIntervalId) {
+      clearInterval(this.mainIntervalId);
+    }
     console.log('before left preset assign value to device service:', this.currentValue)
     this.deviceService.currentPresetValue = this.currentValue
   }
