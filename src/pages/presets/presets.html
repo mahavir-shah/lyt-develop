@@ -1,6 +1,4 @@
-<navbar [title]="'presets.title' | translate | uppercase"
-        [hideBackButton]="false"
-        [hideSettingsButton]="true">
+<navbar [title]="'presets.title' | translate | uppercase" [hideBackButton]="false" [hideSettingsButton]="true">
 </navbar>
 
 <ion-content class="ion-no-swipe ion-padding-top-0">
@@ -9,89 +7,56 @@
             <div class="section">
                 <h2 class="section-title">Colors</h2>
                 <div class="colors-grid" *ngFor="let preset of presetService.presets">
-                    <div 
-                        class="color-circle" 
-                        *ngFor="let color of preset.colors" 
-                        [ngStyle]="{'background-color': color.getHexCode(), 'border': this.currentValue.activeColor == color.getHexCode() ? '3px solid lightgray' : 'none'}"
-                    ></div>
+                    <div class="color-circle" *ngFor="let color of preset.colors"
+                        [ngStyle]="{'background-color': color.getHexCode(), 'border': this.currentValue.activeColor == color.getHexCode() ? '3px solid lightgray' : 'none'}">
+                    </div>
                 </div>
             </div>
 
             <div class="divider"></div>
-            
+
             <div class="section">
                 <div class="section speed-section" *ngIf="!currentValue.presetStatus">
                     <h2 class="section-title speed-label">Speed</h2>
                     <div class="range-slider">
-                        <ion-range
-                            min="1.0"
-                            max="10.0"
-                            [min]="1.0"
-                            [max]="10.0"
-                            [step]="0.5"
-                            [pin]="true"
-                            [ticks]="false"
-                            [snaps]="true"
-                            [(ngModel)]="currentValue.speed"
-                            [pinFormatter]="formatSpeedPin"
-                            [ngStyle]="{
-                                'padding': '0px',
-                                'marginTop': '30px'
-                            }"
-                        >
-                        </ion-range>
+                        <ion-range [min]="0" [max]="100" [step]="1" [pin]="true" [snaps]="true"
+                            [(ngModel)]="currentValue.speedPercent" [pinFormatter]="formatPercentPin"
+                            (ionChange)="onSpeedChanged()" [ngStyle]="{
+        'padding': '0px',
+        'marginTop': '30px'
+    }"></ion-range>
                     </div>
                 </div>
             </div>
 
             <div class="divider" *ngIf="!currentValue.presetStatus"></div>
-            
+
             <div class="section">
                 <div class="section animation-section" *ngIf="!currentValue.presetStatus">
                     <h2 class="section-title">Animation effect</h2>
                     <div class="buttons-grid">
                         <div class="lyt-c-action-buttons">
-                            <button 
-                                type="button" 
-                                class="lyt-btn lyt-btn--success lyt-btn--lg"
-                                [ngClass]="{ 
+                            <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg" [ngClass]="{ 
                                     'selected': this.currentValue.animation == 'pulse' 
-                                }" 
-                                (click)="changeAnimation('pulse')"
-                            >
+                                }" (click)="changeAnimation('pulse')">
                                 Pulse
                             </button>
 
-                            <button 
-                                type="button" 
-                                class="lyt-btn lyt-btn--success lyt-btn--lg"
-                                [ngClass]="{ 
+                            <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg" [ngClass]="{ 
                                     'selected': this.currentValue.animation == 'wave' 
-                                }" 
-                                (click)="changeAnimation('wave')"
-                            >
+                                }" (click)="changeAnimation('wave')">
                                 Wave
                             </button>
 
-                            <button 
-                                type="button" 
-                                class="lyt-btn lyt-btn--success lyt-btn--lg"
-                                [ngClass]="{ 
+                            <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg" [ngClass]="{ 
                                     'selected': this.currentValue.animation == 'strobe' 
-                                }" 
-                                (click)="changeAnimation('strobe')"
-                            >
+                                }" (click)="changeAnimation('strobe')">
                                 Strobe
                             </button>
 
-                            <button 
-                                type="button" 
-                                class="lyt-btn lyt-btn--success lyt-btn--lg"
-                                [ngClass]="{ 
+                            <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg" [ngClass]="{ 
                                     'selected': this.currentValue.animation == 'mix' 
-                                }" 
-                                (click)="changeAnimation('mix')"
-                            >
+                                }" (click)="changeAnimation('mix')">
                                 Mix
                             </button>
                         </div>

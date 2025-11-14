@@ -60,13 +60,13 @@ export class ColorPickerPage implements OnInit, AfterViewInit {
         console.log('selected color: ', data.color)
         console.log('selected speed: ', data.speed)
         if (data.animation == 'pulse') {
-          await this.connectedDevice.pulse(data.color, (data?.speed * 1000))
+          await this.connectedDevice.pulse(data.color, (data?.speed ))
         } else if (data.animation == 'wave') {
-          await this.connectedDevice.wave(data.color, (data?.speed * 1000))
+          await this.connectedDevice.wave(data.color, (data?.speed))
         } else if (data.animation == 'strobe') {
-          await this.connectedDevice.strobe(data.color, (data?.speed * 1000))
+          await this.connectedDevice.strobe(data.color, (data?.speed ))
         } else if (data.animation == 'mix') {
-          await this.connectedDevice.mix(data.color, (data?.speed * 1000))
+          await this.connectedDevice.mix(data.color, (data?.speed ))
         }
       } else {
         this.connectedDevice.stop();
