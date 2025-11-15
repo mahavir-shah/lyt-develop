@@ -46,14 +46,14 @@
   --handle-border-width: 2px;
 
   /* ON state (same as before) */
-  --background-checked: #B83B49;      /* Lyt red track */
+  --background-checked: #8C2A38;      /* Lyt red track */
   --handle-background-checked: #ffffff;
   --handle-border-width-checked: 0px; /* no border in ON state */
 }
 
 .filter-toggle:checked::part(track) {
-  background: #B83B49 !important;  // LYT red
-  border-color: #B83B49 !important;
+  background: #8C2A38 !important;  // LYT red
+  border-color: #8C2A38 !important;
 }
 
 .filter-toggle:checked::part(handle) {

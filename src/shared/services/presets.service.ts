@@ -1,9 +1,33 @@
-import { Injectable } from '@angular/core';
+// presets.service.ts
 
-import { Color } from '../../shared/components/color-wheel/color';
+import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 
-class Preset {
+import { Color } from '../../shared/components/color-wheel/color';
+
+// -----------------------------------------------------------------------------
+// TYPES
+// -----------------------------------------------------------------------------
+
+export type AnimationType = "pulse" | "wave" | "strobe" | "mix" | null;
+
+/**
+ * Preset emit payload:
+ * - either a single color (for static selection)
+ * - or a colors array (for rotating presets)
+ */
+export interface PresetEmitPayload {
+  // When single static color is desired:
+  color?: Color;
+
+  // When rotating through a preset's palette:
+  colors?: Color[];
+
+  animation: AnimationType;
+  speed: number | null; // milliseconds, or null for static
+}
+
+export class Preset {
   public colors: Color[];
 
   constructor(colors: Color[]) {
@@ -12,54 +36,51 @@ class Preset {
 }
 
 @Injectable({ providedIn: 'root' })
-class PresetsService {
+export class PresetsService {
+
+  // The actual color sets
   public presets: Preset[] = [
     new Preset([
       new Color(255, 0, 0),
       new Color(255, 0, 127),
       new Color(0, 0, 255),
-      new Color(0, 255, 0),  
-      new Color(255, 255, 0),  
-      new Color(255, 165, 0),  
-      new Color(0, 128, 0),  
+      new Color(0, 255, 0),
+      new Color(255, 255, 0),
+      new Color(255, 165, 0),
+      new Color(0, 128, 0),
       new Color(0, 255, 255),
       new Color(128, 0, 128),
-      new Color(128, 0, 0),  
+      new Color(128, 0, 0),
       new Color(128, 128, 0),
       new Color(0, 128, 128),
       new Color(0, 128, 255),
       new Color(128, 0, 255),
       new Color(255, 105, 180)
     ])
-    
-    /* new Preset([
-      new Color(121, 241, 124),
-      new Color(42, 141, 250),
-      new Color(11, 21, 42)
-    ]),
-    new Preset([
-      new Color(126, 221, 11),
-      new Color(142, 0, 50),
-      new Color(211, 21, 42)
-    ]),
-    new Preset([
-      new Color(101, 21, 24),
-      new Color(142, 41, 250),
-      new Color(11, 211, 42)
-    ]) */
   ];
 
-  private presetSelectedSource = new Subject<any>();
-  presetSelected$ = this.presetSelectedSource.asObservable();
+  private presetSelectedSource = new Subject<PresetEmitPayload>();
+  public presetSelected$ = this.presetSelectedSource.asObservable();
 
-  constructor() {}
-  
-  emitPreset(preset: any) {
-    console.log('selected RGB Preset:', preset)
-    this.presetSelectedSource.next(preset);
+  // publish the currently animated color hex or null (when deactivated)
+  private activeColorSource = new Subject<string | null>();
+  public activeColor$ = this.activeColorSource.asObservable();
+
+  constructor() { }
+
+  // Emit a preset event (static color OR rotating colors)
+  emitPreset(payload: PresetEmitPayload) {
+    console.log('Preset emitted:', payload);
+    this.presetSelectedSource.next(payload);
+  }
+
+  // Update active color (called by color-picker while rotating)
+  updateActiveColor(hexOrNull: string | null) {
+    this.activeColorSource.next(hexOrNull);
+  }
+
+  // alias for compatibility with previous naming
+  publishActiveColor(hexOrNull: string | null) {
+    this.updateActiveColor(hexOrNull);
   }
 }
-
-export { Preset, PresetsService };
-
-
