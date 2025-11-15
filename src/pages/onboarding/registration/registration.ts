@@ -1,12 +1,12 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, OnDestroy } from '@angular/core';
 import { Platform, NavController } from '@ionic/angular';
 import { Validators, FormBuilder, FormGroup } from '@angular/forms';
 import { debounceTime } from 'rxjs/operators';
+import { Subscription } from 'rxjs';
 
 import * as _ from 'lodash';
 
 import { EnvVariables } from './../../../environments/enviroment-variables.token';
-// /enviroment-variables.token';
 
 import { AuthService } from '../../../shared/services/auth.service';
 import { ValidationService } from '../../../shared/services/validation.service';
@@ -19,11 +19,10 @@ import { SearchInProgressPage } from '../../search-in-progress/search-in-progres
   templateUrl: 'registration.html',
   standalone: false,
 })
-export class RegistrationPage implements OnInit {
+export class RegistrationPage implements OnInit, OnDestroy {
   public registrationForm: FormGroup;
   public submitted: boolean = false;
   private strongPasswordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).*$/;
-
 
   private validationRules = {
     first_name: ['required', 'maxlength', 'validationText'],
@@ -31,7 +30,6 @@ export class RegistrationPage implements OnInit {
     email: ['required', 'emailMaxlength', 'validationEmail'],
     password: [
       'required',
-      //'validationOneNumberAndOneLetterPattern',
       'maxlength',
       'validationPasswordMinglength',
       'pattern'
@@ -39,13 +37,14 @@ export class RegistrationPage implements OnInit {
     password_confirmation: ['required', 'validatePasswordConfirm']
   };
   public validationErrors: any = {};
+  private backButtonSubscription?: Subscription;
 
   constructor(
     public navCtrl: NavController,
     private platform: Platform,
-    private authService: AuthService,
     public validationService: ValidationService,
     private formBuilder: FormBuilder,
+    public authService: AuthService,
     @Inject(EnvVariables) public envVariables
   ) {
     this.initFormBuilder();
@@ -53,12 +52,34 @@ export class RegistrationPage implements OnInit {
   }
 
   ngOnInit() {
-    this.platform.backButton.subscribeWithPriority(100, () => {
-      // This blocks default back button behavior
-      // console.log('Back button pressed, default prevented.');
-    });
+    // Removed blocking behavior - now handled in ionViewWillEnter
   }
 
+  ionViewWillEnter() {
+    // Only handle Android back button (iOS uses swipe gestures)
+    if (this.platform.is('android')) {
+      this.backButtonSubscription = this.platform.backButton
+        .subscribeWithPriority(100, () => {
+          // Navigate back to login page
+          this.goToLogin();
+        });
+    }
+  }
+
+  ionViewWillLeave() {
+    // Clean up subscription when leaving page
+    if (this.backButtonSubscription) {
+      this.backButtonSubscription.unsubscribe();
+    }
+  }
+
+  ngOnDestroy() {
+    // Backup cleanup
+    if (this.backButtonSubscription) {
+      this.backButtonSubscription.unsubscribe();
+    }
+  }
+  
   private initFormBuilder() {
     this.registrationForm = this.formBuilder.group(
       {
@@ -84,9 +105,7 @@ export class RegistrationPage implements OnInit {
             Validators.required,
             ValidationService.validatePasswordMinlength(8),
             Validators.maxLength(45),
-            //ValidationService.validateOneNumberAndOneLetterPattern(),
             Validators.pattern(this.strongPasswordPattern)
-
           ])
         ],
         password_confirmation: ['', Validators.compose([Validators.required])],
@@ -161,6 +180,6 @@ export class RegistrationPage implements OnInit {
   }
 
   goToLogin() {
-    this.navCtrl.navigateForward('/login-page');
+    this.navCtrl.navigateBack('/login-page');
   }
 }

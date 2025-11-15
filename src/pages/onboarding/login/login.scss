@@ -1,0 +1,187 @@
+// Your existing login page styles here...
+// (keep all your current styles)
+
+// Exit confirmation alert styling
+ion-alert.exit-confirmation-alert {
+  // Backdrop
+  --backdrop-opacity: 0.6;
+  
+  // Alert container
+  .alert-wrapper {
+    --background: #ffffff;
+    --max-width: 320px;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  }
+  
+  // Header section
+  .alert-head {
+    padding: 20px 20px 10px 20px;
+    text-align: center;
+    
+    h2.alert-title {
+      color: #000000;
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+      padding: 0;
+    }
+  }
+  
+  // Message section
+  .alert-message {
+    color: #666666;
+    font-size: 14px;
+    line-height: 1.5;
+    padding: 10px 20px 20px 20px;
+    text-align: center;
+  }
+  
+  // Button group
+  .alert-button-group {
+    padding: 0;
+    border-top: 1px solid #e0e0e0;
+    
+    // Button wrapper
+    .alert-button-inner {
+      justify-content: center;
+    }
+    
+    // Individual buttons
+    button.alert-button {
+      margin: 0;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 500;
+      border: none;
+      border-right: 1px solid #e0e0e0;
+      
+      &:last-child {
+        border-right: none;
+      }
+      
+      // Cancel button (left)
+      &.alert-button-cancel {
+        color: #666666;
+        
+        &:hover {
+          background-color: #f5f5f5;
+        }
+      }
+      
+      // Exit button (right)
+      &.alert-button-exit {
+        color: #d33;
+        font-weight: 600;
+        
+        &:hover {
+          background-color: #fff5f5;
+        }
+      }
+    }
+  }
+}
+
+// Alternative: iOS-style alert (if preferred)
+ion-alert.exit-confirmation-alert-ios-style {
+  --backdrop-opacity: 0.4;
+  
+  .alert-wrapper {
+    --background: rgba(255, 255, 255, 0.95);
+    --max-width: 270px;
+    border-radius: 14px;
+    backdrop-filter: blur(20px);
+  }
+  
+  .alert-head {
+    padding: 16px 16px 8px;
+    
+    h2.alert-title {
+      color: #000;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.4px;
+    }
+  }
+  
+  .alert-message {
+    color: #000;
+    font-size: 13px;
+    line-height: 1.4;
+    padding: 0 16px 20px;
+    opacity: 0.6;
+  }
+  
+  .alert-button-group {
+    border-top: 0.5px solid rgba(0, 0, 0, 0.2);
+    
+    button.alert-button {
+      font-size: 17px;
+      letter-spacing: -0.4px;
+      border-right: 0.5px solid rgba(0, 0, 0, 0.2);
+      
+      &.alert-button-cancel {
+        color: #007AFF;
+      }
+      
+      &.alert-button-exit {
+        color: #FF3B30;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// Material Design style alert (Android look)
+ion-alert.exit-confirmation-alert-md-style {
+  .alert-wrapper {
+    --background: #ffffff;
+    border-radius: 4px;
+    box-shadow: 0 11px 15px -7px rgba(0,0,0,0.2),
+                0 24px 38px 3px rgba(0,0,0,0.14),
+                0 9px 46px 8px rgba(0,0,0,0.12);
+  }
+  
+  .alert-head {
+    padding: 24px 24px 20px;
+    
+    h2.alert-title {
+      color: rgba(0, 0, 0, 0.87);
+      font-size: 20px;
+      font-weight: 500;
+      margin: 0;
+    }
+  }
+  
+  .alert-message {
+    color: rgba(0, 0, 0, 0.6);
+    font-size: 16px;
+    line-height: 1.5;
+    padding: 0 24px 24px;
+  }
+  
+  .alert-button-group {
+    padding: 8px;
+    border-top: none;
+    justify-content: flex-end;
+    
+    button.alert-button {
+      margin: 0 4px;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      
+      &.alert-button-cancel {
+        color: #666;
+      }
+      
+      &.alert-button-exit {
+        color: #d32f2f;
+      }
+    }
+  }
+}
