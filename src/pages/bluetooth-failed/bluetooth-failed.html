@@ -20,7 +20,7 @@
                     </div>
                 </div>
                 <div class="lyt-c-turn-on-bluetooth">
-                    <div class="lyt-c-action-buttons" *ngIf="platform.is('android')">
+                    <div class="lyt-c-action-buttons" *ngIf="platform.is('android') && !checkBleStatus">
                         <button class="lyt-btn lyt-btn--primary"
                                 (click)="showBluetoothSettings()">
                             {{ 'bluetooth.turn_on.android' | translate | uppercase }}
@@ -29,6 +29,20 @@
                     <div class="lyt-c-info" *ngIf="platform.is('ios')">
                         {{ 'bluetooth.turn_on.ios' | translate }}
                     </div>
+                </div>
+
+                <div class="lyt-c-turn-on-bluetooth" *ngIf="checkBleStatus" style="margin-top:15px;">
+                    <div class="lyt-c-action-buttons">
+                        <button class="lyt-btn lyt-btn--primary" (click)="initializeBluetooth()">
+                            Verify Bluetooth Status
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lyt-l-cross-app__heading" *ngIf="checkBleStatus" style="margin-top:15px;">
+                    <p class="lyt-c-heading-description">
+                        After on bluetooth click on "Verify Bluetooth Status" Button
+                    </p>
                 </div>
             </div>
         </div>
