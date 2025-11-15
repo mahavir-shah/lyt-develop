@@ -23,6 +23,7 @@ export class BluetoothFailedPage implements OnDestroy {
   public isScanning: boolean = false;
   public discoveredDevices: BleDevice[] = [];
   public bluetoothStatus: string = 'Unknown';
+  public checkBleStatus: boolean = false;
   
   private scanSubscription?: Subscription;
 
@@ -38,11 +39,14 @@ export class BluetoothFailedPage implements OnDestroy {
   /**
    * Initialize Bluetooth on component load
    */
-  private async initializeBluetooth(): Promise<void> {
+  public async initializeBluetooth(): Promise<void> {
     try {
       const status = await this.checkBluetoothStatus();
       if (status) {
         this.router.navigateByUrl('/search-inprogress-page');
+      }
+      if(this.checkBleStatus === true) {
+        this.checkBleStatus = false;
       }
     } catch (error) {
       console.error('Failed to initialize Bluetooth:', error);
@@ -88,7 +92,8 @@ export class BluetoothFailedPage implements OnDestroy {
    * Open Bluetooth settings using Android Intent (works on all devices)
    */
   private async openBluetoothSettingsWithIntent(): Promise<void> {
-    const alert = await this.alertController.create({
+    this.showManualSettingsInstructions();
+   /*  const alert = await this.alertController.create({
       header: 'Open Bluetooth Settings',
       cssClass: 'bluetooth-instructions-alert',
       message: `
@@ -131,7 +136,7 @@ export class BluetoothFailedPage implements OnDestroy {
         }
       ]
     });
-    await alert.present();
+    await alert.present(); */
   }
   /**
    * Open Android Bluetooth settings
@@ -145,10 +150,10 @@ export class BluetoothFailedPage implements OnDestroy {
   /**
    * Show manual instructions for opening Bluetooth settings on Android
    */
-  private async showManualSettingsInstructions(): Promise<void> {
+/*   private async showManualSettingsInstructions(): Promise<void> {
     const alert = await this.alertController.create({
       header: 'Enable Bluetooth',
-      cssClass: 'bluetooth-instructions-alert',
+      cssClass: 'custom-color-alert',
       message: `
         <div style="text-align: left;">
           <p><strong>Quick Method:</strong></p>
@@ -177,7 +182,26 @@ export class BluetoothFailedPage implements OnDestroy {
       ]
     });
     await alert.present();
-  }
+  } */
+
+    private async showManualSettingsInstructions(): Promise<void> {
+      const alert = await this.alertController.create({
+        header: 'Enable Bluetooth',
+        cssClass: 'custom-color-alert',
+        message: 'Swipe down twice → Tap Bluetooth\n\nor\n\nSettings → Connected devices → Bluetooth',
+        buttons: [
+          { 
+            text: 'I Understand', 
+            role: 'confirm', 
+            cssClass: 'primary-button',
+            handler: () => {
+              this.checkBleStatus = true;
+            }
+          }
+        ]
+      });
+      await alert.present();
+    }
 
   /**
    * Open iOS Settings app
