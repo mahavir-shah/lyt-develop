@@ -25,6 +25,7 @@ export interface PresetEmitPayload {
 
   animation: AnimationType;
   speed: number | null; // milliseconds, or null for static
+  iosCancel?: true | false;  //  represents cancelling
 }
 
 export class Preset {

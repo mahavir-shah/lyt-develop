@@ -34,7 +34,15 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
   public connectedDevice: Device;
   public bottomColorCircle: HTMLElement | null = null;
 
-  // UI state used by presets page (active circle highlight)
+  public isiOS = false;
+
+  /** HARD CANCEL REQUIREMENT:
+   * Resettable write queue for iOS so Cancel instantly cancels pending writes.
+   */
+  private writeQueue: Promise<void> = Promise.resolve();
+  private queueCanceled = false;   // <-- NEW FLAG
+
+  // UI state
   public currentValue: any = {
     presetStatus: false,
     animation: null,
@@ -69,6 +77,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     this.connectedDevice = this.devicesService.connectedDevice;
     this.color = this.connectedDevice?.color || new Color(255, 0, 0);
     this.adjustedColor = this.connectedDevice?.color || new Color(255, 0, 0);
+    this.isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
   }
 
   ngOnInit() {
@@ -114,13 +123,64 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.stopAll();
-    if (this.presetSubscription && typeof this.presetSubscription.unsubscribe === 'function') {
+    if (this.presetSubscription) {
       this.presetSubscription.unsubscribe();
     }
 
     if (this.backButtonSubscription) {
       this.backButtonSubscription.unsubscribe();
     }
+  }
+
+// ------------------------ HARD CANCEL CORE ------------------------
+
+  /** 
+   * HARD CANCEL BEHAVIOR:
+   *  - Immediately abort rotation & animation
+   *  - Instantly clear RAF + timeouts
+   *  - Instantly reset iOS writeQueue (no waiting)
+   *  - Prevent ANY pending write from sending
+   */
+  private async stopAll(hard: boolean = false) {
+    this.isAnimating = false;
+
+    if (this.rotationAbortController) {
+      try { this.rotationAbortController.abort(); } catch (_) { }
+      this.rotationAbortController = null;
+    }
+
+    if (this.cycleAbortController) {
+      try { this.cycleAbortController.abort(); } catch (_) { }
+      this.cycleAbortController = null;
+    }
+
+    this.clearTimers();
+
+    if (hard && this.isiOS) {
+      /** HARD CANCEL FIX:
+       * Cancel all queued writes IMMEDIATELY — do not wait for BLE to finish.
+       */
+      this.queueCanceled = true;
+      this.writeQueue = Promise.resolve();
+    }
+
+    this.lastBleWriteAt = 0;
+    this.currentValue.presetStatus = false;
+    this.currentValue.animation = null;
+    this.currentValue.activeColor = null;
+
+    this.presetService.updateActiveColor(null);
+
+    // minimal tick
+    await new Promise(res => setTimeout(res, 10));
+  }
+
+  private clearTimers() {
+    if (this.rafId != null) cancelAnimationFrame(this.rafId);
+    this.rafId = null;
+
+    if (this.fallbackTimeoutId != null) clearTimeout(this.fallbackTimeoutId);
+    this.fallbackTimeoutId = null;
   }
 
   private setupBackButtonHandler() {
@@ -140,7 +200,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
             role: 'confirm', 
             cssClass: 'primary-button',
             handler: () => {
-              this.stopAll();
+              this.stopAll(true);
               // Ensure that this.connectedDevice is initialized and accessible
               this.connectedDevice.disconnect().then(() => {
                 this.navCtrl.navigateRoot('/search-inprogress-page');
@@ -209,57 +269,16 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
       }
 
       this.isAnimating = false;
-      await this.stopAll();
+      await this.stopAll(true);
     })();
-  }
-
-  private async stopAll() {
-    // Set flag immediately to prevent new cycles
-    this.isAnimating = false;
-
-    // Abort rotation loop
-    if (this.rotationAbortController) {
-      try { this.rotationAbortController.abort(); } catch (_) {}
-      this.rotationAbortController = null;
-    }
-
-    // Abort current cycle
-    if (this.cycleAbortController) {
-      try { this.cycleAbortController.abort(); } catch (_) {}
-      this.cycleAbortController = null;
-    }
-
-    // Clear timers immediately
-    this.clearTimers();
-
-    // CRITICAL FIX: Wait a tiny bit to ensure all pending operations complete
-    await new Promise(resolve => setTimeout(resolve, 50));
-
-    // Reset state
-    this.lastBleWriteAt = 0;
-    this.currentValue.presetStatus = false;
-    this.currentValue.animation = null;
-    this.currentValue.activeColor = null;
-    this.presetService.updateActiveColor(null);
-  }
-
-  private clearTimers() {
-    if (this.rafId != null) {
-      cancelAnimationFrame(this.rafId);
-      this.rafId = null;
-    }
-    if (this.fallbackTimeoutId != null) {
-      clearTimeout(this.fallbackTimeoutId);
-      this.fallbackTimeoutId = null;
-    }
   }
 
   // ------------------------ Single-cycle animation ------------------------
 
   private runSingleCycle(
-    effect: 'pulse'|'wave'|'strobe'|'mix', 
-    baseColor: Color, 
-    durationMs: number, 
+    effect: 'pulse' | 'wave' | 'strobe' | 'mix',
+    baseColor: Color,
+    durationMs: number,
     abortSignal: AbortSignal
   ): Promise<void> {
     // Animates ONE color on the LED using the selected effect
@@ -298,7 +317,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
         // Throttle BLE writes to avoid overwhelming device
         if (now - this.lastBleWriteAt >= this.bleWriteInterval) {
           this.lastBleWriteAt = now;
-          this.connectedDevice.writeRGBColorWithoutResponse(frameColor.r, frameColor.g, frameColor.b).catch(() => {});
+          this.enqueueBleWrite(frameColor.r, frameColor.g, frameColor.b);
         }
 
         // Check if cycle complete
@@ -307,13 +326,12 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
           resolve();
           return;
         }
-
         // Schedule next frame (60fps via RAF)
-        this.rafId = requestAnimationFrame(step);
-        
-        // Fallback for backgrounded tabs
-        if (this.fallbackTimeoutId) clearTimeout(this.fallbackTimeoutId);
-        this.fallbackTimeoutId = setTimeout(() => {}, 120);
+        if (this.isiOS) {
+          this.fallbackTimeoutId = setTimeout(step, this.bleWriteInterval);
+        } else {
+          this.rafId = requestAnimationFrame(step);
+        }
       };
 
       // Start animation
@@ -323,6 +341,28 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
         this.fallbackTimeoutId = setTimeout(step, 16);
       }
     });
+  }
+
+  // ------------------------ HARD CANCEL WRITE QUEUE ------------------------
+
+  private enqueueBleWrite(r: number, g: number, b: number): Promise<void> {
+    if (!this.isiOS) {
+      return this.connectedDevice.writeRGBColorWithoutResponse(r, g, b);
+    }
+
+    if (this.queueCanceled) {
+      return Promise.resolve();   // <-- HARD CANCEL: ignore all queued writes
+    }
+
+    this.writeQueue = this.writeQueue.then(() => {
+
+      if (this.queueCanceled)  return Promise.resolve();   // HARD CANCEL: ignore writes
+
+      return this.connectedDevice.writeRGBColorWithoutResponse(r, g, b)
+        .then(() => new Promise(res => setTimeout(res, 25)));
+    });
+
+    return this.writeQueue;
   }
 
   // ------------------------ Animation math (unchanged) ------------------------
@@ -349,8 +389,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private strobeColor(base: Color, t: number): Color {
-    const on = t <= 0.2;
-    return on ? base : new Color(0, 0, 0);
+    return t <= 0.2 ? base : new Color(0, 0, 0);
   }
 
   private mixColor(base: Color, t: number): Color {
@@ -364,9 +403,14 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  // ------------------------ Helpers & UI actions (unchanged) ------------------------
+  // ------------------------ UI / Other Methods (unchanged except stopAll integration) ------------------------
 
   private setBleWriteRate(duration: number) {
+    if (this.isiOS) {
+      this.bleWriteInterval = 180;
+      return;
+    }
+
     if (duration <= 300) this.bleWriteInterval = 30;
     else if (duration <= 600) this.bleWriteInterval = 40;
     else if (duration <= 1200) this.bleWriteInterval = 50;
@@ -374,7 +418,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public changeDeviceColor(): void {
-    this.stopAll();
+    this.stopAll(true);
     setTimeout(() => {
       this.changeColor();
       this.brightnessLevel = 100;
@@ -385,17 +429,17 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public changeColor(): void {
-    this.stopAll();
+    this.stopAll(true);
     this.connectedDevice.writeColor(this.adjustedColor);
     this.presetService.updateActiveColor(this.adjustedColor.getHexCode());
   }
 
   public setColor(color: Color) {
-    this.stopAll();
+    this.stopAll(true);
     this.color = color;
     this.adjustedColor = this.getAdjustedColor();
 
-    if (this.color != this.adjustedColor) {
+    if (this.color !== this.adjustedColor) {
       this.colorWheel.setColor(this.adjustedColor);
     }
 
@@ -404,35 +448,41 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  public setBrightnessLevel(brightnessLevel: number): void {
-    this.stopAll();
-    this.brightnessLevel = brightnessLevel;
+  public setBrightnessLevel(level: number): void {
+    this.stopAll(true);
+    this.brightnessLevel = level;
     this.updateSliderOfType(SliderType.left);
 
-    if (this.saturationLevel == undefined || this.saturationLevel == 100) {
-      this.connectedDevice.setLedBrightness(brightnessLevel, this.adjustedColor);
+    if (this.saturationLevel === 100) {
+      this.connectedDevice.setLedBrightness(level, this.adjustedColor);
     } else {
-      this.connectedDevice.applyBrightnessAndSaturation(this.adjustedColor, brightnessLevel, this.saturationLevel);
+      this.connectedDevice.applyBrightnessAndSaturation(
+        this.adjustedColor,
+        this.brightnessLevel,
+        this.saturationLevel
+      );
     }
   }
 
-  public setSaturationLevel(saturationLevel: number): void {
-    this.stopAll();
-    this.saturationLevel = saturationLevel;
+  public setSaturationLevel(level: number): void {
+    this.stopAll(true);
+    this.saturationLevel = level;
     this.updateSliderOfType(SliderType.right);
 
     this.adjustedColor = this.getAdjustedColor();
-    if (this.colorWheel) {
-      this.colorWheel.setColor(this.adjustedColor);
-    }
+    if (this.colorWheel) this.colorWheel.setColor(this.adjustedColor);
     if (this.bottomColorCircle) {
       this.bottomColorCircle.style.backgroundColor = this.adjustedColor.getHexCode();
     }
 
-    if (this.brightnessLevel == undefined || this.brightnessLevel == 100) {
-      this.connectedDevice.setSaturationLevel(saturationLevel, this.adjustedColor);
+    if (this.brightnessLevel === 100) {
+      this.connectedDevice.setSaturationLevel(level, this.adjustedColor);
     } else {
-      this.connectedDevice.applyBrightnessAndSaturation(this.adjustedColor, this.brightnessLevel, saturationLevel);
+      this.connectedDevice.applyBrightnessAndSaturation(
+        this.adjustedColor,
+        this.brightnessLevel,
+        this.saturationLevel
+      );
     }
   }
 
@@ -469,8 +519,8 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public flash(): void {
-    this.stopAll();
-    if (this.connectedDevice && typeof (this.connectedDevice as any).flash === 'function') {
+    this.stopAll(true);
+    if (this.connectedDevice && (this.connectedDevice as any).flash) {
       (this.connectedDevice as any).flash(this.brightnessLevel);
     }
   }
@@ -486,7 +536,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
           role: 'confirm', 
           cssClass: 'primary-button',
           handler: () => {
-            this.stopAll();
+            this.stopAll(true);
             this.connectedDevice.disconnect().then(() => {
               this.navCtrl.navigateRoot('/search-inprogress-page');
             });
@@ -510,8 +560,9 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     this.navCtrl.navigateForward('/debug-page');
   }
 
+  /** HARD CANCEL: preset deactivation */
   public async deactivatePreset() {
-    await this.stopAll();
+    await this.stopAll(true);
     const restore = this.connectedDevice?.color;
     if (restore) {
       this.connectedDevice.writeColor(restore);

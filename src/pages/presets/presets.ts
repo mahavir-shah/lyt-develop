@@ -1,11 +1,11 @@
 // presets.ts
 import { Component, OnInit, OnDestroy } from '@angular/core';
-
 import { Location } from '@angular/common';
 import { PresetsService, Preset, AnimationType } from '../../shared/services/presets.service';
 import { Color } from 'src/shared/components/color-wheel/color';
 import { DevicesService } from 'src/shared/services/devices.service';
 import { Subscription } from 'rxjs';
+import { Capacitor } from '@capacitor/core';
 
 export type AnimationEffect = 'pulse' | 'wave' | 'strobe' | 'mix';
 
@@ -22,10 +22,14 @@ export class PresetsPage implements OnInit, OnDestroy {
   public animationEffects: AnimationEffect[] = ['pulse', 'wave', 'strobe', 'mix'];
 
   private colorIndex: number = 0;
-
   public lastActiveColor: Color | null;
-
   private activeColorSub: Subscription | null = null;
+
+  /** NEW: cancellation flag for iOS */
+  private isCancelling = false;
+
+  /** NEW: platform detection */
+  private readonly isIOS = Capacitor.getPlatform() === 'ios';
 
   constructor(
     public location: Location,
@@ -53,7 +57,7 @@ export class PresetsPage implements OnInit, OnDestroy {
     });
   }
 
-  ngOnInit() { }
+  ngOnInit() {}
 
   ngOnDestroy() {
     if (this.activeColorSub) {
@@ -78,7 +82,7 @@ export class PresetsPage implements OnInit, OnDestroy {
   onSpeedChanged() {
     // Convert percent to milliseconds
     this.currentValue.speed = this.convertPercentToMs(this.currentValue.speedPercent);
-    
+
     // If animation is currently running, restart it with new speed
     if (this.currentValue.presetStatus && this.currentValue.animation) {
       this.restartAnimationWithNewSpeed();
@@ -129,7 +133,9 @@ export class PresetsPage implements OnInit, OnDestroy {
     this.preset = this.presetService.presets[0];
     if (!this.preset || !this.preset.colors || this.preset.colors.length === 0) return;
 
-    // Tell color-picker to start rotating these colors, running the chosen animation
+    /** Reset cancelling before animation starts */
+    this.isCancelling = false;
+
     this.currentValue.presetStatus = true;
     this.currentValue.animation = animation;
     this.currentValue.activeColor = this.preset.colors[0].getHexCode();
@@ -141,16 +147,24 @@ export class PresetsPage implements OnInit, OnDestroy {
     });
   }
 
-  // Deactivate preset: stop rotation & restore last color
+  /** STOP animation instantly on Cancel */
   public deactivatePreset() {
+    this.isCancelling = true;   // NEW: instantly stop any pending writes
+
     const restoreColor = this.lastActiveColor;
 
-    // emit a stop by sending a single static color payload (animation=null)
+    /** 
+     * iOS FIX:
+     * Do NOT wait for queued BLE writes to finish.
+     * Immediately send a STOP signal without awaiting anything.
+     */
     if (restoreColor) {
       this.presetService.emitPreset({
         color: restoreColor,
         animation: null,
-        speed: null
+        speed: null,
+        /** NEW: iOS override — kill animation immediately */
+        iosCancel: this.isIOS ? true : false
       });
 
       // ensure UI highlight cleared/restored
@@ -160,7 +174,8 @@ export class PresetsPage implements OnInit, OnDestroy {
       // if no restore color, send a null activeColor signal to clear highlight
       this.presetService.emitPreset({
         animation: null,
-        speed: null
+        speed: null,
+        iosCancel: this.isIOS ? true : false
       });
 
       this.presetService.updateActiveColor(null);
