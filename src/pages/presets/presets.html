@@ -4,69 +4,95 @@
 <ion-content class="ion-no-swipe ion-padding-top-0">
     <div class="lyt-c-page-wrapper">
         <div class="content">
+            <!-- Color Palette Section -->
             <div class="section">
                 <h2 class="section-title">Colors</h2>
                 <div class="colors-grid" *ngFor="let preset of presetService.presets">
-                    <div class="color-circle" *ngFor="let color of preset.colors"
-                        [ngStyle]="{'background-color': color.getHexCode(), 'border': this.currentValue.activeColor == color.getHexCode() ? '3px solid lightgray' : 'none'}">
+                    <div class="color-circle" 
+                         *ngFor="let color of preset.colors"
+                         [ngStyle]="{
+                             'background-color': color.getHexCode(), 
+                             'border': this.currentValue.activeColor == color.getHexCode() ? '3px solid lightgray' : 'none'
+                         }">
                     </div>
                 </div>
             </div>
 
             <div class="divider"></div>
 
+            <!-- Speed Slider Section - ALWAYS VISIBLE -->
             <div class="section">
-                <div class="section speed-section" *ngIf="!currentValue.presetStatus">
+                <div class="section speed-section">
                     <h2 class="section-title speed-label">Speed</h2>
                     <div class="range-slider">
-                        <ion-range [min]="0" [max]="100" [step]="1" [pin]="true" [snaps]="true"
-                            [(ngModel)]="currentValue.speedPercent" [pinFormatter]="formatPercentPin"
-                            (ionChange)="onSpeedChanged()" [ngStyle]="{
-        'padding': '0px',
-        'marginTop': '30px'
-    }"></ion-range>
+                        <ion-range 
+                            [min]="0" 
+                            [max]="100" 
+                            [step]="1" 
+                            [pin]="true" 
+                            [snaps]="true"
+                            [(ngModel)]="currentValue.speedPercent" 
+                            [pinFormatter]="formatPercentPin"
+                            (ionChange)="onSpeedChanged()" 
+                            [ngStyle]="{
+                                'padding': '0px',
+                                'marginTop': '30px'
+                            }">
+                        </ion-range>
+                        <div class="speed-description">
+                            <span class="speed-label-left">Slow</span>
+                            <span class="speed-label-right">Fast</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="divider" *ngIf="!currentValue.presetStatus"></div>
+            <div class="divider"></div>
 
+            <!-- Animation Effects Section -->
             <div class="section">
                 <div class="section animation-section" *ngIf="!currentValue.presetStatus">
                     <h2 class="section-title">Animation effect</h2>
                     <div class="buttons-grid">
                         <div class="lyt-c-action-buttons">
-                            <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg" [ngClass]="{ 
-                                    'selected': this.currentValue.animation == 'pulse' 
-                                }" (click)="changeAnimation('pulse')">
+                            <button type="button" 
+                                    class="lyt-btn lyt-btn--success lyt-btn--lg" 
+                                    [ngClass]="{ 'selected': this.currentValue.animation == 'pulse' }" 
+                                    (click)="changeAnimation('pulse')">
                                 Pulse
                             </button>
 
-                            <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg" [ngClass]="{ 
-                                    'selected': this.currentValue.animation == 'wave' 
-                                }" (click)="changeAnimation('wave')">
+                            <button type="button" 
+                                    class="lyt-btn lyt-btn--success lyt-btn--lg" 
+                                    [ngClass]="{ 'selected': this.currentValue.animation == 'wave' }" 
+                                    (click)="changeAnimation('wave')">
                                 Wave
                             </button>
 
-                            <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg" [ngClass]="{ 
-                                    'selected': this.currentValue.animation == 'strobe' 
-                                }" (click)="changeAnimation('strobe')">
+                            <button type="button" 
+                                    class="lyt-btn lyt-btn--success lyt-btn--lg" 
+                                    [ngClass]="{ 'selected': this.currentValue.animation == 'strobe' }" 
+                                    (click)="changeAnimation('strobe')">
                                 Strobe
                             </button>
 
-                            <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg" [ngClass]="{ 
-                                    'selected': this.currentValue.animation == 'mix' 
-                                }" (click)="changeAnimation('mix')">
+                            <button type="button" 
+                                    class="lyt-btn lyt-btn--success lyt-btn--lg" 
+                                    [ngClass]="{ 'selected': this.currentValue.animation == 'mix' }" 
+                                    (click)="changeAnimation('mix')">
                                 Mix
                             </button>
                         </div>
                     </div>
                 </div>
 
+                <!-- Cancel Button - Only when preset is active -->
                 <div *ngIf="currentValue.presetStatus" class="lyt-c-preset-cancel">
                     <h2 class="lyt-c-heading">Preset Activated</h2>
                     <div class="lyt-c-action-buttons">
-                        <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg" (click)="deactivatePreset()">
+                        <button type="button" 
+                                class="lyt-btn lyt-btn--success lyt-btn--lg" 
+                                (click)="deactivatePreset()">
                             {{ 'common.cancel' | translate }}
                         </button>
                     </div>

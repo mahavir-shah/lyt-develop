@@ -71,8 +71,34 @@ export class PresetsPage implements OnInit, OnDestroy {
     return Math.round(minMs - (percent / 100) * (minMs - maxMs));
   }
 
+  /**
+   * Called when user drags the speed slider
+   * Immediately updates the running animation speed
+   */
   onSpeedChanged() {
+    // Convert percent to milliseconds
     this.currentValue.speed = this.convertPercentToMs(this.currentValue.speedPercent);
+    
+    // If animation is currently running, restart it with new speed
+    if (this.currentValue.presetStatus && this.currentValue.animation) {
+      this.restartAnimationWithNewSpeed();
+    }
+  }
+
+  /**
+   * Restart the current animation with new speed
+   * This provides immediate feedback when user adjusts the slider
+   */
+  private restartAnimationWithNewSpeed() {
+    const preset = this.presetService.presets[0];
+    if (!preset || !preset.colors || preset.colors.length === 0) return;
+
+    // Re-emit the preset with updated speed
+    this.presetService.emitPreset({
+      colors: preset.colors.slice(),
+      animation: (this.currentValue.animation as AnimationType),
+      speed: this.currentValue.speed
+    });
   }
 
   formatPercentPin(v: number) {
