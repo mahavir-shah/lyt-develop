@@ -1,15 +1,14 @@
 // color-picker.ts
-import { AfterViewInit, Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { Platform, NavController } from '@ionic/angular';
+import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Platform, NavController, AlertController } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 
 import { ColorWheel } from '../../shared/components/color-wheel/color-wheel';
 import { Color } from '../../shared/components/color-wheel/color';
-
 import { Device } from '../../shared/models/device.model';
 import { PresetsService, PresetEmitPayload } from '../../shared/services/presets.service';
 import { DevicesService } from '../../shared/services/devices.service';
-import { AlertController } from '@ionic/angular';
-import { Subscription } from 'rxjs';
+import { AlertFactory } from '../../shared/factories/alert.factory';
 
 enum SliderType {
   left,
@@ -23,7 +22,7 @@ enum SliderType {
   standalone: false,
 })
 export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
-  @ViewChild(ColorWheel) colorWheel: ColorWheel;
+  @ViewChild(ColorWheel) colorWheel!: ColorWheel;
 
   public color: Color;
   public adjustedColor: Color;
@@ -34,7 +33,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
   public connectedDevice: Device;
   public bottomColorCircle: HTMLElement | null = null;
 
-  public isiOS = false;
+  public isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
 
   /** HARD CANCEL REQUIREMENT:
    * Resettable write queue for iOS so Cancel instantly cancels pending writes.
@@ -50,10 +49,12 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     speed: 1000
   };
 
-  // rotation/animation control
+  // animation controllers
   private rotationAbortController: AbortController | null = null;
   private cycleAbortController: AbortController | null = null;
-  private presetSubscription: any = null;
+
+  private presetSubscription?: Subscription;
+  private backButtonSubscription?: Subscription;
 
   private lastBleWriteAt = 0;
   private bleWriteInterval = 50;
@@ -65,28 +66,32 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
   // NEW: Track if we're actively animating
   private isAnimating = false;
 
-  private backButtonSubscription: Subscription | undefined;
-
   constructor(
     public devicesService: DevicesService,
     public platform: Platform,
     public navCtrl: NavController,
     public presetService: PresetsService,
+    private alertFactory: AlertFactory,
     private alertController: AlertController
   ) {
     this.connectedDevice = this.devicesService.connectedDevice;
     this.color = this.connectedDevice?.color || new Color(255, 0, 0);
     this.adjustedColor = this.connectedDevice?.color || new Color(255, 0, 0);
-    this.isiOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
   }
+
+  // ------------------------------------------------------------
+  // INIT / LIFECYCLE
+  // ------------------------------------------------------------
 
   ngOnInit() {
     this.presetSubscription = this.presetService.presetSelected$.subscribe(async (payload: PresetEmitPayload) => {
       // Stop any existing rotation/animation first
       await this.stopAll();
 
+      this.queueCanceled = false; // Reset Hard Cancel before new animation
+
       // If payload contains colors (rotation request), start rotating
-      if (payload?.colors && payload.colors.length > 0 && payload.animation) {
+      if (payload?.colors && payload.colors.length && payload.animation) {
         this.currentValue.presetStatus = true;
         this.currentValue.animation = payload.animation;
         this.currentValue.speed = Math.max(50, Math.round(payload.speed || 1000));
@@ -103,6 +108,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
 
         this.presetService.updateActiveColor(payload.color.getHexCode());
 
+        this.queueCanceled = false; // allow writes
         try {
           await this.connectedDevice.writeColor(payload.color);
         } catch (e) {
@@ -116,20 +122,16 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit() {
     this.bottomColorCircle = document.getElementById('bottom-color-circle');
-    if (this.bottomColorCircle && this.adjustedColor) {
+    if (this.bottomColorCircle) {
       this.bottomColorCircle.style.backgroundColor = this.adjustedColor.getHexCode();
     }
   }
 
   ngOnDestroy() {
-    this.stopAll();
-    if (this.presetSubscription) {
-      this.presetSubscription.unsubscribe();
-    }
+    this.stopAll(true);
 
-    if (this.backButtonSubscription) {
-      this.backButtonSubscription.unsubscribe();
-    }
+    if (this.presetSubscription) this.presetSubscription.unsubscribe();
+    if (this.backButtonSubscription) this.backButtonSubscription.unsubscribe();
   }
 
 // ------------------------ HARD CANCEL CORE ------------------------
@@ -145,12 +147,12 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     this.isAnimating = false;
 
     if (this.rotationAbortController) {
-      try { this.rotationAbortController.abort(); } catch (_) { }
+      try { this.rotationAbortController.abort(); } catch {}
       this.rotationAbortController = null;
     }
 
     if (this.cycleAbortController) {
-      try { this.cycleAbortController.abort(); } catch (_) { }
+      try { this.cycleAbortController.abort(); } catch {}
       this.cycleAbortController = null;
     }
 
@@ -183,49 +185,20 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     this.fallbackTimeoutId = null;
   }
 
-  private setupBackButtonHandler() {
-    if (this.backButtonSubscription) {
-        this.backButtonSubscription.unsubscribe();
-    }
-
-    this.backButtonSubscription = this.platform.backButton.subscribeWithPriority(99, async () => { 
-      // Adjusted priority from 100 to 99
-      const alert = await this.alertController.create({
-        header: 'Disconnect Device',
-        cssClass: 'custom-color-alert',
-        message: 'Are you sure you want to go back? It will disconnect the device.', // Corrected grammar slightly
-        buttons: [
-          { 
-            text: 'Yes', 
-            role: 'confirm', 
-            cssClass: 'primary-button',
-            handler: () => {
-              this.stopAll(true);
-              // Ensure that this.connectedDevice is initialized and accessible
-              this.connectedDevice.disconnect().then(() => {
-                this.navCtrl.navigateRoot('/search-inprogress-page');
-              });
-            }
-          },
-          { 
-            text: 'No', 
-            role: 'cancel',
-            cssClass: 'primary-button'
-          }
-        ]
-      });
-      await alert.present();
-    });
-  }
-
-  // ------------------------ Rotation orchestration ------------------------
+  // ------------------------------------------------------------
+  // ROTATION + ANIMATION
+  // ------------------------------------------------------------
 
   private startRotation(colors: Color[], animation: string, speedMs: number) {
     // Each color animates for the FULL speed duration
     // Total cycle time = colors.length × speedMs
     // Example: 15 colors × 1000ms = 15 seconds for full cycle
-    const perColorDuration = Math.max(50, Math.round(speedMs));
     
+    this.queueCanceled = false;
+    this.isAnimating = true;
+
+    const perColorDuration = Math.max(50, Math.round(speedMs));
+
     this.rotationAbortController = new AbortController();
     const signal = this.rotationAbortController.signal;
 
@@ -234,26 +207,25 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
 
     (async () => {
       let idx = 0;
+
       while (!signal.aborted && this.isAnimating) {
         const base = colors[idx % colors.length];
-
         // Update UI to highlight current color (shows in presets.html)
-        this.presetService.updateActiveColor(base.getHexCode());
+        
         this.currentValue.activeColor = base.getHexCode();
+        this.presetService.updateActiveColor(base.getHexCode());
 
         if (this.cycleAbortController) {
-          try { this.cycleAbortController.abort(); } catch (_) {}
-          this.cycleAbortController = null;
+          try { this.cycleAbortController.abort(); } catch {}
         }
-
         this.cycleAbortController = new AbortController();
 
         try {
           // Run selected animation (pulse/wave/strobe/mix) on LED
           // for this color for the full speed duration
           await this.runSingleCycle(
-            animation as 'pulse'|'wave'|'strobe'|'mix', 
-            base, 
+            animation as 'pulse' | 'wave' | 'strobe' | 'mix',
+            base,
             perColorDuration,
             this.cycleAbortController.signal
           );
@@ -264,7 +236,6 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
           this.cycleAbortController = null;
         }
 
-        // Move to next color
         idx++;
       }
 
@@ -273,27 +244,16 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     })();
   }
 
-  // ------------------------ Single-cycle animation ------------------------
-
   private runSingleCycle(
     effect: 'pulse' | 'wave' | 'strobe' | 'mix',
     baseColor: Color,
     durationMs: number,
     abortSignal: AbortSignal
   ): Promise<void> {
-    // Animates ONE color on the LED using the selected effect
-    // for the specified duration (e.g., 1000ms)
-    // 
-    // During this time:
-    // - UI shows this color highlighted (handled by startRotation)
-    // - LED displays the animation effect (pulse/wave/strobe/mix)
-    // - Color values transition based on the effect's math
-    
     return new Promise<void>((resolve, reject) => {
       const start = performance.now();
 
       const step = () => {
-        // CRITICAL: Check abort signal AND isAnimating flag
         if (abortSignal.aborted || !this.isAnimating) {
           this.clearTimers();
           reject(new DOMException('Aborted', 'AbortError'));
@@ -302,16 +262,14 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
 
         const now = performance.now();
         const elapsed = now - start;
-        const t = Math.min(1, elapsed / durationMs); // Progress: 0.0 to 1.0
+        const t = Math.min(1, elapsed / durationMs);
 
         // Calculate color for current frame based on animation effect
         const frameColor = this.computeAnimationColor(effect, baseColor, t);
 
         // Update UI preview (bottom circle in color-picker.html)
         if (this.bottomColorCircle) {
-          try { 
-            this.bottomColorCircle.style.backgroundColor = frameColor.getHexCode(); 
-          } catch (_) {}
+          this.bottomColorCircle.style.backgroundColor = frameColor.getHexCode();
         }
 
         // Throttle BLE writes to avoid overwhelming device
@@ -334,38 +292,35 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
         }
       };
 
-      // Start animation
-      if (typeof requestAnimationFrame === 'function') {
-        this.rafId = requestAnimationFrame(step);
-      } else {
-        this.fallbackTimeoutId = setTimeout(step, 16);
-      }
+      this.rafId = requestAnimationFrame(step);
     });
   }
 
-  // ------------------------ HARD CANCEL WRITE QUEUE ------------------------
+  // ------------------------------------------------------------
+  // BLE WRITE QUEUE — HARD CANCEL SAFE
+  // ------------------------------------------------------------
 
   private enqueueBleWrite(r: number, g: number, b: number): Promise<void> {
     if (!this.isiOS) {
       return this.connectedDevice.writeRGBColorWithoutResponse(r, g, b);
     }
 
-    if (this.queueCanceled) {
-      return Promise.resolve();   // <-- HARD CANCEL: ignore all queued writes
-    }
+    if (this.queueCanceled) return Promise.resolve();
 
     this.writeQueue = this.writeQueue.then(() => {
+      if (this.queueCanceled) return Promise.resolve();
 
-      if (this.queueCanceled)  return Promise.resolve();   // HARD CANCEL: ignore writes
-
-      return this.connectedDevice.writeRGBColorWithoutResponse(r, g, b)
+      return this.connectedDevice
+        .writeRGBColorWithoutResponse(r, g, b)
         .then(() => new Promise(res => setTimeout(res, 25)));
     });
 
     return this.writeQueue;
   }
 
-  // ------------------------ Animation math (unchanged) ------------------------
+  // ------------------------------------------------------------
+  // ANIMATION MATH
+  // ------------------------------------------------------------
 
   private computeAnimationColor(effect: string, base: Color, t: number): Color {
     switch (effect) {
@@ -393,17 +348,19 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private mixColor(base: Color, t: number): Color {
-    const part = t * 3;
-    const idx = Math.floor(part);
-    const local = part - idx;
-    switch (idx) {
+    const seg = Math.floor(t * 3);
+    const local = t * 3 - seg;
+    switch (seg) {
       case 0: return this.pulseColor(base, local);
       case 1: return this.waveColor(base, local);
       default: return this.strobeColor(base, local);
     }
   }
 
-  // ------------------------ UI / Other Methods (unchanged except stopAll integration) ------------------------
+  // ------------------------------------------------------------
+  // BRIGHTNESS / SATURATION / COLOR PICKER ACTIONS
+  // ------------------------------------------------------------
+// ------------------------ UI / Other Methods (unchanged except stopAll integration) ------------------------
 
   private setBleWriteRate(duration: number) {
     if (this.isiOS) {
@@ -416,40 +373,45 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     else if (duration <= 1200) this.bleWriteInterval = 50;
     else this.bleWriteInterval = 80;
   }
-
-  public changeDeviceColor(): void {
+  
+  public changeDeviceColor() {
     this.stopAll(true);
+    this.queueCanceled = false;
+
     setTimeout(() => {
       this.changeColor();
       this.brightnessLevel = 100;
       this.saturationLevel = 100;
       this.updateBrightnessDots(100);
       this.updateSaturationDots(100);
-    }, 200);
+    }, 150);
   }
 
-  public changeColor(): void {
+  public changeColor() {
     this.stopAll(true);
+    this.queueCanceled = false;
+
     this.connectedDevice.writeColor(this.adjustedColor);
     this.presetService.updateActiveColor(this.adjustedColor.getHexCode());
   }
 
   public setColor(color: Color) {
     this.stopAll(true);
+    this.queueCanceled = false;
+
     this.color = color;
     this.adjustedColor = this.getAdjustedColor();
-
-    if (this.color !== this.adjustedColor) {
-      this.colorWheel.setColor(this.adjustedColor);
-    }
+    this.colorWheel.setColor(this.adjustedColor);
 
     if (this.bottomColorCircle) {
       this.bottomColorCircle.style.backgroundColor = this.adjustedColor.getHexCode();
     }
   }
 
-  public setBrightnessLevel(level: number): void {
+  public setBrightnessLevel(level: number) {
     this.stopAll(true);
+    this.queueCanceled = false;
+
     this.brightnessLevel = level;
     this.updateSliderOfType(SliderType.left);
 
@@ -457,20 +419,21 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
       this.connectedDevice.setLedBrightness(level, this.adjustedColor);
     } else {
       this.connectedDevice.applyBrightnessAndSaturation(
-        this.adjustedColor,
-        this.brightnessLevel,
-        this.saturationLevel
+        this.adjustedColor, this.brightnessLevel, this.saturationLevel
       );
     }
   }
 
-  public setSaturationLevel(level: number): void {
+  public setSaturationLevel(level: number) {
     this.stopAll(true);
+    this.queueCanceled = false;
+
     this.saturationLevel = level;
     this.updateSliderOfType(SliderType.right);
 
     this.adjustedColor = this.getAdjustedColor();
-    if (this.colorWheel) this.colorWheel.setColor(this.adjustedColor);
+    this.colorWheel.setColor(this.adjustedColor);
+
     if (this.bottomColorCircle) {
       this.bottomColorCircle.style.backgroundColor = this.adjustedColor.getHexCode();
     }
@@ -479,26 +442,26 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
       this.connectedDevice.setSaturationLevel(level, this.adjustedColor);
     } else {
       this.connectedDevice.applyBrightnessAndSaturation(
-        this.adjustedColor,
-        this.brightnessLevel,
-        this.saturationLevel
+        this.adjustedColor, this.brightnessLevel, this.saturationLevel
       );
     }
   }
 
-  public getAdjustedColor(): Color {
+  private getAdjustedColor(): Color {
     return this.color.desaturated(this.saturationLevel);
   }
 
-  public updateSliderOfType(sliderType: SliderType): void {
-    const sliderDotNumber =
-      (sliderType == SliderType.left ? this.brightnessLevel : this.saturationLevel) / 10;
-    const sliderTypeString = sliderType === SliderType.left ? 'left' : 'right';
+  private updateSliderOfType(type: SliderType) {
+    const val = type === SliderType.left ? this.brightnessLevel : this.saturationLevel;
+    const idx = val / 10;
+    const prefix = type === SliderType.left ? 'left' : 'right';
 
     for (let i = 1; i <= 10; i++) {
-      const dot = document.getElementById(`${sliderTypeString}-slider-dot-${i}`);
+      const dot = document.getElementById(`${prefix}-slider-dot-${i}`);
       if (!dot) continue;
-      i === sliderDotNumber ? dot.classList.add('active') : dot.classList.remove('active');
+
+      if (i === idx) dot.classList.add('active');
+      else dot.classList.remove('active');
     }
   }
 
@@ -506,7 +469,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     for (let i = 1; i <= 10; i++) {
       const dot = document.getElementById(`left-slider-dot-${i}`);
       if (!dot) continue;
-      i === level / 10 ? dot.classList.add("active") : dot.classList.remove("active");
+      dot.classList.toggle("active", i === level / 10);
     }
   }
 
@@ -514,18 +477,27 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     for (let i = 1; i <= 10; i++) {
       const dot = document.getElementById(`right-slider-dot-${i}`);
       if (!dot) continue;
-      i === level / 10 ? dot.classList.add("active") : dot.classList.remove("active");
+      dot.classList.toggle("active", i === level / 10);
     }
   }
 
-  public flash(): void {
+  // ------------------------------------------------------------
+  // OTHER ACTIONS
+  // ------------------------------------------------------------
+
+  public flash() {
     this.stopAll(true);
+    this.queueCanceled = false;
+
     if (this.connectedDevice && (this.connectedDevice as any).flash) {
       (this.connectedDevice as any).flash(this.brightnessLevel);
     }
   }
 
   public async disconnect() {
+    this.stopAll(true);
+    this.queueCanceled = false;
+
     const alert = await this.alertController.create({
       header: 'Disconnect Device',
       cssClass: 'custom-color-alert',
@@ -558,6 +530,42 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
 
   public goToDebugPage() {
     this.navCtrl.navigateForward('/debug-page');
+  }
+
+  // ------------------------------------------------------------
+  // BACK BUTTON HANDLER (ANDROID)
+  // ------------------------------------------------------------
+
+  private setupBackButtonHandler() {
+    if (this.backButtonSubscription) this.backButtonSubscription.unsubscribe();
+
+    this.backButtonSubscription = this.platform.backButton.subscribeWithPriority(99, async () => {
+      const alert = await this.alertController.create({
+        header: 'Disconnect Device',
+        cssClass: 'custom-color-alert',
+        message: 'Are you sure you want to go back? It will disconnect the device.',
+        buttons: [
+          {
+            text: 'Yes',
+            role: 'confirm',
+            cssClass: 'primary-button',
+            handler: () => {
+              this.stopAll(true);
+              this.connectedDevice.disconnect().then(() => {
+                this.navCtrl.navigateRoot('/search-inprogress-page');
+              });
+            }
+          },
+          {
+            text: 'No',
+            role: 'cancel',
+            cssClass: 'primary-button'
+          }
+        ]
+      });
+
+      await alert.present();
+    });
   }
 
   /** HARD CANCEL: preset deactivation */
