@@ -8,6 +8,7 @@ import { Color } from '../../shared/components/color-wheel/color';
 import { Device } from '../../shared/models/device.model';
 import { PresetsService, PresetEmitPayload } from '../../shared/services/presets.service';
 import { DevicesService } from '../../shared/services/devices.service';
+import { BackButtonService } from 'src/shared/services/back-button.service';
 import { AlertFactory } from '../../shared/factories/alert.factory';
 
 enum SliderType {
@@ -71,6 +72,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     public platform: Platform,
     public navCtrl: NavController,
     public presetService: PresetsService,
+    private backButtonService: BackButtonService,
     private alertFactory: AlertFactory,
     private alertController: AlertController
   ) {
@@ -116,8 +118,6 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     });
-
-    this.setupBackButtonHandler();
   }
 
   ngAfterViewInit() {
@@ -185,6 +185,48 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     this.fallbackTimeoutId = null;
   }
 
+  ionViewWillEnter() {
+    // 1. Define the custom logic (show alert, disconnect, navigate)
+    const handler = () => this.showDisconnectAlert();
+
+    // 2. Register the custom logic when the page is about to be visible
+    this.backButtonService.registerHandler(handler);
+  }
+
+  ionViewWillLeave() {
+    // 3. Unregister the custom logic when the page is about to disappear
+    this.backButtonService.unregisterHandler();
+  }
+
+  private async showDisconnectAlert(): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Disconnect Device',
+        cssClass: 'custom-color-alert',
+        message: 'Are you sure you want to go back? It will disconnect the device.', // Corrected grammar slightly
+        buttons: [
+          { 
+            text: 'Yes', 
+            role: 'confirm', 
+            cssClass: 'primary-button',
+            handler: () => {
+              this.stopAll(true);
+              // Ensure that this.connectedDevice is initialized and accessible
+              this.connectedDevice.disconnect().then(() => {
+                this.navCtrl.navigateRoot('/search-inprogress-page');
+              });
+            }
+          },
+          { 
+            text: 'No', 
+            role: 'cancel',
+            cssClass: 'primary-button'
+          }
+        ]
+    });
+    await alert.present();
+  }
+
+  // ------------------------ Rotation orchestration ------------------------
   // ------------------------------------------------------------
   // ROTATION + ANIMATION
   // ------------------------------------------------------------
