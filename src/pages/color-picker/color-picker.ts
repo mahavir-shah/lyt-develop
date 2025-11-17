@@ -10,6 +10,7 @@ import { PresetsService, PresetEmitPayload } from '../../shared/services/presets
 import { DevicesService } from '../../shared/services/devices.service';
 import { AlertController } from '@ionic/angular';
 import { Subscription } from 'rxjs';
+import { BackButtonService } from 'src/shared/services/back-button.service';
 
 enum SliderType {
   left,
@@ -57,14 +58,13 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
   // NEW: Track if we're actively animating
   private isAnimating = false;
 
-  private backButtonSubscription: Subscription | undefined;
-
   constructor(
     public devicesService: DevicesService,
     public platform: Platform,
     public navCtrl: NavController,
     public presetService: PresetsService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private backButtonService: BackButtonService
   ) {
     this.connectedDevice = this.devicesService.connectedDevice;
     this.color = this.connectedDevice?.color || new Color(255, 0, 0);
@@ -101,8 +101,6 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     });
-
-    this.setupBackButtonHandler();
   }
 
   ngAfterViewInit() {
@@ -117,21 +115,25 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     if (this.presetSubscription && typeof this.presetSubscription.unsubscribe === 'function') {
       this.presetSubscription.unsubscribe();
     }
-
-    if (this.backButtonSubscription) {
-      this.backButtonSubscription.unsubscribe();
-    }
   }
 
-  private setupBackButtonHandler() {
-    if (this.backButtonSubscription) {
-        this.backButtonSubscription.unsubscribe();
-    }
 
-    this.backButtonSubscription = this.platform.backButton.subscribeWithPriority(99, async () => { 
-      // Adjusted priority from 100 to 99
-      const alert = await this.alertController.create({
-        header: 'Disconnect Device',
+  ionViewWillEnter() {
+    // 1. Define the custom logic (show alert, disconnect, navigate)
+    const handler = () => this.showDisconnectAlert();
+
+    // 2. Register the custom logic when the page is about to be visible
+    this.backButtonService.registerHandler(handler);
+  }
+
+  ionViewWillLeave() {
+    // 3. Unregister the custom logic when the page is about to disappear
+    this.backButtonService.unregisterHandler();
+  }
+
+  private async showDisconnectAlert(): Promise<void> {
+    const alert = await this.alertController.create({
+      header: 'Disconnect Device',
         cssClass: 'custom-color-alert',
         message: 'Are you sure you want to go back? It will disconnect the device.', // Corrected grammar slightly
         buttons: [
@@ -153,9 +155,8 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
             cssClass: 'primary-button'
           }
         ]
-      });
-      await alert.present();
     });
+    await alert.present();
   }
 
   // ------------------------ Rotation orchestration ------------------------
