@@ -311,7 +311,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
       if (this.queueCanceled) return Promise.resolve();
 
       return this.connectedDevice
-        .writeRGBColorWithoutResponse(r, g, b)
+        .writeRGBColor(r, g, b)
         .then(() => new Promise(res => setTimeout(res, 25)));
     });
 
