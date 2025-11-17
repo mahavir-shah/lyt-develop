@@ -155,8 +155,6 @@ export class AppComponent {
         await SplashScreen.hide();
       }
 
-      // Hide the splash screen
-
       console.log('Platform ready: StatusBar and SplashScreen configured');
     } catch (error) {
       console.error('Error during platform initialization:', error);

@@ -26,8 +26,11 @@
                     </div>
                     <div class="lyt-c-device-info__right">
                         <div class="lyt-c-device-info__action">
-                            <button class="lyt-btn-quiet lyt-btn-quiet--primary lyt-btn-quiet--sm lyt-btn-quiet--font-regular"
-                                (click)="disconnect()">
+                            <button 
+                                type="button" 
+                                class="lyt-btn lyt-btn--secondary lyt-btn--lg disconnect-btn" 
+                                (click)="disconnect()"
+                            >
                                 {{ 'color_picker.disconnect' | translate }}
                             </button>
                         </div>

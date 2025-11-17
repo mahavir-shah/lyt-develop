@@ -1,0 +1,17 @@
+button {
+    padding: 14px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    &:active {
+        transform: scale(0.97);
+    }
+}
+.disconnect-btn {
+    color: #ee384e !important;
+    border: 2px solid #ee384e !important;
+}

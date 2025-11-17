@@ -1,5 +1,5 @@
 // color-picker.ts
-import { AfterViewInit, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Platform, NavController } from '@ionic/angular';
 
 import { ColorWheel } from '../../shared/components/color-wheel/color-wheel';
@@ -8,6 +8,8 @@ import { Color } from '../../shared/components/color-wheel/color';
 import { Device } from '../../shared/models/device.model';
 import { PresetsService, PresetEmitPayload } from '../../shared/services/presets.service';
 import { DevicesService } from '../../shared/services/devices.service';
+import { AlertController } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 
 enum SliderType {
   left,
@@ -17,6 +19,7 @@ enum SliderType {
 @Component({
   selector: 'color-picker',
   templateUrl: 'color-picker.html',
+  styleUrl: 'color-picker.scss',
   standalone: false,
 })
 export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
@@ -54,11 +57,14 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
   // NEW: Track if we're actively animating
   private isAnimating = false;
 
+  private backButtonSubscription: Subscription | undefined;
+
   constructor(
     public devicesService: DevicesService,
     public platform: Platform,
     public navCtrl: NavController,
-    public presetService: PresetsService
+    public presetService: PresetsService,
+    private alertController: AlertController
   ) {
     this.connectedDevice = this.devicesService.connectedDevice;
     this.color = this.connectedDevice?.color || new Color(255, 0, 0);
@@ -96,7 +102,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
       }
     });
 
-    this.platform.backButton.subscribeWithPriority(100, () => {});
+    this.setupBackButtonHandler();
   }
 
   ngAfterViewInit() {
@@ -111,6 +117,45 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     if (this.presetSubscription && typeof this.presetSubscription.unsubscribe === 'function') {
       this.presetSubscription.unsubscribe();
     }
+
+    if (this.backButtonSubscription) {
+      this.backButtonSubscription.unsubscribe();
+    }
+  }
+
+  private setupBackButtonHandler() {
+    if (this.backButtonSubscription) {
+        this.backButtonSubscription.unsubscribe();
+    }
+
+    this.backButtonSubscription = this.platform.backButton.subscribeWithPriority(99, async () => { 
+      // Adjusted priority from 100 to 99
+      const alert = await this.alertController.create({
+        header: 'Disconnect Device',
+        cssClass: 'custom-color-alert',
+        message: 'Are you sure you want to go back? It will disconnect the device.', // Corrected grammar slightly
+        buttons: [
+          { 
+            text: 'Yes', 
+            role: 'confirm', 
+            cssClass: 'primary-button',
+            handler: () => {
+              this.stopAll();
+              // Ensure that this.connectedDevice is initialized and accessible
+              this.connectedDevice.disconnect().then(() => {
+                this.navCtrl.navigateRoot('/search-inprogress-page');
+              });
+            }
+          },
+          { 
+            text: 'No', 
+            role: 'cancel',
+            cssClass: 'primary-button'
+          }
+        ]
+      });
+      await alert.present();
+    });
   }
 
   // ------------------------ Rotation orchestration ------------------------
@@ -430,11 +475,31 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  public disconnect(): void {
-    this.stopAll();
-    this.connectedDevice.disconnect().then(() => {
-      this.navCtrl.navigateRoot('/search-inprogress-page');
+  public async disconnect() {
+    const alert = await this.alertController.create({
+      header: 'Disconnect Device',
+      cssClass: 'custom-color-alert',
+      message: 'Are you want to sure for disconnect device ?',
+      buttons: [
+        { 
+          text: 'Yes', 
+          role: 'confirm', 
+          cssClass: 'primary-button',
+          handler: () => {
+            this.stopAll();
+            this.connectedDevice.disconnect().then(() => {
+              this.navCtrl.navigateRoot('/search-inprogress-page');
+            });
+          }
+        },
+        { 
+          text: 'No', 
+          role: 'cancel',
+          cssClass: 'primary-button'
+        }
+      ]
     });
+    await alert.present();
   }
 
   public goToPresetsPage() {
