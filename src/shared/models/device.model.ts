@@ -48,7 +48,7 @@ export class Device extends BaseModel {
       await this.getCharacteristics(DEVICE_SERVICE_UUID);
 
       // restore last color
-      await this.writeColor(this.color);
+      //await this.writeColor(this.color);
       return result;
     } catch (error) {
       console.error("Connection failed:", error);
@@ -80,7 +80,7 @@ export class Device extends BaseModel {
     const bb = Math.max(0, Math.min(255, Math.round(b)));
 
     const data = new Uint8Array([rr, gg, bb, 0, 0]);
-
+    console.log('[iOS BLE] writeRGBColor CALLED at', performance.now().toFixed(2));
     try {
       await BleClient.write(
         this.device.deviceId,
@@ -243,7 +243,22 @@ export class Device extends BaseModel {
 
   public async getCharacteristics(serviceUUID: string): Promise<any[]> {
     const services = await BleClient.getServices(this.device.deviceId);
-    return services.find(s => s.uuid === serviceUUID)?.characteristics || [];
+    console.log('[BLE DEBUG] Services discovered:', services);
+
+    const characteristics =
+      services.find(s => s.uuid === serviceUUID)?.characteristics || [];
+
+    // Log all characteristics + their properties (VERY IMPORTANT on iOS)
+    console.log('[BLE DEBUG] Characteristics for service:', serviceUUID);
+    characteristics.forEach(c => {
+      console.log('[BLE DEBUG] Characteristic:', {
+        uuid: c.uuid,
+        properties: c.properties,
+        hasWrite: c.properties?.write,
+        hasWriteWithoutResponse: c.properties?.writeWithoutResponse
+      });
+    });
+    return characteristics;
   }
 
   private delay(ms: number) {

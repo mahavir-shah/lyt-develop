@@ -163,6 +163,8 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
        * Cancel all queued writes IMMEDIATELY — do not wait for BLE to finish.
        */
       this.queueCanceled = true;
+      // Force immediate UI stop — skip RAF even before next repaint
+      this.isAnimating = false;
       this.writeQueue = Promise.resolve();
     }
 
@@ -286,79 +288,115 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     })();
   }
 
-  private runSingleCycle(
-    effect: 'pulse' | 'wave' | 'strobe' | 'mix',
-    baseColor: Color,
-    durationMs: number,
-    abortSignal: AbortSignal
-  ): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      const start = performance.now();
+ private runSingleCycle(
+  effect: 'pulse' | 'wave' | 'strobe' | 'mix',
+  baseColor: Color,
+  durationMs: number,
+  abortSignal: AbortSignal
+): Promise<void> {
+  return new Promise<void>((resolve, reject) => {
+    const start = performance.now();
 
-      const step = () => {
-        if (abortSignal.aborted || !this.isAnimating) {
-          this.clearTimers();
-          reject(new DOMException('Aborted', 'AbortError'));
-          return;
+    // make step async so we can await iOS enqueue results
+    const step = async () => {
+      if (abortSignal.aborted || !this.isAnimating || this.queueCanceled) {
+        this.clearTimers();
+        reject(new DOMException('Aborted', 'AbortError'));
+        return;
+      }
+
+      const now = performance.now();
+      const elapsed = now - start;
+      const t = Math.min(1, elapsed / durationMs);
+
+      // Calculate color for current frame based on animation effect
+      const frameColor = this.computeAnimationColor(effect, baseColor, t);
+
+      // Update UI preview (bottom circle in color-picker.html)
+      if (this.bottomColorCircle) {
+        this.bottomColorCircle.style.backgroundColor = frameColor.getHexCode();
+      }
+
+      // Throttle BLE writes to avoid overwhelming device
+      if (now - this.lastBleWriteAt >= this.bleWriteInterval) {
+        console.log('[FRAME] t=', now.toFixed(2), 'attempting write; interval=', (now - this.lastBleWriteAt).toFixed(2));
+        try {
+          const writePromise = this.enqueueBleWrite(frameColor.r, frameColor.g, frameColor.b);
+
+          // On iOS await the write to keep frame timing aligned with actual ACKs.
+          // On Android it's safe to fire-and-forget (faster).
+          if (this.isiOS) {
+            await writePromise;
+          }
+        } catch (err) {
+          // enqueueBleWrite may reject if cancelled; treat as Abort
+          if ((err as any)?.name === 'AbortError' || this.queueCanceled) {
+            this.clearTimers();
+            reject(new DOMException('Aborted', 'AbortError'));
+            return;
+          }
+          console.warn('BLE write error (non-fatal)', err);
         }
+      }
 
-        const now = performance.now();
-        const elapsed = now - start;
-        const t = Math.min(1, elapsed / durationMs);
+      // Check if cycle complete
+      if (elapsed >= durationMs) {
+        this.clearTimers();
+        resolve();
+        return;
+      }
 
-        // Calculate color for current frame based on animation effect
-        const frameColor = this.computeAnimationColor(effect, baseColor, t);
-
-        // Update UI preview (bottom circle in color-picker.html)
-        if (this.bottomColorCircle) {
-          this.bottomColorCircle.style.backgroundColor = frameColor.getHexCode();
-        }
-
-        // Throttle BLE writes to avoid overwhelming device
-        if (now - this.lastBleWriteAt >= this.bleWriteInterval) {
-          this.lastBleWriteAt = now;
-          this.enqueueBleWrite(frameColor.r, frameColor.g, frameColor.b);
-        }
-
-        // Check if cycle complete
-        if (elapsed >= durationMs) {
-          this.clearTimers();
-          resolve();
-          return;
-        }
-        // Schedule next frame (60fps via RAF)
-        if (this.isiOS) {
-          this.fallbackTimeoutId = setTimeout(step, this.bleWriteInterval);
-        } else {
-          this.rafId = requestAnimationFrame(step);
-        }
-      };
-
+      // Schedule next frame (60fps via RAF)
       this.rafId = requestAnimationFrame(step);
-    });
-  }
+    };
+
+    this.rafId = requestAnimationFrame(step);
+  });
+}
 
   // ------------------------------------------------------------
   // BLE WRITE QUEUE — HARD CANCEL SAFE
   // ------------------------------------------------------------
 
   private enqueueBleWrite(r: number, g: number, b: number): Promise<void> {
-    if (!this.isiOS) {
-      return this.connectedDevice.writeRGBColorWithoutResponse(r, g, b);
-    }
+  if (!this.isiOS) {
+    // For non-iOS we still update lastBleWriteAt to track request-time
+    this.lastBleWriteAt = performance.now();
+    return this.connectedDevice.writeRGBColorWithoutResponse(r, g, b);
+  }
 
+  if (this.queueCanceled) return Promise.resolve();
+
+  console.log('[BLE DEBUG] Queue before write at', performance.now().toFixed(2));
+  // Chain onto writeQueue so writes remain serialized
+  this.writeQueue = this.writeQueue.then<void>(() => {
     if (this.queueCanceled) return Promise.resolve();
 
-    this.writeQueue = this.writeQueue.then(() => {
-      if (this.queueCanceled) return Promise.resolve();
+    const callAt = performance.now();
+    console.log('[iOS BLE] enqueueWrite at', callAt.toFixed(2), 'RGB =', r, g, b);
 
-      return this.connectedDevice
-        .writeRGBColor(r, g, b)
-        .then(() => new Promise(res => setTimeout(res, 25)));
-    });
+    const startWrite = performance.now();
+    return this.connectedDevice
+      .writeRGBColor(r, g, b)
+      .then(() => {
+        const ackAt = performance.now();
+        const writeDuration = (ackAt - startWrite).toFixed(1);
+        console.log('[iOS BLE] write COMPLETE / ACK at', ackAt.toFixed(2), `duration=${writeDuration}ms`);
+        // Update lastBleWriteAt only on ACK — this prevents the loop from attempting earlier than actual ACK
+        this.lastBleWriteAt = ackAt;
+        console.log('[BLE DEBUG] Queue write finished at', performance.now().toFixed(2));
+        // Small throttle after ACK to give some breathing room (keep as small safety margin)
+        return new Promise<void>(res => setTimeout(res, 25));
+      })
+      .catch(err => {
+        console.warn('[iOS BLE] write failed', err);
+        // propagate error so callers can handle (and cancel if needed)
+        throw err;
+      });
+  });
 
-    return this.writeQueue;
-  }
+  return this.writeQueue;
+}
 
   // ------------------------------------------------------------
   // ANIMATION MATH
@@ -386,7 +424,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private strobeColor(base: Color, t: number): Color {
-    return t <= 0.2 ? base : new Color(0, 0, 0);
+    return t <= 0.2 ? new Color(0, 0, 0) : base;
   }
 
   private mixColor(base: Color, t: number): Color {
@@ -406,7 +444,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
 
   private setBleWriteRate(duration: number) {
     if (this.isiOS) {
-      this.bleWriteInterval = 180;
+      this.bleWriteInterval = 350;
       return;
     }
 
