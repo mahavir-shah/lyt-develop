@@ -8,7 +8,7 @@ import { Subscription } from 'rxjs';
 import { Capacitor } from '@capacitor/core';
 import { NavController, Platform } from '@ionic/angular';
 
-export type AnimationEffect = 'pulse' | 'wave' | 'strobe' | 'mix';
+export type AnimationEffect = 'pulse' | 'wave' | 'strobe' | 'mix'| 'patagonian' | 'kalahari' | 'chalbi' | 'thar';
 
 @Component({
   selector: 'presets',
@@ -20,7 +20,7 @@ export class PresetsPage implements OnInit, OnDestroy {
   public preset: Preset;
   public currentValue: any;
 
-  public animationEffects: AnimationEffect[] = ['pulse', 'wave', 'strobe', 'mix'];
+  public animationEffects: AnimationEffect[] = ['pulse', 'wave', 'strobe', 'mix', 'patagonian', 'kalahari', 'chalbi', 'thar' ];
 
   private colorIndex: number = 0;
   public lastActiveColor: Color | null;
@@ -87,8 +87,8 @@ export class PresetsPage implements OnInit, OnDestroy {
 
   // Convert % → ms
   private convertPercentToMs(percent: number): number {
-    const minMs = 2000; // slowest
-    const maxMs = 200;  // fastest
+    const minMs = 20000; // slowest
+    const maxMs = 0;  // fastest
     return Math.round(minMs - (percent / 100) * (minMs - maxMs));
   }
 
