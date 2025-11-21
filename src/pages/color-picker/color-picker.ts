@@ -65,9 +65,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
   ) {
     this.connectedDevice = this.devicesService.connectedDevice;
     this.color = this.connectedDevice?.color || new Color(255, 0, 0);
-    this.adjustedColor = this.connectedDevice?.color || new Color(255, 0, 0);
-
-    this.setupHardwareBackButton();
+    this.adjustedColor = this.connectedDevice?.color || new Color(255, 0, 0)    
   }
 
   ngOnInit() {
@@ -129,7 +127,6 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.presetService.clearColorPickerBackEffect$.subscribe(async (payload: boolean) => {
-      console.log('Clear Color Picker Back Effect received:', payload); 
       if (this.backButtonSubscription) this.backButtonSubscription.unsubscribe();
     }); 
   }
@@ -141,10 +138,21 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  ionViewWillEnter() {
+    if (this.backButtonSubscription) this.backButtonSubscription.unsubscribe();
+    this.setupHardwareBackButton();
+  }
+
+
+  /* // ✅ METHOD 5: ionViewWillLeave() - Before leaving page
+  ionViewWillLeave() {
+      if (this.backButtonSubscription) this.backButtonSubscription.unsubscribe();
+  } */
+
+
   private setupHardwareBackButton(): void {
     // Priority 9999 ensures this runs before other handlers
     this.backButtonSubscription = this.platform.backButton.subscribeWithPriority(9999, async () => {
-      console.log('Hardware back button pressed');
 
       const canLeave = await this.showDisconnectAlert();
       
