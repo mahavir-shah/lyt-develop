@@ -9,7 +9,7 @@ $lyt-input-validation-height: 35px;
  * Form
  */
 .lyt-c-form__body {
-    margin-top: var(--lyt-gutter);
+    margin-top: var(--lyt-gutter, 20px);
 }
 
 // Form input
@@ -59,7 +59,7 @@ $lyt-input-validation-height: 35px;
     color: var(--color-warning);
 
     .lyt-c-form-input-validation__icon {
-        margin-right: var(--lyt-gutter-025);
+        margin-right: var(calc(var(--lyt-gutter, 20px) * .25));
     }
 
     .lyt-c-form-input-validation__content {
@@ -74,11 +74,11 @@ $lyt-input-validation-height: 35px;
 .lyt-c-form-footer {
     display: flex;
     align-items: center;
-    margin-top: var(--lyt-gutter-15);
+    margin-top: var(calc(var(--lyt-gutter, 20px) * 1.5));
 }
 
 .lyt-c-form-footer__content {
-    margin-right: var(--lyt-gutter-05);
+    margin-right: var(--lyt-gutter-05, 10px);
     font-size: var(--font-size-sm);
 }
 
@@ -91,7 +91,7 @@ $lyt-input-validation-height: 35px;
 // Form preview component
 
 .lyt-c-form-preview__group {
-    margin-top: var(--lyt-gutter-15);
+    margin-top: var(--lyt-gutter-15, 30px);
 }
 
 .lyt-c-form-preview__label {

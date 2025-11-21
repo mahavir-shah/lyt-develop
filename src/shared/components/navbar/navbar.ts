@@ -10,6 +10,9 @@ import {
 } from '@angular/core';
 import { NavController, Platform } from '@ionic/angular';
 import { Subscription } from 'rxjs';
+import { Location } from '@angular/common';
+import { Router } from '@angular/router';
+import { UrlTrackingService } from 'src/shared/services/url-tracking.service';
 
 @Component({
   selector: 'navbar',
@@ -35,7 +38,13 @@ export class LytNavbar implements OnInit, OnChanges, OnDestroy {
 
   private backButtonSubscription: Subscription | null = null;
 
-  constructor(private navCtrl: NavController, private platform: Platform) {}
+  constructor(
+    private navCtrl: NavController, 
+    private platform: Platform,
+    private location: Location,
+    private router: Router,
+    private urlTrackingService: UrlTrackingService
+  ) {}
 
   ngOnInit() {
     this.setBackButtonAction(this.customBackAction);
@@ -81,5 +90,20 @@ export class LytNavbar implements OnInit, OnChanges, OnDestroy {
 
   public customButtonClicked() {
     this.onCustomButtonClick.emit();
+  }
+
+  public goBack() {
+    const currentRoute = this.router.url;
+    const previousUrl = this.urlTrackingService.getPreviousUrl();
+    console.log('currentRoute:', currentRoute, 'previousUrl:', previousUrl);
+    if (currentRoute.includes('/presets-page')) {
+      this.navCtrl.navigateForward('/color-picker-page');
+      return;
+    } else if (previousUrl == '/color-picker-page') {
+      this.navCtrl.navigateForward('/color-picker-page');
+      return;
+    } else {
+      this.location.back();
+    }
   }
 }

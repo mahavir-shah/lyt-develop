@@ -1,27 +1,102 @@
-.settings-button {
-      float: right;
+// ===================================
+// Toolbar Component Styles
+// ===================================
+
+.lyt-c-toolbar {
+  // Toolbar container padding
+  &::part(container) {
+    padding-top: 11px;
+  }
+
+  // Left section
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  // Logo
+  &__logo {
+    width: 24px;
+    height: 28px;
+    flex-shrink: 0;
+  }
+
+  // Back button
+  &__back-btn {
+    --min-width: 20px;
+    --padding-start: 0;
+    --padding-end: 0;
+    margin-left: -11px;
+  }
+
+  // Title
+  &__title {
+    // Default title styling (iOS style - left aligned)
+    font-size: 17px;
+    font-weight: 600;
+    position: unset;
+    padding: unset;
+  }
+
+  // Right section
+  &__right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+// ===================================
+// Material Design (Android) Specific
+// ===================================
+
+.md {
+  .lyt-c-toolbar {
+    &__title {
+      // Center title for Material Design
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+      width: auto;
+      max-width: 60%;
+      text-align: center;
+    }
+  }
+}
+
+// ===================================
+// Button Styles
+// ===================================
+
+/* .lyt-btn-quiet {
+  text-transform: none;v
+  
+  &--white {
+    --color: #ffffff;
+    --color-hover: rgba(255, 255, 255, 0.8);
+  }
+  
+  &--secondary {
+    --color: var(--ion-color-secondary);
+    --color-hover: var(--ion-color-secondary-shade);
+  }
+  
+  &--sm {
+    font-size: 14px;
+    --padding-start: 8px;
+    --padding-end: 8px;
+  }
+} */
+.main-class-header{
+  display: flex;
+  align-items: center;
+}
+.lyt-c-toolbar__right {
+  padding: 0px !important;
 }
 .back-btn {
-      width: 20px;
-}
-.md{
-      navbar{
-            ion-header{
-                  ion-toolbar{
-                        ion-title{
-                        position: absolute;
-                        left: 50%;
-                        transform: translateX(-50%) translateY(-50%);
-                        top: 50%;
-                        z-index: -1;
-                        }
-                  }
-            }
-      }
-}
-.navbar-header{
-      /* padding-top: 11px; */
-}
-ion-toolbar::part(container) {
-      padding-top: 11px;
+  display: block;
 }

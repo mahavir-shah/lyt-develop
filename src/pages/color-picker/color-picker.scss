@@ -7,3 +7,6 @@
     font-weight: 400 !important;
     padding: 5px 20px !important;
 }
+.color-picker-wrapper, .lyt-c-page-wrapper.lyt-c-page-wrapper--has-navbar.lyt-c-page-wrapper--padding-stack {
+    padding-top: var(--lyt-gutter-05, 10px) !important;
+}

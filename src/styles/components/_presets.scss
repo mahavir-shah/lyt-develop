@@ -7,7 +7,7 @@
 .lyt-c-view-presets {
     display: flex;
     align-items: center;
-    padding: (vars.$lyt-gutter + 5) 0;
+    padding: 20px 0px 0px 0px !important; 
     margin-bottom: -(vars.$lyt-gutter);
     color: vars.$lyt-color-secondary;
     border-top: 1px solid vars.$lyt-color-white;

@@ -37,10 +37,10 @@
     .lyt-btn-quiet {
         // You'll need to update this to target the ion-button component
         // Use CSS variables for a cleaner approach
-        --padding-start: #{var(--lyt-gutter-075)};
-        --padding-end: #{var(--lyt-gutter-075)};
-        --padding-top: #{var(--lyt-gutter-075)};
-        --padding-bottom: #{var(--lyt-gutter-075)};
+        --padding-start: #{var(--lyt-gutter-075, 15px)};
+        --padding-end: #{var(--lyt-gutter-075, 15px)};
+        --padding-top: #{var(--lyt-gutter-075, 15px)};
+        --padding-bottom: #{var(--lyt-gutter-075, 15px)};
     }
 
     // New way to style elements inside the toolbar
@@ -51,7 +51,9 @@
     }
 
     ion-buttons[slot="end"] {
-        flex: 0 0 20%;
+        // flex: 0 0 20%;
+        margin-right: 9px;
+        height: 22px;
         // You may need to adjust this to match your old flex-basis logic
     }
     
@@ -76,4 +78,11 @@
     &.lyt-c-toolbar--bg-black {
         --background: var(--lyt-color-background);
     }
+}
+.lyt-btn-quiet--white{
+    padding: 0;
+}
+
+ion-button::part(native){
+padding: 0 !important;
 }

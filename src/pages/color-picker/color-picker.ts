@@ -8,8 +8,6 @@ import { Color } from '../../shared/components/color-wheel/color';
 import { Device } from '../../shared/models/device.model';
 import { PresetsService, PresetEmitPayload } from '../../shared/services/presets.service';
 import { DevicesService } from '../../shared/services/devices.service';
-import { BackButtonService } from 'src/shared/services/back-button.service';
-import { AlertFactory } from '../../shared/factories/alert.factory';
 
 enum SliderType {
   left,
@@ -55,7 +53,6 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
   private cycleAbortController: AbortController | null = null;
 
   private presetSubscription?: Subscription;
-  private backButtonSubscription?: Subscription;
 
   private lastBleWriteAt = 0;
   private bleWriteInterval = 50;
@@ -67,18 +64,20 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
   // NEW: Track if we're actively animating
   private isAnimating = false;
 
+  private backButtonSubscription?: Subscription;
+
   constructor(
     public devicesService: DevicesService,
     public platform: Platform,
     public navCtrl: NavController,
     public presetService: PresetsService,
-    private backButtonService: BackButtonService,
-    private alertFactory: AlertFactory,
     private alertController: AlertController
   ) {
     this.connectedDevice = this.devicesService.connectedDevice;
     this.color = this.connectedDevice?.color || new Color(255, 0, 0);
     this.adjustedColor = this.connectedDevice?.color || new Color(255, 0, 0);
+
+    this.setupHardwareBackButton();
   }
 
   // ------------------------------------------------------------
@@ -118,6 +117,11 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
         }
       }
     });
+
+    this.presetService.clearColorPickerBackEffect$.subscribe(async (payload: boolean) => {
+      console.log('Clear Color Picker Back Effect received:', payload); 
+      if (this.backButtonSubscription) this.backButtonSubscription.unsubscribe();
+    }); 
   }
 
   ngAfterViewInit() {
@@ -127,11 +131,49 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  private setupHardwareBackButton(): void {
+    // Priority 9999 ensures this runs before other handlers
+    this.backButtonSubscription = this.platform.backButton.subscribeWithPriority(9999, async () => {
+      console.log('Hardware back button pressed');
+
+      const canLeave = await this.showDisconnectAlert();
+      
+      if (canLeave) {
+        try {
+          await this.stopAll(true);
+          await this.connectedDevice.disconnect();
+          if (this.backButtonSubscription) this.backButtonSubscription.unsubscribe();
+          this.navCtrl.navigateRoot('/search-inprogress-page');
+          // Let default back behavior execute
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      }
+      // If !canLeave, prevent default back behavior by doing nothing
+    });
+  }
+
+  private async showDisconnectAlert(): Promise<boolean> {
+    return new Promise(async (resolve) => {
+      const alert = await this.alertController.create({
+        header: 'Disconnect Device',
+        cssClass: 'custom-color-alert',
+        message: 'Are you sure you want to go back?',
+        backdropDismiss: false,
+        buttons: [
+          { text: 'Yes', role: 'confirm', handler: () => resolve(true) },
+          { text: 'No', role: 'cancel', handler: () => resolve(false) }
+        ]
+      });
+      await alert.present();
+    });
+  }
+
   ngOnDestroy() {
     this.stopAll(true);
 
-    if (this.presetSubscription) this.presetSubscription.unsubscribe();
     if (this.backButtonSubscription) this.backButtonSubscription.unsubscribe();
+    if (this.presetSubscription) this.presetSubscription.unsubscribe();
   }
 
 // ------------------------ HARD CANCEL CORE ------------------------
@@ -183,47 +225,6 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
 
     if (this.fallbackTimeoutId != null) clearTimeout(this.fallbackTimeoutId);
     this.fallbackTimeoutId = null;
-  }
-
-  ionViewWillEnter() {
-    // 1. Define the custom logic (show alert, disconnect, navigate)
-    const handler = () => this.showDisconnectAlert();
-
-    // 2. Register the custom logic when the page is about to be visible
-    this.backButtonService.registerHandler(handler);
-  }
-
-  ionViewWillLeave() {
-    // 3. Unregister the custom logic when the page is about to disappear
-    this.backButtonService.unregisterHandler();
-  }
-
-  private async showDisconnectAlert(): Promise<void> {
-    const alert = await this.alertController.create({
-      header: 'Disconnect Device',
-        cssClass: 'custom-color-alert',
-        message: 'Are you sure you want to go back? It will disconnect the device.', // Corrected grammar slightly
-        buttons: [
-          { 
-            text: 'Yes', 
-            role: 'confirm', 
-            cssClass: 'primary-button',
-            handler: () => {
-              this.stopAll(true);
-              // Ensure that this.connectedDevice is initialized and accessible
-              this.connectedDevice.disconnect().then(() => {
-                this.navCtrl.navigateRoot('/search-inprogress-page');
-              });
-            }
-          },
-          { 
-            text: 'No', 
-            role: 'cancel',
-            cssClass: 'primary-button'
-          }
-        ]
-    });
-    await alert.present();
   }
 
   // ------------------------ Rotation orchestration ------------------------
@@ -552,6 +553,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
           handler: () => {
             this.stopAll(true);
             this.connectedDevice.disconnect().then(() => {
+              if (this.backButtonSubscription) this.backButtonSubscription.unsubscribe();
               this.navCtrl.navigateRoot('/search-inprogress-page');
             });
           }
@@ -567,47 +569,13 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public goToPresetsPage() {
+    if (this.backButtonSubscription) this.backButtonSubscription.unsubscribe();
     this.navCtrl.navigateForward('/presets-page');
   }
 
   public goToDebugPage() {
-    this.navCtrl.navigateForward('/debug-page');
-  }
-
-  // ------------------------------------------------------------
-  // BACK BUTTON HANDLER (ANDROID)
-  // ------------------------------------------------------------
-
-  private setupBackButtonHandler() {
     if (this.backButtonSubscription) this.backButtonSubscription.unsubscribe();
-
-    this.backButtonSubscription = this.platform.backButton.subscribeWithPriority(99, async () => {
-      const alert = await this.alertController.create({
-        header: 'Disconnect Device',
-        cssClass: 'custom-color-alert',
-        message: 'Are you sure you want to go back? It will disconnect the device.',
-        buttons: [
-          {
-            text: 'Yes',
-            role: 'confirm',
-            cssClass: 'primary-button',
-            handler: () => {
-              this.stopAll(true);
-              this.connectedDevice.disconnect().then(() => {
-                this.navCtrl.navigateRoot('/search-inprogress-page');
-              });
-            }
-          },
-          {
-            text: 'No',
-            role: 'cancel',
-            cssClass: 'primary-button'
-          }
-        ]
-      });
-
-      await alert.present();
-    });
+    this.navCtrl.navigateForward('/debug-page');
   }
 
   /** HARD CANCEL: preset deactivation */

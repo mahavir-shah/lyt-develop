@@ -67,6 +67,9 @@ export class PresetsService {
   private activeColorSource = new Subject<string | null>();
   public activeColor$ = this.activeColorSource.asObservable();
 
+  private clearColorPickerBackSubscription = new Subject<boolean>();
+  public clearColorPickerBackEffect$ = this.clearColorPickerBackSubscription.asObservable();
+
   constructor() { }
 
   // Emit a preset event (static color OR rotating colors)
@@ -84,4 +87,8 @@ export class PresetsService {
   publishActiveColor(hexOrNull: string | null) {
     this.updateActiveColor(hexOrNull);
   }
+
+  removeColorPickerBackEffect(payload: boolean) {
+    this.clearColorPickerBackSubscription.next(payload);
+  } 
 }

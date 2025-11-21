@@ -6,6 +6,7 @@ import { Color } from 'src/shared/components/color-wheel/color';
 import { DevicesService } from 'src/shared/services/devices.service';
 import { Subscription } from 'rxjs';
 import { Capacitor } from '@capacitor/core';
+import { NavController, Platform } from '@ionic/angular';
 
 export type AnimationEffect = 'pulse' | 'wave' | 'strobe' | 'mix';
 
@@ -31,10 +32,14 @@ export class PresetsPage implements OnInit, OnDestroy {
   /** NEW: platform detection */
   private readonly isIOS = Capacitor.getPlatform() === 'ios';
 
+  private presetBackButtonSubscription?: Subscription;
+
   constructor(
     public location: Location,
     public presetService: PresetsService,
-    public deviceService: DevicesService
+    public deviceService: DevicesService,
+    public platform: Platform,
+    public navCtrl: NavController,
   ) {
     this.lastActiveColor = this.deviceService?.connectedDevice?.color || null;
 
@@ -57,9 +62,21 @@ export class PresetsPage implements OnInit, OnDestroy {
     });
   }
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.setupHardwareBackButton();
+  }
+  
+  private setupHardwareBackButton(): void {
+    // Priority 9999 ensures this runs before other handlers
+    this.presetBackButtonSubscription = this.platform.backButton.subscribeWithPriority(9999, async () => {
+      if (this.presetBackButtonSubscription) this.presetBackButtonSubscription.unsubscribe();
+      this.navCtrl.navigateRoot('/color-picker-page');
+    });
+  }
 
   ngOnDestroy() {
+    if (this.presetBackButtonSubscription) this.presetBackButtonSubscription.unsubscribe();
+
     if (this.activeColorSub) {
       this.activeColorSub.unsubscribe();
       this.activeColorSub = null;

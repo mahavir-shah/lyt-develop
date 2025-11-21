@@ -64,6 +64,7 @@ import { DeeplinksService } from 'src/shared/services/deeplinks.service';
 import { DiagnosticService } from 'src/shared/services/diagnostic.service'; 
 import { AmplifyAuthenticatorModule } from '@aws-amplify/ui-angular'; 
 import { AuthInterceptor } from 'src/interceptor/authInterceptor';
+import { UrlTrackingService } from 'src/shared/services/url-tracking.service';
 
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
@@ -125,6 +126,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     DeeplinksService,
     DiagnosticService,
     ValidationService,
+    UrlTrackingService,
     UsersService,
     AlertFactory,
     {

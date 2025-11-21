@@ -25,12 +25,12 @@
     // Ion-content handles padding now, this class might be redundant
     height: 100%;
     // Padding should use CSS variables
-    padding: var(--lyt-gutter-15);
+    padding: var(--lyt-gutter-15, 30px);
 
     // This class is now typically applied to ion-content or a wrapper inside it.
     // The padding calculation needs to be updated with CSS variables.
     &.lyt-c-page-wrapper--has-navbar {
-        padding-top: calc(var(--lyt-gutter-15) + var(--lyt-toolbar-height, 70px));
+        padding-top: calc(var(--lyt-gutter-15, 30px) + var(--lyt-toolbar-height, 70px));
     }
 
     &.lyt-c-page-wrapper--padding-stack {

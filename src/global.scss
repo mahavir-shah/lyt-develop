@@ -51,3 +51,127 @@
 .d-none {
     display: none !important;
 }
+
+/* FILE: src/global.scss or src/styles.scss */
+
+/* ============================================
+   SAFE AREA INSETS - Android & iOS
+   ============================================ */
+
+:root {
+  /* Default values for safe area */
+  --ion-safe-area-top: 0px;
+  --ion-safe-area-bottom: 0px;
+  --ion-safe-area-left: 0px;
+  --ion-safe-area-right: 0px;
+}
+
+body {
+  margin-top: constant(safe-area-inset-top);
+  margin-top: env(safe-area-inset-top);
+  margin-bottom: constant(safe-area-inset-bottom);
+  margin-bottom: env(safe-area-inset-bottom);
+}
+
+/* ============================================
+   ION-CONTENT PADDING
+   ============================================ */
+
+ion-content {
+  --padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  --padding-top: calc(20px + env(safe-area-inset-top));
+  --padding-left: calc(20px + env(safe-area-inset-left));
+  --padding-right: calc(20px + env(safe-area-inset-right));
+}
+
+/* ============================================
+   ION-FOOTER / BUTTON BARS
+   ============================================ */
+
+ion-footer {
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: constant(safe-area-inset-bottom);
+}
+
+ion-tab-bar {
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: constant(safe-area-inset-bottom);
+}
+
+/* ============================================
+   BUTTON FIX - SAMSUNG BOTTOM CUTOFF
+   ============================================ */
+
+.ion-button-container,
+ion-button-bar,
+.button-bar {
+  padding-bottom: calc(16px + env(safe-area-inset-bottom)) !important;
+  margin-bottom: 0 !important;
+}
+
+/* For buttons at the bottom of pages */
+.button-group {
+  padding-bottom: calc(16px + env(safe-area-inset-bottom)) !important;
+  margin-bottom: 0 !important;
+}
+
+/* Generic button wrapper */
+ion-buttons {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Specific fix for action buttons */
+.action-buttons {
+  padding-bottom: calc(20px + env(safe-area-inset-bottom)) !important;
+  margin-bottom: 0 !important;
+}
+
+/* ============================================
+   ION-HEADER - TOP NOTCH
+   ============================================ */
+
+ion-header {
+  padding-top: env(safe-area-inset-top);
+  padding-top: constant(safe-area-inset-top);
+}
+
+/* Toolbar in header */
+ion-toolbar:first-child {
+  padding-top: env(safe-area-inset-top);
+  padding-top: constant(safe-area-inset-top);
+}
+
+/* ============================================
+   MODALS & ALERTS
+   ============================================ */
+
+ion-modal {
+  --padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}
+
+ion-alert {
+  --padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}
+
+/* ============================================
+   ANDROID SPECIFIC FIX
+   ============================================ */
+
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(0px, env(safe-area-inset-left));
+    padding-right: max(0px, env(safe-area-inset-right));
+    padding-top: max(0px, env(safe-area-inset-top));
+    padding-bottom: max(0px, env(safe-area-inset-bottom));
+  }
+
+  ion-content {
+    --padding-bottom: max(20px, env(safe-area-inset-bottom));
+    --padding-top: max(20px, env(safe-area-inset-top));
+  }
+
+  .action-buttons,
+  .button-group {
+    padding-bottom: max(20px, env(safe-area-inset-bottom)) !important;
+  }
+}

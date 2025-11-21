@@ -7,6 +7,7 @@ import { LoginPage } from '../../onboarding/login/login';
 import { AccountSettingsEditPage } from '../account-settings-edit/account-settings-edit';
 import { Subscription } from 'rxjs';
 import { DevicesService } from 'src/shared/services/devices.service';
+import { PresetsService } from 'src/shared/services/presets.service';
 
 @Component({
   selector: 'account-settings-preview',
@@ -20,11 +21,16 @@ export class AccountSettingsPreviewPage {
     public navCtrl: NavController,
     public authService: AuthService,
     public devicesService: DevicesService,
-    private alertController: AlertController
+    private alertController: AlertController,
+    public presetService: PresetsService,
   ) {
     this.userSubscription = this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
     });
+  }
+
+  ngOnInit() {
+    this.presetService.removeColorPickerBackEffect(true);
   }
 
   public async logout() {  
