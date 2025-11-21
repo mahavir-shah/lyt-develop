@@ -14,7 +14,7 @@ const DEVICE_SERVICE_UUID = '0000fff0-0000-1000-8000-00805f9b34fb';
 const CHARACTERISTIC_UUID = {
   BRIGHTNESS: '0000fff3-0000-1000-8000-00805f9b34fb',
   COLOR: '0000fff5-0000-1000-8000-00805f9b34fb',
-  SATURATION: '0000fff6-0000-1000-8000-00805f9b34fb',
+  ARMS: '0000fff6-0000-1000-8000-00805f9b34fb',
 };
 
 export class Device extends BaseModel {
@@ -68,6 +68,103 @@ export class Device extends BaseModel {
   // ---------------------------------------------------------
   // BASIC RGB COLOR WRITE
   // ---------------------------------------------------------
+
+  public async writeArmColor(arm1: Color, arm2: Color, arm3: Color, arm4: Color) {
+    let armsColors = [arm1, arm2, arm3, arm4];
+    await this.writeRGBColorForArms(armsColors);
+  }
+
+  public async writeAllArmsColor(arms: Color[]) {
+    let armsColors = [];
+    if (arms.length < 4) {
+      const paddingCount = 4 - arms.length;
+      armsColors = [
+        ...arms,
+        ...new Array(paddingCount).fill(new Color(0, 0, 0))
+      ];
+    } else {
+      armsColors = arms;
+    }
+    await this.writeRGBColorForArms(armsColors);
+  }
+
+  public async writeAllArmsColorWithoutResponse(arms: Color[]) {
+    let armsColors = [];
+    if (arms.length < 4) {
+      const paddingCount = 4 - arms.length;
+      armsColors = [
+        ...arms,
+        ...new Array(paddingCount).fill(new Color(0, 0, 0))
+      ];
+    } else {
+      armsColors = arms;
+    }
+    await this.writeRGBColorForArmsWithoutResponse(armsColors);
+  }
+
+  private async writeRGBColorForArms(arms: Color[]) {
+    if (arms.length !== 4) {
+      console.error("writeRGBColorForArms must be called with exactly 4 Color objects.");
+      return;
+    }
+    // A single loop to populate the 12-byte buffer
+    const colorBuffer = new Uint8Array(12);
+    arms.forEach((arm, i) => {
+      // The starting index for the current arm (0, 3, 6, 9)
+      const idx = i * 3;
+      // Helper to clip and round the color value
+      const clip = (val: number) => Math.max(0, Math.min(255, Math.round(val)));
+      // Assign R, G, B directly
+      colorBuffer[idx] = clip(arm.r);
+      colorBuffer[idx + 1] = clip(arm.g);
+      colorBuffer[idx + 2] = clip(arm.b);
+    });
+
+    console.log('writeRGBColorForArms - ', colorBuffer);
+    try {
+      // ... BLE write logic remains the same
+      await BleClient.write(
+        this.device.deviceId,
+        DEVICE_SERVICE_UUID,
+        CHARACTERISTIC_UUID.ARMS,
+        new DataView(colorBuffer.buffer)
+      );
+    } catch (err) {
+      console.warn('BLE writeColor error:', err);
+    }
+  }
+
+  private async writeRGBColorForArmsWithoutResponse(arms: Color[]) {
+    if (arms.length !== 4) {
+      console.error("writeRGBColorForArmsWithoutResponse must be called with exactly 4 Color objects.");
+      return;
+    }
+    // A single loop to populate the 12-byte buffer
+    const colorBuffer = new Uint8Array(12);
+    arms.forEach((arm, i) => {
+      // The starting index for the current arm (0, 3, 6, 9)
+      const idx = i * 3;
+      // Helper to clip and round the color value
+      const clip = (val: number) => Math.max(0, Math.min(255, Math.round(val)));
+      // Assign R, G, B directly
+      colorBuffer[idx] = clip(arm.r);
+      colorBuffer[idx + 1] = clip(arm.g);
+      colorBuffer[idx + 2] = clip(arm.b);
+    });
+
+    console.log('writeRGBColorForArmsWithoutResponse - ', colorBuffer);
+    try {
+      // ... BLE write logic remains the same
+      await BleClient.writeWithoutResponse(
+        this.device.deviceId,
+        DEVICE_SERVICE_UUID,
+        CHARACTERISTIC_UUID.ARMS,
+        new DataView(colorBuffer.buffer)
+      );
+    } catch (err) {
+      console.warn('BLE writeColor error:', err);
+    }
+  }
 
   public async writeColor(color: Color) {
     this.color = color;
