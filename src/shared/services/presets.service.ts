@@ -1,7 +1,7 @@
 // presets.service.ts
 
 import { Injectable } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, BehaviorSubject } from 'rxjs';
 
 import { Color } from '../../shared/components/color-wheel/color';
 
@@ -71,7 +71,10 @@ export class PresetsService {
 
   private brightnessSource = new Subject<number | null>();
   public brightnessSelected$ = this.brightnessSource.asObservable();
-  
+
+  private speedSubject = new BehaviorSubject<number>(1000);
+  public speed$ = this.speedSubject.asObservable();
+
   constructor() { }
 
   // Emit a preset event (static color OR rotating colors)
@@ -97,5 +100,9 @@ export class PresetsService {
 
   removeColorPickerBackEffect(payload: boolean) {
     this.clearColorPickerBackSubscription.next(payload);
+  }
+
+  public setSpeed(ms: number) {
+    this.speedSubject.next(ms);
   }
 }

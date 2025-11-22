@@ -138,6 +138,10 @@ export class BleWriter {
   // Helper: guard whether enough time has passed to attempt a write
   public canAttemptWrite(): boolean {
     const now = performance.now();
-    return (now - this.lastBleWriteAt) >= this.bleWriteInterval;
+    if (now - this.lastBleWriteAt >= this.bleWriteInterval) {
+      this.lastBleWriteAt = now;
+      return true;
+    }
+    return false;
   }
 }

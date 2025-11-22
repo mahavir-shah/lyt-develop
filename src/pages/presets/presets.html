@@ -140,15 +140,13 @@
                                 (click)="changeAnimation('mix')">
                                 Mix
                             </button>
-
                         </div>
                     </div>
-
                 </div>
 
                 <!-- Cancel Button - Only when preset is active -->
                 <div *ngIf="currentValue.presetStatus" class="lyt-c-preset-cancel">
-                    <h2 class="lyt-c-heading">Preset Activated</h2>
+                    <h2 class="lyt-c-heading heading-cancel">Preset Activated</h2>
                     <div class="lyt-c-action-buttons">
                         <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg" 
                             (click)="deactivatePreset()">

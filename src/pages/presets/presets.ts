@@ -126,9 +126,11 @@ export class PresetsPage implements OnInit, OnDestroy {
     let durationMs = 0;
 
     if (this.enableArmsMode) {
-        durationMs = this.mapSpeedToDurationArmsMode(this.currentValue.speedPercent);
+      durationMs = this.mapSpeedToDurationArmsMode(this.currentValue.speedPercent);
     } else {
-        durationMs = this.mapSpeedToDurationColorMode(this.currentValue.speedPercent);
+      durationMs = this.mapSpeedToDurationColorMode(this.currentValue.speedPercent);
+      // Notify color-picker only about the speed — no preset restart
+      //this.presetService.setSpeed(durationMs);
     }
     // Convert percent to milliseconds
     this.currentValue.speed = durationMs;
@@ -243,9 +245,10 @@ export class PresetsPage implements OnInit, OnDestroy {
     this.currentValue = {
       speedPercent: this.currentValue.speedPercent,
       speed: this.currentValue.speed,
-      animation: 'pulse',
+      animation: this.enableArmsMode ? 'patagonian': 'pulse',
       presetStatus: false,
       activeColor: null,
+      brightnessPercent: this.currentValue.brightnessPercent
     };
   }
 
@@ -253,12 +256,12 @@ export class PresetsPage implements OnInit, OnDestroy {
     const min = 2000;   // 2 seconds
     const max = 10000;  // 10 seconds
     return min + (max - min) * (100 - percent) / 100;
-}
+  }
 
-private mapSpeedToDurationColorMode(percent: number): number {
+  private mapSpeedToDurationColorMode(percent: number): number {
     const min = 350;   // 350 ms
     const max = 2350;  // 2350 ms
     return min + (max - min) * (100 - percent) / 100;
-}
+  }
 
 }

@@ -15,6 +15,7 @@ export class AnimationEngine {
   private fallbackTimeoutId: any = null;
   private isAnimating = false;
   private lastBleWriteAt = 0;
+  private currentBrightness: number = 0;
 
   constructor(bleWriter: BleWriter) {
     this.bleWriter = bleWriter;
@@ -33,6 +34,9 @@ export class AnimationEngine {
     this.isAnimating = true;
     console.log('[ANIM] startSingleStrip effect=', effect, 'duration=', durationMs);
 
+    // set the dynamic duration (can be updated later)
+    this.currentDurationMs = durationMs;
+
     let start = performance.now();
     const step = async () => {
       // Always check cancel FIRST
@@ -43,12 +47,12 @@ export class AnimationEngine {
 
       const now = performance.now();
       let elapsed = now - start;
-      const t = Math.min(1, elapsed / durationMs);
+      const t = Math.min(1, elapsed / this.currentDurationMs);
 
       const frameColor = this.computeAnimationColor(effect, baseColor, t);
 
       // optional callback for UI
-      try { if (onFrame) onFrame(frameColor); } catch (e) { console.warn('[ANIM] onFrame error', e); }
+      try { if (onFrame) onFrame(baseColor); } catch (e) { console.warn('[ANIM] onFrame error', e); }
 
       // Throttle writes via bleWriter.canAttemptWrite + bleWriter.writeRGB
       if (this.bleWriter.canAttemptWrite()) {
@@ -65,7 +69,7 @@ export class AnimationEngine {
       }
 
       // CYCLIC restart logic — SAFE VERSION
-      if (elapsed >= durationMs) {
+      if (elapsed >= this.currentDurationMs) {
         start = performance.now();
         elapsed = 0;
       }
@@ -91,7 +95,8 @@ export class AnimationEngine {
   ) {
     if (this.isAnimating) this.stop(true);
     this.isAnimating = true;
-    console.log('[ANIM] startMultiArm preset=', preset, 'duration=', durationMs);
+    this.currentBrightness = brightness;
+    console.log('[ANIM] startMultiArm preset=', preset, 'duration=', durationMs, 'brightness=', brightness);
 
     let start = performance.now();
     let elapsed = 0;
@@ -108,7 +113,7 @@ export class AnimationEngine {
       const t = Math.min(1, elapsed / durationMs);
 
       // Build per-arm colors using pure preset logic
-      const arms = computeMultiArmPresetFrame(preset, baseColor, brightness, t, elapsed, durationMs);
+      const arms = computeMultiArmPresetFrame(preset, baseColor, this.currentBrightness, t, elapsed, durationMs);
 
       // optional UI callback
       try { if (onFrame) onFrame(arms); } catch (e) { console.warn('[ANIM] onFrame error', e); }
@@ -223,5 +228,23 @@ export class AnimationEngine {
       case 1: return this.waveColor(base, local);
       default: return this.strobeColor(base, local);
     }
+  }
+
+  public updateBrightness(value: number): void {
+    this.currentBrightness = value;
+    console.log('[ANIM] updated brightness. set at - ', value);
+  }
+
+  // add at top of class
+  private currentDurationMs: number = 1000; // default
+  private rotationIndex?: number; // not used for singleStrip, kept if needed
+  // add method to update runtime speed
+  public updateSpeed(newDurationMs: number) {
+    // clamp to sane values
+    if (!newDurationMs || newDurationMs <= 0) return;
+    this.currentDurationMs = newDurationMs;
+    // optionally adjust BLE writer settings here
+    try { if ((this.bleWriter as any).setBleWriteInterval) (this.bleWriter as any).setBleWriteInterval(newDurationMs); } catch (_) { }
+    console.log('[ANIM] updateSpeed called, newDurationMs=', newDurationMs);
   }
 }
