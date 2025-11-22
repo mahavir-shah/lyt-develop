@@ -19,13 +19,12 @@ export type AnimationType = "pulse" | "wave" | "strobe" | "mix" | null;
 export interface PresetEmitPayload {
   // When single static color is desired:
   color?: Color;
-
   // When rotating through a preset's palette:
   colors?: Color[];
-
   animation: AnimationType;
   speed: number | null; // milliseconds, or null for static
   iosCancel?: true | false;  //  represents cancelling
+  brightness: number | null; // milliseconds, or null for static
 }
 
 export class Preset {
@@ -70,6 +69,9 @@ export class PresetsService {
   private clearColorPickerBackSubscription = new Subject<boolean>();
   public clearColorPickerBackEffect$ = this.clearColorPickerBackSubscription.asObservable();
 
+  private brightnessSource = new Subject<number | null>();
+  public brightnessSelected$ = this.brightnessSource.asObservable();
+  
   constructor() { }
 
   // Emit a preset event (static color OR rotating colors)
@@ -83,6 +85,11 @@ export class PresetsService {
     this.activeColorSource.next(hexOrNull);
   }
 
+  // Update active color (called by color-picker while rotating)
+  updateBrightness(value: number | null) {
+    this.brightnessSource.next(value);
+  }
+
   // alias for compatibility with previous naming
   publishActiveColor(hexOrNull: string | null) {
     this.updateActiveColor(hexOrNull);
@@ -90,5 +97,5 @@ export class PresetsService {
 
   removeColorPickerBackEffect(payload: boolean) {
     this.clearColorPickerBackSubscription.next(payload);
-  } 
+  }
 }
