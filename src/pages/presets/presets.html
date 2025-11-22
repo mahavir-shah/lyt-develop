@@ -1,17 +1,26 @@
-<navbar [title]="'presets.title' | translate | uppercase" [hideBackButton]="false" [hideSettingsButton]="true">
-</navbar>
+<navbar [title]="'presets.title' | translate | uppercase" [hideBackButton]="false" [hideSettingsButton]="true"></navbar>
 
 <ion-content class="ion-no-swipe ion-padding-top-0">
     <div class="lyt-c-page-wrapper">
+        <!-- Arms Mode Toggle -->
+        <div class="section arms-mode">
+            <h2 class="section-title">Arms Mode</h2>
+            <ion-toggle
+                class="arms-mode-toggle"
+                [(ngModel)]="enableArmsMode"
+                (ionChange)="onArmsModeChanged()"
+                checked="true">
+            </ion-toggle>
+        </div>
         <div class="content">
-            <!-- Color Palette Section -->
-            <div class="section">
+            <div class="divider"></div>
+            <!-- Color Palette Section (Only when Arms Mode is OFF) -->
+            <div class="section" *ngIf="!enableArmsMode">
                 <h2 class="section-title">Colors</h2>
                 <div class="colors-grid" *ngFor="let preset of presetService.presets">
-                    <div class="color-circle" 
-                         *ngFor="let color of preset.colors"
+                    <div class="color-circle" *ngFor="let color of preset.colors" 
                          [ngStyle]="{
-                             'background-color': color.getHexCode(), 
+                             'background-color': color.getHexCode(),
                              'border': this.currentValue.activeColor == color.getHexCode() ? '3px solid lightgray' : 'none'
                          }">
                     </div>
@@ -25,12 +34,7 @@
                 <div class="section speed-section">
                     <h2 class="section-title speed-label">Speed</h2>
                     <div class="range-slider">
-                        <ion-range 
-                            [min]="0" 
-                            [max]="100" 
-                            [step]="1" 
-                            [pin]="true" 
-                            [snaps]="true"
+                        <ion-range [min]="0" [max]="100" [step]="1" [pin]="true" [snaps]="true"
                             [(ngModel)]="currentValue.speedPercent" 
                             [pinFormatter]="formatPercentPin"
                             (ionChange)="onSpeedChanged()" 
@@ -49,54 +53,110 @@
 
             <div class="divider"></div>
 
+            <!-- Brightness Slider Section (Only when Arms Mode is ON) -->
+            <div class="section" *ngIf="enableArmsMode">
+                <div class="section brightness-section">
+                    <h2 class="section-title speed-label">Brightness</h2>
+                    <div class="range-slider">
+                        <ion-range [min]="0" [max]="100" [step]="1" [pin]="true" [snaps]="true"
+                            [(ngModel)]="currentValue.brightnessPercent" 
+                            [pinFormatter]="formatPercentPin"
+                            (ionChange)="onBrightnessChanged()" 
+                            [ngStyle]="{
+                                'padding': '0px',
+                                'marginTop': '30px'
+                            }">
+                        </ion-range>
+                        <div class="speed-description">
+                            <span class="speed-label-left">Dim</span>
+                            <span class="speed-label-right">Bright</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
             <!-- Animation Effects Section -->
             <div class="section">
                 <div class="section animation-section" *ngIf="!currentValue.presetStatus">
                     <h2 class="section-title">Animation effect</h2>
-                    <div class="buttons-grid">
+
+                    <!-- Arms Mode Animation Buttons -->
+                    <div class="buttons-grid" *ngIf="enableArmsMode">
                         <div class="lyt-c-action-buttons">
-                            <button type="button" 
-                                    class="lyt-btn lyt-btn--success lyt-btn--lg" 
-                                    [ngClass]="{ 'selected': this.currentValue.animation == 'patagonian' }" 
-                                    (click)="changeAnimation('patagonian')">
+
+                            <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg"
+                                [ngClass]="{ 'selected': this.currentValue.animation == 'patagonian' }"
+                                (click)="changeAnimation('patagonian')">
                                 Patagonian
                             </button>
 
-                            <button type="button" 
-                                    class="lyt-btn lyt-btn--success lyt-btn--lg" 
-                                    [ngClass]="{ 'selected': this.currentValue.animation == 'kalahari' }" 
-                                    (click)="changeAnimation('kalahari')">
+                            <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg"
+                                [ngClass]="{ 'selected': this.currentValue.animation == 'kalahari' }"
+                                (click)="changeAnimation('kalahari')">
                                 Kalahari
                             </button>
 
-                            <button type="button" 
-                                    class="lyt-btn lyt-btn--success lyt-btn--lg" 
-                                    [ngClass]="{ 'selected': this.currentValue.animation == 'chalbi' }" 
-                                    (click)="changeAnimation('chalbi')">
+                            <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg"
+                                [ngClass]="{ 'selected': this.currentValue.animation == 'chalbi' }"
+                                (click)="changeAnimation('chalbi')">
                                 Chalbi
                             </button>
 
-                            <button type="button" 
-                                    class="lyt-btn lyt-btn--success lyt-btn--lg" 
-                                    [ngClass]="{ 'selected': this.currentValue.animation == 'thar' }" 
-                                    (click)="changeAnimation('thar')">
+                            <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg"
+                                [ngClass]="{ 'selected': this.currentValue.animation == 'thar' }"
+                                (click)="changeAnimation('thar')">
                                 Thar
                             </button>
+
                         </div>
                     </div>
+
+                    <!-- Color Mode Animation Buttons -->
+                    <div class="buttons-grid" *ngIf="!enableArmsMode">
+                        <div class="lyt-c-action-buttons">
+
+                            <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg"
+                                [ngClass]="{ 'selected': this.currentValue.animation == 'pulse' }"
+                                (click)="changeAnimation('pulse')">
+                                Pulse
+                            </button>
+
+                            <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg"
+                                [ngClass]="{ 'selected': this.currentValue.animation == 'wave' }"
+                                (click)="changeAnimation('wave')">
+                                Wave
+                            </button>
+
+                            <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg"
+                                [ngClass]="{ 'selected': this.currentValue.animation == 'strobe' }"
+                                (click)="changeAnimation('strobe')">
+                                Strobe
+                            </button>
+
+                            <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg"
+                                [ngClass]="{ 'selected': this.currentValue.animation == 'mix' }"
+                                (click)="changeAnimation('mix')">
+                                Mix
+                            </button>
+
+                        </div>
+                    </div>
+
                 </div>
 
                 <!-- Cancel Button - Only when preset is active -->
                 <div *ngIf="currentValue.presetStatus" class="lyt-c-preset-cancel">
                     <h2 class="lyt-c-heading">Preset Activated</h2>
                     <div class="lyt-c-action-buttons">
-                        <button type="button" 
-                                class="lyt-btn lyt-btn--success lyt-btn--lg" 
-                                (click)="deactivatePreset()">
+                        <button type="button" class="lyt-btn lyt-btn--success lyt-btn--lg" 
+                            (click)="deactivatePreset()">
                             {{ 'common.cancel' | translate }}
                         </button>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>

@@ -16,6 +16,7 @@ import { Color } from '../../../shared/components/color-wheel/color';
 export function computeMultiArmPresetFrame(
   preset: string,
   baseColor: Color,
+  brightness: number,
   t: number,
   elapsedMs: number,
   durationMs: number
@@ -23,6 +24,10 @@ export function computeMultiArmPresetFrame(
   const armsCount = 4;
   // helper to default-fill
   const fillBase = (c: Color) => [c, c, c, c];
+
+  // helper to update the brightness
+  const scale = brightness / 100
+  const scaleBrightness = (v: number) => scale * v;
 
   // Small helpers for reuse
   const clampColor = (c: Color) => new Color(Math.max(0, Math.min(255, Math.round(c.r))), Math.max(0, Math.min(255, Math.round(c.g))), Math.max(0, Math.min(255, Math.round(c.b))));
@@ -34,19 +39,19 @@ export function computeMultiArmPresetFrame(
       const r = Math.round((Math.sin(2 * Math.PI * (t * speedFactor) + 0) * 0.5 + 0.5) * 255);
       const g = Math.round((Math.sin(2 * Math.PI * (t * speedFactor) + 2) * 0.5 + 0.5) * 255);
       const b = Math.round((Math.sin(2 * Math.PI * (t * speedFactor) + 4) * 0.5 + 0.5) * 255);
-      const c = clampColor(new Color(r, g, b));
+      const c = clampColor(new Color(scaleBrightness(r), scaleBrightness(g), scaleBrightness(b)));
       return [c, c, c, c];
     }
 
     case 'patagonian': {
       // Four-phase within cycle
       const phase = Math.floor(t * 4);
-      const purple = new Color(128, 0, 128);
-      const red = new Color(255, 0, 0);
-      const darkBlue = new Color(0, 0, 80);
-      const aqua = new Color(0, 180, 180);
-      const green = new Color(0, 255, 0);
-      const blackLightPurple = new Color(70, 20, 90);
+      const purple = new Color(scaleBrightness(128), 0, scaleBrightness(128));
+      const red = new Color(scaleBrightness(255), 0, 0);
+      const darkBlue = new Color(0, 0, scaleBrightness(80));
+      const aqua = new Color(0, scaleBrightness(180), scaleBrightness(180));
+      const green = new Color(0, scaleBrightness(255), 0);
+      const blackLightPurple = new Color(scaleBrightness(70), scaleBrightness(20), scaleBrightness(90));
 
       let bg = purple, chase = red;
       if (phase === 0) { bg = purple; chase = red; }
@@ -65,8 +70,8 @@ export function computeMultiArmPresetFrame(
 
     case 'chalbi': {
       const phase = Math.floor(t * 2);
-      const blue = new Color(0, 50, 255);
-      const yellow = new Color(255, 220, 0);
+      const blue = new Color(0, scaleBrightness(50), scaleBrightness(255));
+      const yellow = new Color(scaleBrightness(255), scaleBrightness(220), 0);
       const bg = phase === 0 ? blue : yellow;
       const chase = phase === 0 ? yellow : blue;
       const stepsPerPhase = 16;
@@ -79,9 +84,9 @@ export function computeMultiArmPresetFrame(
 
     case 'thar': {
       const combos: Color[][] = [
-        [new Color(0, 0, 255), new Color(255, 0, 0)],   // Blue & Red
-        [new Color(0, 255, 0), new Color(128, 0, 128)], // Green & Purple
-        [new Color(255, 0, 0), new Color(255, 200, 0)], // Red & Yellow
+        [new Color(0, 0, scaleBrightness(255)), new Color(scaleBrightness(255), 0, 0)],   // Blue & Red
+        [new Color(0, scaleBrightness(255), 0), new Color(scaleBrightness(128), 0, scaleBrightness(128))], // Green & Purple
+        [new Color(scaleBrightness(255), 0, 0), new Color(scaleBrightness(255), scaleBrightness(200), 0)], // Red & Yellow
       ];
       const comboIndex = Math.floor(t * combos.length) % combos.length;
       const combo = combos[comboIndex];

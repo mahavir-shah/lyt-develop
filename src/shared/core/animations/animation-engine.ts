@@ -86,6 +86,7 @@ export class AnimationEngine {
     preset: string,
     baseColor: Color,
     durationMs: number,
+    brightness: number,
     onFrame?: (arms: Color[]) => void
   ) {
     if (this.isAnimating) this.stop(true);
@@ -107,7 +108,7 @@ export class AnimationEngine {
       const t = Math.min(1, elapsed / durationMs);
 
       // Build per-arm colors using pure preset logic
-      const arms = computeMultiArmPresetFrame(preset, baseColor, t, elapsed, durationMs);
+      const arms = computeMultiArmPresetFrame(preset, baseColor, brightness, t, elapsed, durationMs);
 
       // optional UI callback
       try { if (onFrame) onFrame(arms); } catch (e) { console.warn('[ANIM] onFrame error', e); }

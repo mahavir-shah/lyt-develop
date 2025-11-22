@@ -175,3 +175,19 @@ ion-alert {
     padding-bottom: max(20px, env(safe-area-inset-bottom)) !important;
   }
 }
+
+ion-toggle {
+  --handle-width: 14px;
+  --handle-height: 14px;
+  --bar-height: 12px;
+  transform: scale(0.85) scaleY(0.9);
+  margin-left: 16px;
+
+  /* Unchecked state */
+  --track-background: #5a5959; /* Light gray track when unchecked */
+  --handle-background: #fff; /* White handle when unchecked */
+
+  /* Checked state */
+  --track-background-checked: #8EC140; /* Green track when checked */
+  --handle-background-checked: #fff; /* White handle when checked */
+}

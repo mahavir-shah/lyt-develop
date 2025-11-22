@@ -45,7 +45,8 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     presetStatus: false,
     animation: null,
     activeColor: null,
-    speed: 1000
+    speed: 1000,
+    brightness: 100
   };
 
   private presetSubscription?: Subscription;
@@ -55,6 +56,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
   private animationEngine!: AnimationEngine;
 
   private backButtonSubscription?: Subscription;
+  private brightnessSubscription?: Subscription;
 
   constructor(
     public devicesService: DevicesService,
@@ -73,6 +75,12 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     this.bleWriter = new BleWriter(this.connectedDevice, this.isiOS);
     this.animationEngine = new AnimationEngine(this.bleWriter);
 
+    this.brightnessSubscription = this.presetService.brightnessSelected$.subscribe(
+      async (value: number | null) => {
+        this.currentValue.brightness = value
+      }
+    );
+
     this.presetSubscription = this.presetService.presetSelected$.subscribe(async (payload: PresetEmitPayload) => {
       // Stop any existing rotation/animation first
       await this.stopAll(true);
@@ -89,7 +97,8 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
         if (['patagonian', 'kalahari', 'chalbi', 'thar'].includes(anim)) {
           // multi-arm preset
           this.bleWriter.setBleWriteInterval(this.currentValue.speed);
-          this.animationEngine.startMultiArm(anim, payload.colors[0], this.currentValue.speed, (arms) => {
+          this.animationEngine.startMultiArm(anim, payload.colors[0], this.currentValue.speed, 
+            this.currentValue.brightness, (arms) => {
             // update UI preview with arms[0]
             if (this.bottomColorCircle && arms && arms.length) {
               this.bottomColorCircle.style.backgroundColor = arms[0].getHexCode();
@@ -189,7 +198,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnDestroy() {
     this.stopAll(true);
-
+    if (this.brightnessSubscription) this.brightnessSubscription.unsubscribe();
     if (this.backButtonSubscription) this.backButtonSubscription.unsubscribe();
     if (this.presetSubscription) this.presetSubscription.unsubscribe();
   }
