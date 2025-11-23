@@ -117,7 +117,24 @@ export class BleWriter {
       const callAt = performance.now();
       console.log('[BLE WRITER][iOS] starting ARMS write at', callAt.toFixed(2), 'arms=', arms.map(a => a.getHexCode()).join(', '));
       const startWrite = performance.now();
-      return this.device.writeAllArmsColor(arms).then(() => {
+      /*return this.device.writeAllArmsColor(arms).then(() => {
+        const ackAt = performance.now();
+        const duration = ackAt - startWrite;
+        // ADAPTIVE RATE UPDATE
+        this.tuneIOSWriteRate(duration);
+        const dur = (ackAt - startWrite).toFixed(1);
+        console.log('[BLE WRITER][iOS] ARMS ACK at', ackAt.toFixed(2), `dur=${dur}ms`);
+        this.lastBleWriteAt = ackAt;
+        return new Promise<void>(res => setTimeout(res, 25));
+      }).catch(err => {
+        console.warn('[BLE WRITER][iOS] ARMS write failed', err);
+        throw err;
+      });*/
+      return Promise.race([
+        this.device.writeAllArmsColor(arms),
+        new Promise<void>(res => setTimeout(res, 25))
+      ]).
+        then(() => {
         const ackAt = performance.now();
         const duration = ackAt - startWrite;
         // ADAPTIVE RATE UPDATE
@@ -143,5 +160,11 @@ export class BleWriter {
       return true;
     }
     return false;
+  }
+
+  public updateQueueStatus(value:boolean): void {
+    if(this.isiOS) {
+      this.queueCanceled = value;
+    }
   }
 }

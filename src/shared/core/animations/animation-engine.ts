@@ -97,7 +97,7 @@ export class AnimationEngine {
     this.isAnimating = true;
     this.currentBrightness = brightness;
     console.log('[ANIM] startMultiArm preset=', preset, 'duration=', durationMs, 'brightness=', brightness);
-
+    this.bleWriter.updateQueueStatus(false);  //  Reset the queue status so that animation engine can write in case of iOS
     let start = performance.now();
     let elapsed = 0;
 
