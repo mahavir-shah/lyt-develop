@@ -83,6 +83,15 @@ export class PresetsPage implements OnInit, OnDestroy {
     }
     // persist slider state
     this.deviceService.currentPresetValue = this.currentValue;
+    if(this.currentValue.presetStatus) {
+      // if no restore color, send a null activeColor signal to clear highlight
+      this.presetService.emitPreset({
+        animation: null,
+        speed: null,
+        iosCancel: this.isIOS ? true : false,
+        brightness: null
+      });
+    }
   }
 
   onArmsModeChanged() {
@@ -259,8 +268,8 @@ export class PresetsPage implements OnInit, OnDestroy {
   }
 
   private mapSpeedToDurationColorMode(percent: number): number {
-    const min = 350;   // 350 ms
-    const max = 2350;  // 2350 ms
+    const min = 400;   // 350 ms
+    const max = 2400;  // 2350 ms
     return min + (max - min) * (100 - percent) / 100;
   }
 

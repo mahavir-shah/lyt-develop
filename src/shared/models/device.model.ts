@@ -177,7 +177,8 @@ export class Device extends BaseModel {
     const bb = Math.max(0, Math.min(255, Math.round(b)));
 
     const data = new Uint8Array([rr, gg, bb, 0, 0]);
-    console.log('[iOS BLE] writeRGBColor CALLED at', performance.now().toFixed(2));
+    const start:number = performance.now();
+    console.log('[iOS BLE] writeRGBColor CALLED at', start);
     try {
       await BleClient.write(
         this.device.deviceId,
@@ -185,6 +186,9 @@ export class Device extends BaseModel {
         CHARACTERISTIC_UUID.COLOR,
         new DataView(data.buffer)
       );
+      const end = performance.now();
+      console.log('[iOS BLE] writeRGBColor Completed at', end);
+      console.log('[iOS BLE] writeRGBColor Time taken - ', (end-start));
     } catch (err) {
       console.warn('BLE writeColor error:', err);
     }

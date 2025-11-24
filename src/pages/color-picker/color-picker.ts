@@ -114,7 +114,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
         try { this.bleWriter.setBleWriteInterval && this.bleWriter.setBleWriteInterval(this.currentValue.speed); } catch (_) { }
 
         if (['patagonian', 'kalahari', 'chalbi', 'thar'].includes(anim)) {
-          // multi-arm preset using AnimationEngine
+          // multi-arm preset using AnimationEngine 
           this.animationEngine.startMultiArm(
             anim,
             payload.colors[0],
@@ -130,9 +130,13 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
             }
           );
         } else {
-          // single-strip existing effects (pulse/wave/strobe/mix) via AnimationEngine
-          this.ensureNoDoubleRotation();
-          this.startColorRotation(payload.colors, payload.animation, this.currentValue.speed);
+          if (!this.isiOS) {
+            // single-strip existing effects (pulse/wave/strobe/mix) via AnimationEngine
+            this.ensureNoDoubleRotation();
+            this.startColorRotation(payload.colors, payload.animation, this.currentValue.speed);
+          } else {
+            this.startRotation(payload.colors, payload.animation, this.currentValue.speed);
+          }
         }
 
         return;
@@ -220,6 +224,7 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     try {
       this.stopColorRotation();
       this.animationEngine.stop(hard);
+      this.stopAllRotation(hard)
     } catch (e) {
       console.warn('[MASTER] animationEngine stop error', e);
     }
@@ -254,6 +259,11 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
 
     const rotate = () => {
       if (!this.isRotating) return;
+
+      if(this.bleWriter && (this.bleWriter as any).isiOS) {
+        this.bleWriter.stopAllWrites(true);
+        this.bleWriter.updateQueueStatus(false);
+      }
 
       const baseColor = this.rotationColors[this.rotationIndex % this.rotationColors.length];
       // record when this color slot started
@@ -525,5 +535,217 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     // schedule next rotation using updated speed
     if (this.rotationTimeout) clearTimeout(this.rotationTimeout);
     this.rotationTimeout = setTimeout(() => this.advanceRotationOnce(), this.currentValue.speed);
+  }
+
+  // ------------------------ Rotation orchestration ------------------------
+  // NEW: Track if we're actively animating
+  private isAnimating = false;
+  private queueCanceled = false;   // <-- NEW FLAG
+  // rotation/animation control
+  private rotationAbortController: AbortController | null = null;
+  private cycleAbortController: AbortController | null = null;
+
+  private lastBleWriteAt = 0;
+  private bleWriteInterval = 50;
+  // RAF / timeout IDs to ensure complete cleanup
+  private rafId: number | null = null;
+  private fallbackTimeoutId: any = null;
+
+  private writeQueue: Promise<void> = Promise.resolve();
+
+  private startRotation(colors: Color[], animation: string, speedMs: number) {
+    // Each color animates for the FULL speed duration
+    // Total cycle time = colors.length × speedMs
+    // Example: 15 colors × 1000ms = 15 seconds for full cycle
+    const perColorDuration = Math.max(50, Math.round(speedMs));
+
+    this.rotationAbortController = new AbortController();
+    const signal = this.rotationAbortController.signal;
+
+    this.setBleWriteRate(perColorDuration);
+    this.isAnimating = true;
+    this.queueCanceled = false;
+
+    (async () => {
+      let idx = 0;
+      while (!signal.aborted && this.isAnimating) {
+        const base = colors[idx % colors.length];
+
+        // Update UI to highlight current color (shows in presets.html)
+        this.presetService.updateActiveColor(base.getHexCode());
+        this.currentValue.activeColor = base.getHexCode();
+
+        if (this.cycleAbortController) {
+          try { this.cycleAbortController.abort(); } catch (_) { }
+          this.cycleAbortController = null;
+        }
+
+        this.cycleAbortController = new AbortController();
+
+        try {
+          // Run selected animation (pulse/wave/strobe/mix) on LED
+          // for this color for the full speed duration
+          await this.runSingleCycle(
+            animation as 'pulse' | 'wave' | 'strobe' | 'mix',
+            base,
+            perColorDuration,
+            this.cycleAbortController.signal
+          );
+        } catch (err) {
+          if ((err as any)?.name === 'AbortError') break;
+          console.warn('Cycle error', err);
+        } finally {
+          this.cycleAbortController = null;
+        }
+
+        // Move to next color
+        idx++;
+      }
+
+      this.isAnimating = false;
+      await this.stopAll(true);
+    })();
+  }
+
+  private setBleWriteRate(duration: number) {
+    if (this.isiOS) {
+      this.bleWriteInterval = 400;
+      return;
+    }
+
+    if (duration <= 300) this.bleWriteInterval = 30;
+    else if (duration <= 600) this.bleWriteInterval = 40;
+    else if (duration <= 1200) this.bleWriteInterval = 50;
+    else this.bleWriteInterval = 80;
+  }
+
+  private runSingleCycle(
+    effect: 'pulse' | 'wave' | 'strobe' | 'mix',
+    baseColor: Color,
+    durationMs: number,
+    abortSignal: AbortSignal
+  ): Promise<void> {
+    // Animates ONE color on the LED using the selected effect
+    // for the specified duration (e.g., 1000ms)
+    // 
+    // During this time:
+    // - UI shows this color highlighted (handled by startRotation)
+    // - LED displays the animation effect (pulse/wave/strobe/mix)
+    // - Color values transition based on the effect's math
+
+    return new Promise<void>((resolve, reject) => {
+      const start = performance.now();
+
+      const step = () => {
+        // CRITICAL: Check abort signal AND isAnimating flag
+        if (abortSignal.aborted || !this.isAnimating) {
+          this.clearTimers();
+          reject(new DOMException('Aborted', 'AbortError'));
+          return;
+        }
+
+        const now = performance.now();
+        const elapsed = now - start;
+        const t = Math.min(1, elapsed / durationMs); // Progress: 0.0 to 1.0
+
+        // Calculate color for current frame based on animation effect
+        const frameColor = this.animationEngine.computeAnimationColor(effect, baseColor, t);
+
+        // Update UI preview (bottom circle in color-picker.html)
+        if (this.bottomColorCircle) {
+          try {
+            this.bottomColorCircle.style.backgroundColor = frameColor.getHexCode();
+          } catch (_) { }
+        }
+
+        // Throttle BLE writes to avoid overwhelming device
+        if (now - this.lastBleWriteAt >= this.bleWriteInterval) {
+          this.lastBleWriteAt = now;
+          this.enqueueBleWrite(frameColor.r, frameColor.g, frameColor.b);
+        }
+
+        // Check if cycle complete
+        if (elapsed >= durationMs) {
+          this.clearTimers();
+          resolve();
+          return;
+        }
+        // Schedule next frame (60fps via RAF)
+        if (this.isiOS) {
+          this.fallbackTimeoutId = setTimeout(step, this.bleWriteInterval);
+        } else {
+          this.rafId = requestAnimationFrame(step);
+        }
+      };
+
+      // Start animation
+      if (typeof requestAnimationFrame === 'function') {
+        this.rafId = requestAnimationFrame(step);
+      } else {
+        this.fallbackTimeoutId = setTimeout(step, 16);
+      }
+    });
+  }
+
+  private clearTimers() {
+    if (this.rafId != null) cancelAnimationFrame(this.rafId);
+    this.rafId = null;
+
+    if (this.fallbackTimeoutId != null) clearTimeout(this.fallbackTimeoutId);
+    this.fallbackTimeoutId = null;
+  }
+
+  private enqueueBleWrite(r: number, g: number, b: number): Promise<void> {
+    if (!this.isiOS) {
+      return this.connectedDevice.writeRGBColorWithoutResponse(r, g, b);
+    }
+
+    if (this.queueCanceled) {
+      return Promise.resolve();   // <-- HARD CANCEL: ignore all queued writes
+    }
+
+    this.writeQueue = this.writeQueue.then(() => {
+
+      if (this.queueCanceled) return Promise.resolve();   // HARD CANCEL: ignore writes
+
+      return this.connectedDevice.writeRGBColor(r, g, b)
+        .then(() => new Promise(res => setTimeout(res, 25)));
+    });
+
+    return this.writeQueue;
+  }
+
+  private async stopAllRotation(hard: boolean = false) {
+    this.isAnimating = false;
+
+    if (this.rotationAbortController) {
+      try { this.rotationAbortController.abort(); } catch (_) { }
+      this.rotationAbortController = null;
+    }
+
+    if (this.cycleAbortController) {
+      try { this.cycleAbortController.abort(); } catch (_) { }
+      this.cycleAbortController = null;
+    }
+
+    this.clearTimers();
+
+    if (hard && this.isiOS) {
+      /** HARD CANCEL FIX:
+       * Cancel all queued writes IMMEDIATELY — do not wait for BLE to finish.
+       */
+      this.queueCanceled = true;
+      this.writeQueue = Promise.resolve();
+    }
+
+    this.lastBleWriteAt = 0;
+    this.currentValue.presetStatus = false;
+    this.currentValue.animation = null;
+    this.currentValue.activeColor = null;
+
+    this.presetService.updateActiveColor(null);
+
+    // minimal tick
+    await new Promise(res => setTimeout(res, 10));
   }
 }

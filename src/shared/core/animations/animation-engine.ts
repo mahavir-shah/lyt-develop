@@ -33,7 +33,11 @@ export class AnimationEngine {
     if (this.isAnimating) this.stop(true);
     this.isAnimating = true;
     console.log('[ANIM] startSingleStrip effect=', effect, 'duration=', durationMs);
-
+    if((this.bleWriter as any).isiOS) {
+      this.bleWriter.stopAllWrites(true);
+      this.bleWriter.updateQueueStatus(false);  
+    }
+    
     // set the dynamic duration (can be updated later)
     this.currentDurationMs = durationMs;
 
@@ -52,7 +56,7 @@ export class AnimationEngine {
       const frameColor = this.computeAnimationColor(effect, baseColor, t);
 
       // optional callback for UI
-      try { if (onFrame) onFrame(baseColor); } catch (e) { console.warn('[ANIM] onFrame error', e); }
+      try { if (onFrame) onFrame(frameColor); } catch (e) { console.warn('[ANIM] onFrame error', e); }
 
       // Throttle writes via bleWriter.canAttemptWrite + bleWriter.writeRGB
       if (this.bleWriter.canAttemptWrite()) {
@@ -195,7 +199,7 @@ export class AnimationEngine {
   // ===================================================================
   // Animation math (unchanged)
   // ===================================================================
-  private computeAnimationColor(effect: SingleEffect, base: Color, t: number): Color {
+  public computeAnimationColor(effect: SingleEffect, base: Color, t: number): Color {
     switch (effect) {
       case 'pulse': return this.pulseColor(base, t);
       case 'wave': return this.waveColor(base, t);
