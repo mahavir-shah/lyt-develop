@@ -93,6 +93,8 @@
 .main-class-header{
   display: flex;
   align-items: center;
+}
+.mt-20{
   margin-top: 20px;
 }
 .lyt-c-toolbar__right {
@@ -100,4 +102,8 @@
 }
 .back-btn {
   display: block;
+}
+.preset-alignment {
+  z-index: 9999;
+  position: absolute;
 }

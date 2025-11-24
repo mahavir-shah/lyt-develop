@@ -32,6 +32,7 @@ export class LytNavbar implements OnInit, OnChanges, OnDestroy {
   @Input() customClass: string = '';
   @Input() customButtonTitle: string = '';
   @Input() showCustomButton: boolean = false;
+  @Input() isRightSideEmpty: boolean = false;
 
   @Output() onCustomButtonClick = new EventEmitter<void>();
   @Output() onBackButtonClick = new EventEmitter<void>();
@@ -40,10 +41,11 @@ export class LytNavbar implements OnInit, OnChanges, OnDestroy {
 
   constructor(
     private navCtrl: NavController, 
-    private platform: Platform,
+    public platform: Platform,
     private location: Location,
     private router: Router,
     private urlTrackingService: UrlTrackingService
+    
   ) {}
 
   ngOnInit() {

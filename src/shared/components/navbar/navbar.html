@@ -1,8 +1,14 @@
 <ion-header [translucent]="true">
     <ion-toolbar class="lyt-c-toolbar navbar-header" [ngClass]="customClass">
         <!-- Left Section -->
-        <div class="main-class-header">
-            <div slot="start" class="lyt-c-toolbar__left">
+        <div 
+            class="main-class-header"
+            [ngClass]="{ 'mt-20': platform.is('android') }"
+        >
+            <div 
+                slot="start" 
+                class="lyt-c-toolbar__left"
+                [ngClass]="{'preset-alignment': isRightSideEmpty}">
                 <svg *ngIf="hideBackButton && showLogo" 
                     class="lyt-c-logo" 
                     xmlns="http://www.w3.org/2000/svg" 
