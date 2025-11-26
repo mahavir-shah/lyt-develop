@@ -51,143 +51,363 @@
 .d-none {
     display: none !important;
 }
+/* ============================================================
+   GLOBAL STYLES - SAFE AREA FIX FOR ALL iOS & ANDROID
+   ============================================================ */
 
-/* FILE: src/global.scss or src/styles.scss */
-
-/* ============================================
-   SAFE AREA INSETS - Android & iOS
-   ============================================ */
+/* ============================================================
+   STEP 1: ROOT CSS VARIABLES - UNIVERSAL
+   ============================================================ */
 
 :root {
-  /* Default values for safe area */
-  --ion-safe-area-top: 0px;
-  --ion-safe-area-bottom: 0px;
-  --ion-safe-area-left: 0px;
-  --ion-safe-area-right: 0px;
+  /* Safe area insets from browser */
+  --ion-safe-area-top: env(safe-area-inset-top, 0px);
+  --ion-safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --ion-safe-area-left: env(safe-area-inset-left, 0px);
+  --ion-safe-area-right: env(safe-area-inset-right, 0px);
+
+  /* Platform defaults */
+  --android-status-bar-height: 24px;
+  --android-nav-bar-height: 48px;
+  --ios-notch-height: 44px;
+
+  /* Spacing system */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  --spacing-2xl: 24px;
+}
+
+/* ============================================================
+   STEP 2: BODY BASE STYLES
+   ============================================================ */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin-top: constant(safe-area-inset-top);
-  margin-top: env(safe-area-inset-top);
-  margin-bottom: constant(safe-area-inset-bottom);
-  margin-bottom: env(safe-area-inset-bottom);
+  /* Apply safe area as margins */
+  margin-top: env(safe-area-inset-top, 0px);
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+  margin-left: env(safe-area-inset-left, 0px);
+  margin-right: env(safe-area-inset-right, 0px);
 }
 
-/* ============================================
-   ION-CONTENT PADDING
-   ============================================ */
+/* ============================================================
+   STEP 3: UNIVERSAL ION-CONTENT PADDING
+   ============================================================ */
 
 ion-content {
-  --padding-bottom: calc(20px + env(safe-area-inset-bottom));
-  --padding-top: calc(20px + env(safe-area-inset-top));
-  --padding-left: calc(20px + env(safe-area-inset-left));
-  --padding-right: calc(20px + env(safe-area-inset-right));
+  /* Top padding - respects notch but minimal */
+  --padding-top: var(--spacing-md);
+  
+  /* Bottom padding - always includes safe area + extra space */
+  --padding-bottom: calc(
+    var(--spacing-xl) + max(0px, env(safe-area-inset-bottom, 0px))
+  );
+  
+  /* Side padding */
+  --padding-left: calc(
+    var(--spacing-md) + max(0px, env(safe-area-inset-left, 0px))
+  );
+  --padding-right: calc(
+    var(--spacing-md) + max(0px, env(safe-area-inset-right, 0px))
+  );
 }
 
-/* ============================================
-   ION-FOOTER / BUTTON BARS
-   ============================================ */
+/* ============================================================
+   STEP 4: ION-HEADER - NO EXTRA PADDING
+   ============================================================ */
+
+ion-header {
+  /* Header handles notch via Ionic internally */
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+ion-toolbar {
+  /* Toolbar base - no extra padding */
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+ion-toolbar:first-child {
+  padding-top: 0;
+}
+
+ion-toolbar:last-child {
+  padding-bottom: 0;
+}
+
+/* ============================================================
+   STEP 5: ION-FOOTER - CRITICAL FOR BOTTOM CUTOFF
+   ============================================================ */
 
 ion-footer {
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: calc(
+    max(0px, env(safe-area-inset-bottom, var(--android-nav-bar-height))) + var(--spacing-sm)
+  );
+  margin-bottom: 0;
+  position: relative;
+  z-index: 999;
 }
 
 ion-tab-bar {
-  padding-bottom: env(safe-area-inset-bottom);
-  padding-bottom: constant(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  margin-bottom: 0;
 }
 
-/* ============================================
-   BUTTON FIX - SAMSUNG BOTTOM CUTOFF
-   ============================================ */
+/* ============================================================
+   STEP 6: BUTTON GROUPS - UNIVERSAL SOLUTION
+   ============================================================ */
 
+.button-group,
+.action-buttons,
+.button-bar,
 .ion-button-container,
-ion-button-bar,
-.button-bar {
-  padding-bottom: calc(16px + env(safe-area-inset-bottom)) !important;
-  margin-bottom: 0 !important;
+ion-button-bar {
+  padding-bottom: calc(
+    var(--spacing-lg) + max(0px, env(safe-area-inset-bottom, var(--android-nav-bar-height)))
+  ) !important;
+  padding-top: var(--spacing-md);
+  padding-left: calc(
+    var(--spacing-md) + max(0px, env(safe-area-inset-left, 0px))
+  );
+  padding-right: calc(
+    var(--spacing-md) + max(0px, env(safe-area-inset-right, 0px))
+  );
+  margin: 0 !important;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }
 
-/* For buttons at the bottom of pages */
-.button-group {
-  padding-bottom: calc(16px + env(safe-area-inset-bottom)) !important;
-  margin-bottom: 0 !important;
+/* Buttons inside groups */
+.button-group ion-button,
+.action-buttons ion-button,
+.button-bar ion-button {
+  margin: 0;
 }
 
-/* Generic button wrapper */
 ion-buttons {
-  padding-bottom: env(safe-area-inset-bottom);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Specific fix for action buttons */
-.action-buttons {
-  padding-bottom: calc(20px + env(safe-area-inset-bottom)) !important;
-  margin-bottom: 0 !important;
+ion-button {
+  margin-bottom: 0;
 }
 
-/* ============================================
-   ION-HEADER - TOP NOTCH
-   ============================================ */
-
-ion-header {
-  padding-top: env(safe-area-inset-top);
-  padding-top: constant(safe-area-inset-top);
-}
-
-/* Toolbar in header */
-ion-toolbar:first-child {
-  padding-top: env(safe-area-inset-top);
-  padding-top: constant(safe-area-inset-top);
-}
-
-/* ============================================
-   MODALS & ALERTS
-   ============================================ */
+/* ============================================================
+   STEP 7: MODALS & ALERTS - SAFE AREA AWARE
+   ============================================================ */
 
 ion-modal {
-  --padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  --padding-bottom: calc(var(--spacing-xl) + env(safe-area-inset-bottom, 0px));
+  --padding-left: var(--spacing-md);
+  --padding-right: var(--spacing-md);
 }
 
 ion-alert {
-  --padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  --padding-bottom: calc(var(--spacing-xl) + env(safe-area-inset-bottom, 0px));
 }
 
-/* ============================================
-   ANDROID SPECIFIC FIX
-   ============================================ */
+/* ============================================================
+   STEP 8: COMPONENT SPECIFIC STYLES
+   ============================================================ */
 
-@supports (padding: max(0px)) {
-  body {
-    padding-left: max(0px, env(safe-area-inset-left));
-    padding-right: max(0px, env(safe-area-inset-right));
-    padding-top: max(0px, env(safe-area-inset-top));
-    padding-bottom: max(0px, env(safe-area-inset-bottom));
+.color-wheel-container {
+  padding-top: var(--spacing-md);
+  padding-left: max(var(--spacing-md), env(safe-area-inset-left, 0px));
+  padding-right: max(var(--spacing-md), env(safe-area-inset-right, 0px));
+  box-sizing: border-box;
+}
+
+#bottom-color-circle {
+  margin-bottom: calc(
+    var(--spacing-xl) + max(0px, env(safe-area-inset-bottom, 0px))
+  );
+}
+
+.fixed-bottom {
+  bottom: env(safe-area-inset-bottom, 0px);
+  left: env(safe-area-inset-left, 0px);
+  right: env(safe-area-inset-right, 0px);
+}
+
+.fixed-top {
+  top: env(safe-area-inset-top, 0px);
+  left: env(safe-area-inset-left, 0px);
+  right: env(safe-area-inset-right, 0px);
+}
+
+/* ============================================================
+   STEP 9: FALLBACK FOR DEVICES WITHOUT env() SUPPORT
+   ============================================================ */
+
+@supports (padding: clamp(0px, 1px, 1px)) {
+  /* Use clamp for better fallback handling */
+  ion-content {
+    --padding-bottom: clamp(
+      var(--spacing-xl),
+      calc(var(--spacing-xl) + env(safe-area-inset-bottom, 0px)),
+      100px
+    );
+  }
+
+  .button-group,
+  .action-buttons {
+    padding-bottom: clamp(
+      var(--spacing-lg),
+      calc(var(--spacing-lg) + env(safe-area-inset-bottom, 0px)),
+      120px
+    ) !important;
+  }
+
+  ion-footer {
+    padding-bottom: clamp(
+      var(--spacing-sm),
+      env(safe-area-inset-bottom, var(--android-nav-bar-height)),
+      100px
+    );
+  }
+}
+
+/* ============================================================
+   STEP 10: RESPONSIVE BY SCREEN HEIGHT
+   ============================================================ */
+
+@media screen and (max-height: 600px) {
+  ion-content {
+    --padding-bottom: calc(var(--spacing-lg) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media screen and (min-height: 600px) and (max-height: 800px) {
+  ion-content {
+    --padding-bottom: calc(var(--spacing-xl) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media screen and (min-height: 800px) {
+  ion-content {
+    --padding-bottom: calc(var(--spacing-2xl) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ============================================================
+   STEP 11: LANDSCAPE MODE
+   ============================================================ */
+
+@media screen and (orientation: landscape) {
+  ion-header {
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+
+  ion-footer {
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
   }
 
   ion-content {
-    --padding-bottom: max(20px, env(safe-area-inset-bottom));
-    --padding-top: max(20px, env(safe-area-inset-top));
-  }
-
-  .action-buttons,
-  .button-group {
-    padding-bottom: max(20px, env(safe-area-inset-bottom)) !important;
+    --padding-left: calc(var(--spacing-md) + env(safe-area-inset-left, 0px));
+    --padding-right: calc(var(--spacing-md) + env(safe-area-inset-right, 0px));
   }
 }
+
+/* ============================================================
+   STEP 12: ANDROID SPECIFIC WORKAROUNDS
+   ============================================================ */
+
+/* Android devices - ensure bottom visibility */
+@supports (-webkit-appearance: none) and (not (border: 1px solid #000)) {
+  body {
+    padding-bottom: max(0px, env(safe-area-inset-bottom, var(--android-nav-bar-height)));
+  }
+
+  .button-group,
+  .action-buttons {
+    padding-bottom: calc(
+      var(--spacing-lg) + max(0px, env(safe-area-inset-bottom, var(--android-nav-bar-height)))
+    ) !important;
+  }
+}
+
+/* ============================================================
+   STEP 13: iOS SPECIFIC - NO DOUBLE PADDING
+   ============================================================ */
+
+/* iOS Safari detection */
+@supports (-webkit-touch-callout: none) {
+  ion-header {
+    padding-top: 0 !important;
+  }
+
+  ion-toolbar:first-child {
+    padding-top: 0 !important;
+  }
+
+  /* iOS notch handling - minimal extra padding */
+  ion-content {
+    --padding-top: var(--spacing-md);
+  }
+
+  /* iOS safe area for notch models */
+  @supports (padding: env(safe-area-inset-top)) {
+    ion-header {
+      padding-top: max(0px, env(safe-area-inset-top, 0px));
+    }
+  }
+}
+
+/* ============================================================
+   STEP 14: ION-TOGGLE STYLING
+   ============================================================ */
 
 ion-toggle {
   --handle-width: 14px;
   --handle-height: 14px;
   --bar-height: 12px;
   transform: scale(0.85) scaleY(0.9);
-  margin-left: 16px;
+  margin-left: var(--spacing-lg);
 
   /* Unchecked state */
-  --track-background: #5a5959; /* Light gray track when unchecked */
-  --handle-background: #fff; /* White handle when unchecked */
+  --track-background: #5a5959;
+  --handle-background: #fff;
 
   /* Checked state */
-  --track-background-checked: #8EC140; /* Green track when checked */
-  --handle-background-checked: #fff; /* White handle when checked */
+  --track-background-checked: #8EC140;
+  --handle-background-checked: #fff;
+}
+
+/* ============================================================
+   STEP 15: UNIVERSAL SAFEGUARDS
+   ============================================================ */
+
+/* Prevent overflow */
+ion-content > * {
+  box-sizing: border-box;
+}
+
+/* Ensure footer always visible */
+ion-footer {
+  visibility: visible !important;
+  overflow: visible !important;
+}
+
+/* Button visibility */
+ion-button {
+  visibility: visible !important;
 }

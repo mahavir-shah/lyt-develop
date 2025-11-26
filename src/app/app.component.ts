@@ -32,6 +32,7 @@ import { LocationDisabledPage } from '../pages/location-disabled/location-disabl
 import { filter } from 'rxjs';
 import { Capacitor } from '@capacitor/core';
 import { App } from '@capacitor/app';
+import { PlatformDetectionService } from 'src/shared/services/platform-detection.service';
 
 @Component({
   selector: 'app-root',
@@ -54,6 +55,7 @@ export class AppComponent {
     private diagnosticService: DiagnosticService,
     private translate: TranslateService,
     private router: Router,
+    private platformDetection: PlatformDetectionService
   ) {
     translate.use('en');
     this.initializeApp();
@@ -143,6 +145,17 @@ export class AppComponent {
 
   private initializeApp() {
     this.platform.ready().then(() => {
+      // Apply platform-specific styles
+      this.platformDetection.applyPlatformStyles();
+      
+      // Log platform info for debugging
+      const info = this.platformDetection.getPlatformInfo();
+      console.log('Platform Info:', info);
+      
+      // Check for known bugs
+      if (this.platformDetection.isAffectedByAndroid13Bug()) {
+        console.warn('⚠️ Device affected by Android 13/14 safe area bug - using workaround');
+      }
       this.platformReady();
     });
   }
