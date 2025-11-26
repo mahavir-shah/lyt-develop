@@ -47,7 +47,7 @@
                     type="email"
                     placeholder="{{ 'common.email' | translate | uppercase }}"
                     (keyup)="update(accountForm, 'email')"
-                    [disabled]="true"
+                    readonly
                     [class.invalid]="validationService.isInvalid(accountForm, 'email', true)"
                 >
                 </ion-input>
