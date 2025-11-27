@@ -205,10 +205,10 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
       const alert = await this.alertController.create({
         header: 'Disconnect Device',
         cssClass: 'custom-color-alert',
-        message: 'Are you sure you want to go back?',
+        message: 'This will disconnect the device. Are you sure you want to disconnect?',
         backdropDismiss: false,
         buttons: [
-          { text: 'Yes', role: 'confirm', handler: () => resolve(true) },
+          { text: 'Disconnect', role: 'confirm', handler: () => resolve(true) },
           { text: 'No', role: 'cancel', handler: () => resolve(false) }
         ]
       });
@@ -418,10 +418,10 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
     const alert = await this.alertController.create({
       header: 'Disconnect Device',
       cssClass: 'custom-color-alert',
-      message: 'Are you want to sure for disconnect device ?',
+      message: 'Are you sure you want to disconnect?',
       buttons: [
         {
-          text: 'Yes',
+          text: 'Disconnect',
           role: 'confirm',
           cssClass: 'primary-button',
           handler: () => { 
