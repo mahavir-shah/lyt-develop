@@ -81,7 +81,10 @@
     "fail": {
       "title": "List of LYT Devices",
       "sorry": "Sorry...",
-      "info": "No LYT devices were detected, please try scanning again."
+      "info": "No LYT devices were detected, please try scanning again.",
+      "disconnect_back_title": "Device Disconnected",
+      "disconnect_back_info_1": "You have been disconnected from your LYT device.",
+      "disconnect_back_info_2": "Click on Scan to search and connect again."
     }
   },
   "connection_in_progress": {

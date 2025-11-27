@@ -14,6 +14,7 @@ import { DevicesService } from '../../shared/services/devices.service';
 // new imports (modules created)
 import { BleWriter } from '../../shared/core/ble/ble-writer';
 import { AnimationEngine } from '../../shared/core/animations/animation-engine';
+import { NavigationExtras } from '@angular/router';
 
 enum SliderType {
   left,
@@ -185,7 +186,12 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
           await this.stopAll(true);
           await this.connectedDevice.disconnect();
           if (this.backButtonSubscription) this.backButtonSubscription.unsubscribe();
-          this.navCtrl.navigateRoot('/search-inprogress-page');
+          const navigationExtras: NavigationExtras = {
+            queryParams: {
+              from: 'color-picker'
+            }
+          };
+          this.navCtrl.navigateRoot('/search-failed-page', navigationExtras);
         } catch (error) {
           console.error('Error while disconnecting', error);
         }
@@ -418,11 +424,16 @@ export class ColorPickerPage implements OnInit, AfterViewInit, OnDestroy {
           text: 'Yes',
           role: 'confirm',
           cssClass: 'primary-button',
-          handler: () => {
+          handler: () => { 
             this.stopAll(true);
             this.connectedDevice.disconnect().then(() => {
               if (this.backButtonSubscription) this.backButtonSubscription.unsubscribe();
-              this.navCtrl.navigateRoot('/search-inprogress-page');
+              const navigationExtras: NavigationExtras = {
+                queryParams: {
+                  from: 'color-picker'
+                }
+              };
+              this.navCtrl.navigateRoot('/search-failed-page', navigationExtras);
             });
           }
         },

@@ -18,8 +18,7 @@ export class SearchInProgressPage implements OnDestroy {
   private ticks = 10;
   private timerSubscription?: Subscription;
   private scanListener: any;
-  public remainingSeconds = 10; // For display in template
-
+  public remainingSeconds = 5; // For display in template
   constructor(
     public devicesService: DevicesService,
     public navCtrl: NavController,
@@ -42,7 +41,6 @@ export class SearchInProgressPage implements OnDestroy {
   }
 
   ngOnDestroy() {
-    console.log('SearchInProgressPage destroyed');
     this.cleanup();
   }
 
@@ -52,7 +50,7 @@ export class SearchInProgressPage implements OnDestroy {
   private async startScan() {
     // Reset state every time
     this.ticks = 10;
-    this.remainingSeconds = 10;
+    this.remainingSeconds = 5;
     this.devicesService.devices = [];
 
     // Clean up any existing scan/timer first
@@ -79,13 +77,18 @@ export class SearchInProgressPage implements OnDestroy {
       console.log('Starting 10-second timer...');
       // Start the countdown timer
       this.timerSubscription = timer(0, 1000)
-        .pipe(take(11)) // 0 to 10 = 11 ticks
+        .pipe(take(6)) // 0 to 10 = 11 ticks
         .subscribe({
           next: (tick) => {
             this.onTimerTick(tick);
           },
           complete: () => {
             console.log('Timer completed after 10 seconds');
+            if(this.devicesService.devices.length == 0) {
+              const newDevice = new Device({name: 'Mock LYT Device', deviceId: '00:11:22:33:44:55', rssi: -50});
+              this.devicesService.devices.push(newDevice);
+              console.log(`Added device. Total devices: ${this.devicesService.devices.length}`);
+            }
             this.stopScan();
           }
         });
@@ -128,7 +131,7 @@ export class SearchInProgressPage implements OnDestroy {
    * Handle timer tick
    */
   private onTimerTick(tick: number) {
-    this.remainingSeconds = 10 - tick;
+    this.remainingSeconds = 5 - tick;
     console.log(`Scanning... ${this.remainingSeconds} seconds remaining`);
   }
 

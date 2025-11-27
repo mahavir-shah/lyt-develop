@@ -7,10 +7,19 @@
     <div class="lyt-c-page-wrapper lyt-c-page-wrapper--has-navbar">
         <div class="lyt-l-cross-app">
             <div class="lyt-l-cross-app__heading">
-                <h2 class="lyt-c-heading lyt-c-heading--no-transform">{{ 'search.fail.sorry' | translate }}</h2>
-                <p class="lyt-c-heading-description">
+                <h2 class="lyt-c-heading lyt-c-heading--no-transform">
+                    {{ from === 'color-picker' ?  ('search.fail.disconnect_back_title' | translate) : ('search.fail.sorry' | translate) }}
+                </h2>
+                <p class="lyt-c-heading-description" *ngIf="from === 'color-picker'">
+                    {{'search.fail.disconnect_back_info_1' | translate }}
+                </p>
+                <p class="lyt-c-heading-description" *ngIf="from === 'color-picker'">
+                    {{'search.fail.disconnect_back_info_2' | translate }}
+                </p>
+                <p class="lyt-c-heading-description" *ngIf="from != 'color-picker'">
                     {{ 'search.fail.info' | translate }}
                 </p>
+
             </div>
             <div class="lyt-l-cross-app__body">
                 <div class="lyt-c-center-element">
